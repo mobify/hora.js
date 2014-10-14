@@ -29,6 +29,7 @@
     * Email me back opened
     * Color adjustments
     * Quantity adjustments
+    * Size adjustments
 
     Tracking TODO:
     * Add to bag (success and failure)
@@ -41,9 +42,9 @@ define([
 ],
     function($) {
         var Wiretap = {};
-
         var carousels = {};
         var swiping = false;
+        var fullCarouselViewEventFired = false;
 
         // Wiretap.orientationChange
         // eg. Wiretap.orientationChange();
@@ -55,8 +56,6 @@ define([
                 Mobify.analytics.ua('mobifyTracker.send', 'event', 'Orientation Change', 'Portrait to Landscape', {'nonInteraction': 1});
             }
         };
-
-        var fullCarouselViewEventFired = false;
 
         // Wiretap.carouselSwipe
         // title = Home, PDP, Related Images
@@ -197,6 +196,10 @@ define([
 
         Wiretap.error = function(title, comment) {
             Mobify.analytics.ua('mobifyTracker.send', 'event', 'Error', title, comment);
+        };
+
+        Wiretap.checkReviews = function(title) {
+            Mobify.analytics.ua('mobifyTracker.send', 'event', title, 'Check Reviews');
         };
 
 
