@@ -84,6 +84,10 @@ define([
         // We then send them through Mobify's analytics call
         // Example: _gaq.push(["_trackEvent", "product selection", "select a size", a(this.options[this.selectedIndex]).text().trim()])
         Wiretap.proxyClassicAnalytics = function() {
+            if (!window._gaq) {
+                return;
+            }
+            
             var originalPush = window._gaq.push;
 
             window._gaq.push = function(data) {
