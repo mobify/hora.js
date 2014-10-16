@@ -30,9 +30,17 @@ Explicit tracking (requires development):
 * Color adjustments
 * Quantity adjustments
 * Size adjustments
+* Reviews checked
+* Sidebar opened/closed
+* Accordion first clicked (item ID)
+* Accordion viewed entirely
+* Accordion items opened more than one at a time or not
+* Add to bag (success and failure)
+* Mini-Cart editing enabled/disabled
+* Mini-Cart item quantity changed
+* Mini-Cart item removed
+* PLP filters toggled
 
 Tracking TODO:
-* Add to bag (success and failure)
 * PLP filter interactions
-* Minicart quantity change
-* Whether bellows is being opened one at a time or multiple without closing previous
+* Changing to different products on Multi-PDP
