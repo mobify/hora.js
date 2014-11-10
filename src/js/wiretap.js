@@ -49,31 +49,30 @@ define([
     '$'
 ],
     function($) {
+        var $window = $(window);
+        var $doc = $(document);
+
         var Wiretap = {};
         var carousels = {};
         var accordions = {};
         var swiping = false;
 
-        // Wiretap.setup
+        // Wiretap.init
         // Initializes Wiretap and sets up implicitly tracked events: Wiretap.orientationChange, Wiretap.scrollToBottom.
-        Wiretap.setup = function() {
+        Wiretap.init = function() {
             // Bind events
-            $(window).on('touchmove', function() {
-                swiping = true;
-            });
-
-            $(window).on('touchend', function() {
-                window.setTimeout(function() {
-                    swiping = false;
-                }, 50);
-            });
-
-            $(window).on('orientationchange', function() {
-                Wiretap.orientationChange();
-            });
-
-            $(window).scroll(function() {
-                if ($(window).scrollTop() + $(window).height() === $(document).height()) {
+            $window
+                .on('touchmove', function() {
+                    swiping = true;
+                })
+                .on('touchend', function() {
+                    window.setTimeout(function() {
+                        swiping = false;
+                    }, 50);
+                })
+                .on('orientationchange', Wiretap.orientationChange)
+                .on('scroll', function() {
+                if ($window.scrollTop() + $window.height() === $doc.height()) {
                     Wiretap.scrollToBottom();
                 }
             });

@@ -49,44 +49,33 @@ define([
     '$'
 ],
     function($) {
+        var $window = $(window);
+        var $doc = $(document);
+
         var Wiretap = {};
         var carousels = {};
         var accordions = {};
         var swiping = false;
 
-        // Wiretap.setup
+        // Wiretap.init
         // Initializes Wiretap and sets up implicitly tracked events: Wiretap.orientationChange, Wiretap.scrollToBottom.
-        Wiretap.setup = function() {
+        Wiretap.init = function() {
             // Bind events
-            $(window).on('touchmove', function() {
-                swiping = true;
-            });
-
-            $(window).on('touchend', function() {
-                window.setTimeout(function() {
-                    swiping = false;
-                }, 50);
-            });
-
-            $(window).on('orientationchange', function() {
-                Wiretap.orientationChange();
-            });
-
-            $(window).scroll(function() {
-                if ($(window).scrollTop() + $(window).height() === $(document).height()) {
+            $window
+                .on('touchmove', function() {
+                    swiping = true;
+                })
+                .on('touchend', function() {
+                    window.setTimeout(function() {
+                        swiping = false;
+                    }, 50);
+                })
+                .on('orientationchange', Wiretap.orientationChange)
+                .on('scroll', function() {
+                if ($window.scrollTop() + $window.height() === $doc.height()) {
                     Wiretap.scrollToBottom();
                 }
             });
-
-            (function patchAlerts() {
-                var _alert = window.alert;
-
-                window.alert = function(message) {
-                    Wiretap.error('Alert', message);
-
-                    _alert(message);
-                };
-            })();
         };
 
         // Wiretap.proxyClassicAnalytics
@@ -125,31 +114,14 @@ define([
         Wiretap.carouselSwipe = function(title, currentSlide) {
             var currentCarousel = carousels[title];
 
-            if (swiping) {
-                if (!currentCarousel.swipes.length) {
-                    Mobify.analytics.ua('mobifyTracker.send', 'event', 'Carousel - ' + title, 'first-swipe', currentSlide + '');
-                }
-                else {
-                    Mobify.analytics.ua('mobifyTracker.send', 'event', 'Carousel - ' + title, 'swipe', currentSlide + '');
-                }
-
-                currentCarousel.swipes.push(currentSlide);
-            }
-            else {
-                if (!currentCarousel.slides.length) {
-                    Mobify.analytics.ua('mobifyTracker.send', 'event', 'Carousel - ' + title, 'first-slide', currentSlide + '');
-                }
-                else {
-                    Mobify.analytics.ua('mobifyTracker.send', 'event', 'Carousel - ' + title, 'slide', currentSlide + '');
-                }
-
-                currentCarousel.slides.push(currentSlide);
+            if (swiping && !currentCarousel.swipes.length) {
+                Mobify.analytics.ua('mobifyTracker.send', 'event', 'Carousel - ' + title, 'first-swipe', currentSlide + '');
             }
 
-            currentCarousel.viewed.push(currentSlide);
+            currentCarousel.swipes.push(currentSlide);
 
             // If the user has swiped as much as there swipes, maybe they've been to every slide?
-            if (!currentCarousel.fullViewFired && currentCarousel.viewed.length >= currentCarousel.totalSlides) {
+            if (!currentCarousel.fullViewFired && currentCarousel.swipes.length >= currentCarousel.totalSlides) {
                 currentCarousel.fullView = true;
 
                 // Iterate the amount of slides,
@@ -157,7 +129,7 @@ define([
                 // But if we find a slide we haven't visited, we bail
                 // Rather than firing the event
                 for (var i = 0, l = currentCarousel.totalSlides; i <= l; ++i) {
-                    if (!currentCarousel.viewed.indexOf(i + 1)) {
+                    if (!currentCarousel.swipes.indexOf(i + 1)) {
                         currentCarousel.fullView = false;
                         break;
                     }
@@ -179,11 +151,7 @@ define([
                     fullView: false,
                     fullViewFired: false,
                     totalSlides: totalSlides,
-                    slides: [],
-                    swipes: [],
-                    zooms: [],
-                    icons: [],
-                    viewed: []
+                    swipes: []
                 };
             }
 
@@ -192,41 +160,17 @@ define([
 
         // Wiretap.carouselZoom
         Wiretap.carouselZoom = function(title, currentSlide) {
-            var currentCarousel = carousels[title];
-
-            if (!currentCarousel.zooms.length) {
-                Mobify.analytics.ua('mobifyTracker.send', 'event', 'Carousel - ' + title, 'first-zoom', currentSlide + '');
-            }
-            
-            currentCarousel.zooms.push(currentSlide);
-
             Mobify.analytics.ua('mobifyTracker.send', 'event', 'Carousel - ' + title, 'zoom', currentSlide + '');
         };
 
         // Wiretap.carouselSlideClick
         Wiretap.carouselSlideClick = function(title, currentSlide) {
-            var currentCarousel = carousels[title];
-
-            if (!currentCarousel.clicks.length) {
-                Mobify.analytics.ua('mobifyTracker.send', 'event', 'Carousel - ' + title, 'first-click', currentSlide + '');
-            }
-            
-            currentCarousel.clicks.push(currentSlide);
-
             Mobify.analytics.ua('mobifyTracker.send', 'event', 'Carousel - ' + title, 'click', currentSlide + '');
         };
 
         // Wiretap.carouselArrowClick
         Wiretap.carouselArrowClick = function(title, currentSlide, direction) {
-            var currentCarousel = carousels[title];
-
-            if (!currentCarousel.icons.length) {
-                Mobify.analytics.ua('mobifyTracker.send', 'event', 'Carousel - ' + title, 'first-icon', currentSlide + '');
-            }
-
-            currentCarousel.icons.push(currentSlide);
-
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Carousel - ' + title, 'icon', currentSlide + '-' + direction);
+            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Carousel - ' + title, 'arrowClick', currentSlide + '-' + direction);
         };
 
         // Wiretap.navigationClick
@@ -265,12 +209,8 @@ define([
             Mobify.analytics.ua('mobifyTracker.send', 'event', 'Pagination', 'interaction', 'OK');
         };
 
-        Wiretap.filtersToggle = function(title) {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Filters: ' + title, 'toggle', 'OK');
-        };
-
-        Wiretap.filtersChange = function(title, type, amount) {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Filters: ' + title, 'Change: ' + type, amount);
+        Wiretap.filtersToggle = function() {
+            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Filters', 'toggle', 'OK');
         };
 
         Wiretap.scrollToBottom = function() {
@@ -318,24 +258,7 @@ define([
         };
 
         Wiretap.cartItemAdded = function() {
-            var fullCarouselView = false;
-
-            for (var title in carousels) {
-                if (carousels.hasOwnProperty(title)) {
-                    var carousel = carousels[title];
-
-                    if (carousel.fullViewFired) {
-                        fullCarouselView = true;
-                    }
-                }
-            }
-
-            if (fullCarouselView) {
-                Mobify.analytics.ua('mobifyTracker.send', 'event', 'Cart', 'item-added-after-full-carousel-view', 'OK');
-            }
-            else {
-                Mobify.analytics.ua('mobifyTracker.send', 'event', 'Cart', 'item-added', 'OK');
-            }
+            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Cart', 'item-added', 'OK');
         };
 
         Wiretap.minicartRemoveItem = function() {
