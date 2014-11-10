@@ -230,8 +230,12 @@ define([
             Wiretap.send('Pagination', 'interaction', 'OK');
         };
 
-        Wiretap.filtersToggle = function() {
-            Wiretap.send('Filters', 'toggle', 'OK');
+        Wiretap.filtersToggle = function(title) {
+            Wiretap.send('Filters: ' + title, 'toggle', 'OK');
+        };
+
+        Wiretap.filtersChange = function(title, type, amount) {
+            Wiretap.send('Filters: ' + title, 'Change: ' + type, amount);
         };
 
         Wiretap.scrollToBottom = function() {
