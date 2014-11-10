@@ -1,53 +1,53 @@
 /* global Mobify */
 /* jslint maxstatements: false */
 /*
-    Wiretap
-    -------
-    A library that assists with tracking user-behavior with custom Google Analytics events
+ Wiretap
+ -------
+ A library that assists with tracking user-behavior with custom Google Analytics events
 
-    Implicit tracking:
-    * Re-orientation (landscape to portrait and visa-versa)
-    * Page fully scrolled to bottom
+ Implicit tracking:
+ * Re-orientation (landscape to portrait and visa-versa)
+ * Page fully scrolled to bottom
 
-    Explicit tracking (requires development):
-    * Carousel first swipe (slide ID)
-    * Carousel viewed entirely
-    * Carousel slide clicked
-    * Carousel arrow control clicked
-    * Carousel loaded
-    * Carousel slide zoomed
-    * Sidebar navigation item clicked (up to 3 levels deep)
-    * Header search toggled
-    * Header minicart toggled
-    * Breadcrumb interacted with
-    * Back to top clicked
-    * Newsletter interacted with
-    * Footer interacted with
-    * Pagination interacted with
-    * Size guide opened
-    * Email to friend opened
-    * Email me back opened
-    * Color adjustments
-    * Quantity adjustments
-    * Size adjustments
-    * Reviews checked
-    * Sidebar opened/closed
-    * Accordion first clicked (item ID)
-    * Accordion viewed entirely
-    * Accordion items opened more than one at a time or not
-    * Add to bag (success and failure)
-    * Mini-Cart editing enabled/disabled
-    * Mini-Cart item quantity changed
-    * Mini-Cart item removed
-    * PLP filters toggled
+ Explicit tracking (requires development):
+ * Carousel first swipe (slide ID)
+ * Carousel viewed entirely
+ * Carousel slide clicked
+ * Carousel arrow control clicked
+ * Carousel loaded
+ * Carousel slide zoomed
+ * Sidebar navigation item clicked (up to 3 levels deep)
+ * Header search toggled
+ * Header minicart toggled
+ * Breadcrumb interacted with
+ * Back to top clicked
+ * Newsletter interacted with
+ * Footer interacted with
+ * Pagination interacted with
+ * Size guide opened
+ * Email to friend opened
+ * Email me back opened
+ * Color adjustments
+ * Quantity adjustments
+ * Size adjustments
+ * Reviews checked
+ * Sidebar opened/closed
+ * Accordion first clicked (item ID)
+ * Accordion viewed entirely
+ * Accordion items opened more than one at a time or not
+ * Add to bag (success and failure)
+ * Mini-Cart editing enabled/disabled
+ * Mini-Cart item quantity changed
+ * Mini-Cart item removed
+ * PLP filters toggled
 
-    Tracking TODO:
-    * PLP filter interactions
-    * Changing to different products on Multi-PDP
-*/
+ Tracking TODO:
+ * PLP filter interactions
+ * Changing to different products on Multi-PDP
+ */
 define([
-    '$'
-],
+        '$'
+    ],
     function($) {
         var $window = $(window);
         var $doc = $(document);
@@ -75,10 +75,10 @@ define([
                 })
                 .on('orientationchange', Wiretap.orientationChange)
                 .on('scroll', function() {
-                if ($window.scrollTop() + $window.height() === $doc.height()) {
-                    Wiretap.scrollToBottom();
-                }
-            });
+                    if ($window.scrollTop() + $window.height() === $doc.height()) {
+                        Wiretap.scrollToBottom();
+                    }
+                });
         };
 
         Wiretap.send = function() {
@@ -86,7 +86,7 @@ define([
 
             args.unshift('mobifyTracker.send', 'event');
 
-            Mobify.analytics.ua.apply(args);
+            Mobify.analytics.ua.apply(null, args);
         };
 
         // Wiretap.proxyClassicAnalytics
@@ -115,70 +115,73 @@ define([
             Wiretap.send('Orientation Change', data, NON_INTERACTION);
         };
 
-        // Wiretap.carouselSwipe
-        // title = Home, PDP, Related Images
-        // currentSlide = 1, 2, 3, 4, 5, 6
-        // eg. Wiretap.carouselSwipe('PDP', 1);
-        Wiretap.carouselSwipe = function(title, currentSlide) {
-            var currentCarousel = _carousels[title];
+        Wiretap.carousel = {
 
-            if (_swiping && !currentCarousel.swipes.length) {
-                Wiretap.send('Carousel - ' + title, 'first-swipe', currentSlide + '');
-            }
+            // Wiretap.carouselSwipe
+            // title = Home, PDP, Related Images
+            // currentSlide = 1, 2, 3, 4, 5, 6
+            // eg. Wiretap.carouselSwipe('PDP', 1);
+            swipe: function(title, currentSlide) {
+                var currentCarousel = _carousels[title];
 
-            currentCarousel.swipes.push(currentSlide);
+                if (_swiping && !currentCarousel.swipes.length) {
+                    Wiretap.send('Carousel - ' + title, 'first-swipe', currentSlide + '');
+                }
 
-            // If the user has swiped as much as there swipes, maybe they've been to every slide?
-            if (!currentCarousel.fullViewFired && currentCarousel.swipes.length >= currentCarousel.totalSlides) {
-                currentCarousel.fullView = true;
+                currentCarousel.swipes.push(currentSlide);
 
-                // Iterate the amount of slides,
-                // By default lets say they have seen all slides
-                // But if we find a slide we haven't visited, we bail
-                // Rather than firing the event
-                for (var i = 0, l = currentCarousel.totalSlides; i <= l; ++i) {
-                    if (!currentCarousel.swipes.indexOf(i + 1)) {
-                        currentCarousel.fullView = false;
-                        break;
+                // If the user has swiped as much as there swipes, maybe they've been to every slide?
+                if (!currentCarousel.fullViewFired && currentCarousel.swipes.length >= currentCarousel.totalSlides) {
+                    currentCarousel.fullView = true;
+
+                    // Iterate the amount of slides,
+                    // By default lets say they have seen all slides
+                    // But if we find a slide we haven't visited, we bail
+                    // Rather than firing the event
+                    for (var i = 0, l = currentCarousel.totalSlides; i <= l; ++i) {
+                        if (!currentCarousel.swipes.indexOf(i + 1)) {
+                            currentCarousel.fullView = false;
+                            break;
+                        }
+                    }
+
+                    if (currentCarousel.fullView) {
+                        Wiretap.send('Carousel - ' + title, 'completeView', currentSlide + '');
+
+                        currentCarousel.fullViewFired = true;
                     }
                 }
+            },
 
-                if (currentCarousel.fullView) {
-                    Wiretap.send('Carousel - ' + title, 'completeView', currentSlide + '');
-
-                    currentCarousel.fullViewFired = true;
+            // Wiretap.carouselLoad
+            load: function(title, totalSlides) {
+                // If the carousel hasn't been initialized, set it up
+                if (!_carousels.hasOwnProperty(title)) {
+                    _carousels[title] = {
+                        fullView: false,
+                        fullViewFired: false,
+                        totalSlides: totalSlides,
+                        swipes: []
+                    };
                 }
+
+                Wiretap.send('Carousel - ' + title, 'load', totalSlides + '', NON_INTERACTION);
+            },
+
+            // Wiretap.carouselZoom
+            zoom: function(title, currentSlide) {
+                Wiretap.send('Carousel - ' + title, 'zoom', currentSlide + '');
+            },
+
+            // Wiretap.carouselSlideClick
+            slideClick: function(title, currentSlide) {
+                Wiretap.send('Carousel - ' + title, 'click', currentSlide + '');
+            },
+
+            // Wiretap.carouselArrowClick
+            arrowClick: function(title, currentSlide, direction) {
+                Wiretap.send('Carousel - ' + title, 'arrowClick', currentSlide + '-' + direction);
             }
-        };
-
-        // Wiretap.carouselLoad
-        Wiretap.carouselLoad = function(title, totalSlides) {
-            // If the carousel hasn't been initialized, set it up
-            if (!_carousels.hasOwnProperty(title)) {
-                _carousels[title] = {
-                    fullView: false,
-                    fullViewFired: false,
-                    totalSlides: totalSlides,
-                    swipes: []
-                };
-            }
-
-            Wiretap.send('Carousel - ' + title, 'load', totalSlides + '', NON_INTERACTION);
-        };
-
-        // Wiretap.carouselZoom
-        Wiretap.carouselZoom = function(title, currentSlide) {
-            Wiretap.send('Carousel - ' + title, 'zoom', currentSlide + '');
-        };
-
-        // Wiretap.carouselSlideClick
-        Wiretap.carouselSlideClick = function(title, currentSlide) {
-            Wiretap.send('Carousel - ' + title, 'click', currentSlide + '');
-        };
-
-        // Wiretap.carouselArrowClick
-        Wiretap.carouselArrowClick = function(title, currentSlide, direction) {
-            Wiretap.send('Carousel - ' + title, 'arrowClick', currentSlide + '-' + direction);
         };
 
         // Wiretap.navigationClick
@@ -257,93 +260,100 @@ define([
             Wiretap.send(title, 'Check Reviews');
         };
 
-        Wiretap.sidebarOpened = function(title) {
-            Wiretap.send(title, 'Sidebar Opened');
-        };
-
-        Wiretap.sidebarClosed = function(title) {
-            Wiretap.send(title, 'Sidebar Closed');
-        };
-
-        Wiretap.cartItemAdded = function() {
-            Wiretap.send('Cart', 'item-added', 'OK');
-        };
-
-        Wiretap.minicartRemoveItem = function() {
-            Wiretap.send('Mini-Cart', 'item-removed', 'OK');
-        };
-
-        Wiretap.minicartEditEnable = function() {
-            Wiretap.send('Mini-Cart', 'edit-enabled', 'OK');
-        };
-
-        Wiretap.minicartEditDisable = function() {
-            Wiretap.send('Mini-Cart', 'edit-disabled', 'OK');
-        };
-
-        Wiretap.minicartChangeQuantity = function() {
-            Wiretap.send('Mini-Cart', 'quantity-changed', 'OK');
-        };
-
-        Wiretap.accordionOpen = function(title, currentItem) {
-            var currentAccordion = _accordions[title];
-
-            if (!currentAccordion.opens.length) {
-                Wiretap.send('Accordion - ' + title, 'first-open', currentItem + '');
+        Wiretap.sidebar = {
+            opened: function(title) {
+                Wiretap.send(title, 'Sidebar Opened');
+            },
+            closed: function(title) {
+                Wiretap.send(title, 'Sidebar Closed');
             }
+        };
 
-            currentAccordion.opens.push(currentItem);
-
-            // If there's more than one accordion item opened, and we've opened more than we've closed
-            // Then this user doesn't mind having multiple opened
-            // Send how many are currently opened and haven't been closed
-            if (currentAccordion.opens.length > 1 && currentAccordion.opens.length > currentAccordion.closes.length) {
-                Wiretap.send('Accordion - ' + title, 'multipleOpened', currentAccordion.opens.length - currentAccordion.closes.length);
+        Wiretap.cart = {
+            itemAdded: function() {
+                Wiretap.send('Cart', 'item-added', 'OK');
             }
+        };
 
-            // If the user has swiped as much as there swipes, maybe they've been to every slide?
-            if (!currentAccordion.fullViewFired && currentAccordion.opens.length >= currentAccordion.totalItems) {
-                currentAccordion.fullView = true;
+        Wiretap.minicart = {
+            itemRemoved: function() {
+                Wiretap.send('Mini-Cart', 'item-removed', 'OK');
+            },
 
-                // Iterate the amount of slides,
-                // By default lets say they have seen all slides
-                // But if we find a slide we haven't visited, we bail
-                // Rather than firing the event
-                for (var i = 0, l = currentAccordion.totalItems; i <= l; ++i) {
-                    if (!currentAccordion.opens.indexOf(i + 1)) {
-                        currentAccordion.fullView = false;
-                        break;
+            editEnabled: function() {
+                Wiretap.send('Mini-Cart', 'edit-enabled', 'OK');
+            },
+
+            editDisabled: function() {
+                Wiretap.send('Mini-Cart', 'edit-disabled', 'OK');
+            },
+
+            quantityChanged: function() {
+                Wiretap.send('Mini-Cart', 'quantity-changed', 'OK');
+            }
+        };
+
+        Wiretap.accordion = {
+            open: function(title, currentItem) {
+                var currentAccordion = _accordions[title];
+
+                if (!currentAccordion.opens.length) {
+                    Wiretap.send('Accordion - ' + title, 'first-open', currentItem + '');
+                }
+
+                currentAccordion.opens.push(currentItem);
+
+                // If there's more than one accordion item opened, and we've opened more than we've closed
+                // Then this user doesn't mind having multiple opened
+                // Send how many are currently opened and haven't been closed
+                if (currentAccordion.opens.length > 1 && currentAccordion.opens.length > currentAccordion.closes.length) {
+                    Wiretap.send('Accordion - ' + title, 'multipleOpened', currentAccordion.opens.length - currentAccordion.closes.length);
+                }
+
+                // If the user has swiped as much as there swipes, maybe they've been to every slide?
+                if (!currentAccordion.fullViewFired && currentAccordion.opens.length >= currentAccordion.totalItems) {
+                    currentAccordion.fullView = true;
+
+                    // Iterate the amount of slides,
+                    // By default lets say they have seen all slides
+                    // But if we find a slide we haven't visited, we bail
+                    // Rather than firing the event
+                    for (var i = 0, l = currentAccordion.totalItems; i <= l; ++i) {
+                        if (!currentAccordion.opens.indexOf(i + 1)) {
+                            currentAccordion.fullView = false;
+                            break;
+                        }
+                    }
+
+                    if (currentAccordion.fullView) {
+                        Wiretap.send('Accordion - ' + title, 'completeView', currentItem + '');
+
+                        currentAccordion.fullViewFired = true;
                     }
                 }
+            },
 
-                if (currentAccordion.fullView) {
-                    Wiretap.send('Accordion - ' + title, 'completeView', currentItem + '');
+            close: function(title, currentItem) {
+                var currentAccordion = _accordions[title];
 
-                    currentAccordion.fullViewFired = true;
+                currentAccordion.closes.push(currentItem);
+            },
+
+            // Wiretap.accordionLoad
+            load: function(title, totalItems) {
+                // If the accordion hasn't been initialized, set it up
+                if (!_accordions.hasOwnProperty(title)) {
+                    _accordions[title] = {
+                        fullView: false,
+                        fullViewFired: false,
+                        totalItems: totalItems,
+                        opens: [],
+                        closes: []
+                    };
                 }
+
+                Wiretap.send('Accordion - ' + title, 'load', totalItems + '', NON_INTERACTION);
             }
-        };
-
-        Wiretap.accordionClose = function(title, currentItem) {
-            var currentAccordion = _accordions[title];
-
-            currentAccordion.closes.push(currentItem);
-        };
-
-        // Wiretap.accordionLoad
-        Wiretap.accordionLoad = function(title, totalItems) {
-            // If the accordion hasn't been initialized, set it up
-            if (!_accordions.hasOwnProperty(title)) {
-                _accordions[title] = {
-                    fullView: false,
-                    fullViewFired: false,
-                    totalItems: totalItems,
-                    opens: [],
-                    closes: []
-                };
-            }
-
-            Wiretap.send('Accordion - ' + title, 'load', totalItems + '', NON_INTERACTION);
         };
 
         return Wiretap;
