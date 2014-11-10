@@ -271,7 +271,24 @@ define([
 
         Wiretap.cart = {
             itemAdded: function() {
-                Wiretap.send('Cart', 'item-added', 'OK');
+                var fullCarouselView = false;
+
+                for (var title in _carousels) {
+                    if (_carousels.hasOwnProperty(title)) {
+                        var carousel = _carousels[title];
+
+                        if (carousel.fullViewFired) {
+                            fullCarouselView = true;
+                        }
+                    }
+                }
+
+                if (fullCarouselView) {
+                    Wiretap.send('Cart', 'item-added-after-full-carousel-view', 'OK');
+                }
+                else {
+                    Wiretap.send('Cart', 'item-added', 'OK');
+                }
             }
         };
 
