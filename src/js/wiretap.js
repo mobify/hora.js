@@ -54,6 +54,8 @@ define([
 
         var Wiretap = {};
 
+        var NON_INTERACTION = {'nonInteraction': 1};
+
         var _carousels = {};
         var _accordions = {};
         var _swiping = false;
@@ -99,7 +101,7 @@ define([
             var originalPush = window._gaq.push;
 
             window._gaq.push = function(data) {
-                Wiretap.send('Desktop Event: ' + data[1], data[2], data[3], {'nonInteraction': 1});
+                Wiretap.send('Desktop Event: ' + data[1], data[2], data[3], NON_INTERACTION);
 
                 return originalPush(data);
             };
@@ -110,7 +112,7 @@ define([
         Wiretap.orientationChange = function() {
             var data = window.innerHeight > window.innerWidth ? 'Landscape to Portrait' : 'Portrait to Landscape';
 
-            Wiretap.send('Orientation Change', data, {'nonInteraction': 1});
+            Wiretap.send('Orientation Change', data, NON_INTERACTION);
         };
 
         // Wiretap.carouselSwipe
@@ -161,7 +163,7 @@ define([
                 };
             }
 
-            Wiretap.send('Carousel - ' + title, 'load', totalSlides + '', {'nonInteraction': 1});
+            Wiretap.send('Carousel - ' + title, 'load', totalSlides + '', NON_INTERACTION);
         };
 
         // Wiretap.carouselZoom
@@ -341,7 +343,7 @@ define([
                 };
             }
 
-            Wiretap.send('Accordion - ' + title, 'load', totalItems + '', {'nonInteraction': 1});
+            Wiretap.send('Accordion - ' + title, 'load', totalItems + '', NON_INTERACTION);
         };
 
         return Wiretap;
