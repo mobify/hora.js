@@ -79,6 +79,16 @@ define([
                         Wiretap.scrollToBottom();
                     }
                 });
+
+            (function patchAlerts() {
+                var _alert = window.alert;
+
+                window.alert = function(message) {
+                    Wiretap.error('Alert', message);
+
+                    _alert(message);
+                };
+            })();
         };
 
         Wiretap.send = function() {
@@ -124,14 +134,31 @@ define([
             swipe: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
-                if (_swiping && !currentCarousel.swipes.length) {
-                    Wiretap.send('Carousel - ' + title, 'first-swipe', currentSlide + '');
+                if (_swiping) {
+                    if (!currentCarousel.swipes.length) {
+                        Wiretap.send('Carousel - ' + title, 'first-swipe', currentSlide + '');
+                    }
+                    else {
+                        Wiretap.send('Carousel - ' + title, 'swipe', currentSlide + '');
+                    }
+
+                    currentCarousel.swipes.push(currentSlide);
+                }
+                else {
+                    if (!currentCarousel.slides.length) {
+                        Wiretap.send('Carousel - ' + title, 'first-slide', currentSlide + '');
+                    }
+                    else {
+                        Wiretap.send('Carousel - ' + title, 'slide', currentSlide + '');
+                    }
+
+                    currentCarousel.slides.push(currentSlide);
                 }
 
-                currentCarousel.swipes.push(currentSlide);
+                currentCarousel.viewed.push(currentSlide);
 
                 // If the user has swiped as much as there swipes, maybe they've been to every slide?
-                if (!currentCarousel.fullViewFired && currentCarousel.swipes.length >= currentCarousel.totalSlides) {
+                if (!currentCarousel.fullViewFired && currentCarousel.viewed.length >= currentCarousel.totalSlides) {
                     currentCarousel.fullView = true;
 
                     // Iterate the amount of slides,
@@ -139,7 +166,7 @@ define([
                     // But if we find a slide we haven't visited, we bail
                     // Rather than firing the event
                     for (var i = 0, l = currentCarousel.totalSlides; i <= l; ++i) {
-                        if (!currentCarousel.swipes.indexOf(i + 1)) {
+                        if (!currentCarousel.viewed.indexOf(i + 1)) {
                             currentCarousel.fullView = false;
                             break;
                         }
@@ -161,7 +188,11 @@ define([
                         fullView: false,
                         fullViewFired: false,
                         totalSlides: totalSlides,
-                        swipes: []
+                        slides: [],
+                        swipes: [],
+                        zooms: [],
+                        icons: [],
+                        viewed: []
                     };
                 }
 
@@ -170,17 +201,42 @@ define([
 
             // Wiretap.carouselZoom
             zoom: function(title, currentSlide) {
+                var currentCarousel = _carousels[title];
+
+                if (!currentCarousel.zooms.length) {
+                    Wiretap.send('Carousel - ' + title, 'first-zoom', currentSlide + '');
+                }
+
+                currentCarousel.zooms.push(currentSlide);
+
                 Wiretap.send('Carousel - ' + title, 'zoom', currentSlide + '');
             },
 
             // Wiretap.carouselSlideClick
             slideClick: function(title, currentSlide) {
+                var currentCarousel = _carousels[title];
+
+                if (!currentCarousel.clicks.length) {
+                    Wiretap.send('Carousel - ' + title, 'first-click', currentSlide + '');
+                }
+
+                currentCarousel.clicks.push(currentSlide);
+
+
                 Wiretap.send('Carousel - ' + title, 'click', currentSlide + '');
             },
 
             // Wiretap.carouselArrowClick
             arrowClick: function(title, currentSlide, direction) {
-                Wiretap.send('Carousel - ' + title, 'arrowClick', currentSlide + '-' + direction);
+                var currentCarousel = _carousels[title];
+
+                if (!currentCarousel.icons.length) {
+                    Wiretap.send('Carousel - ' + title, 'first-icon', currentSlide + '');
+                }
+
+                currentCarousel.icons.push(currentSlide);
+
+                Wiretap.send('Carousel - ' + title, 'icon', currentSlide + '-' + direction);
             }
         };
 
@@ -220,8 +276,12 @@ define([
             Wiretap.send('Pagination', 'interaction', 'OK');
         };
 
-        Wiretap.filtersToggle = function() {
-            Wiretap.send('Filters', 'toggle', 'OK');
+        Wiretap.filtersToggle = function(title) {
+            Wiretap.send('Filters: ' + title, 'toggle', 'OK');
+        };
+
+        Wiretap.filtersChange = function(title, type, amount) {
+            Wiretap.send('Filters: ' + title, 'Change: ' + type, amount);
         };
 
         Wiretap.scrollToBottom = function() {
@@ -271,7 +331,24 @@ define([
 
         Wiretap.cart = {
             itemAdded: function() {
-                Wiretap.send('Cart', 'item-added', 'OK');
+                var fullCarouselView = false;
+
+                for (var title in _carousels) {
+                    if (_carousels.hasOwnProperty(title)) {
+                        var carousel = _carousels[title];
+
+                        if (carousel.fullViewFired) {
+                            fullCarouselView = true;
+                        }
+                    }
+                }
+
+                if (fullCarouselView) {
+                    Wiretap.send('Cart', 'item-added-after-full-carousel-view', 'OK');
+                }
+                else {
+                    Wiretap.send('Cart', 'item-added', 'OK');
+                }
             }
         };
 
