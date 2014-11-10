@@ -53,9 +53,10 @@ define([
         var $doc = $(document);
 
         var Wiretap = {};
-        var carousels = {};
-        var accordions = {};
-        var swiping = false;
+
+        var _carousels = {};
+        var _accordions = {};
+        var _swiping = false;
 
         // Wiretap.init
         // Initializes Wiretap and sets up implicitly tracked events: Wiretap.orientationChange, Wiretap.scrollToBottom.
@@ -63,11 +64,11 @@ define([
             // Bind events
             $window
                 .on('touchmove', function() {
-                    swiping = true;
+                    _swiping = true;
                 })
                 .on('touchend', function() {
                     window.setTimeout(function() {
-                        swiping = false;
+                        _swiping = false;
                     }, 50);
                 })
                 .on('orientationchange', Wiretap.orientationChange)
@@ -76,6 +77,14 @@ define([
                     Wiretap.scrollToBottom();
                 }
             });
+        };
+
+        Wiretap.send = function() {
+            var args = Array.prototype.slice.call(arguments);
+
+            args.unshift('mobifyTracker.send', 'event');
+
+            Mobify.analytics.ua.apply(args);
         };
 
         // Wiretap.proxyClassicAnalytics
@@ -90,7 +99,7 @@ define([
             var originalPush = window._gaq.push;
 
             window._gaq.push = function(data) {
-                Mobify.analytics.ua('mobifyTracker.send', 'event', 'Desktop Event: ' + data[1], data[2], data[3], {'nonInteraction': 1});
+                Wiretap.send('Desktop Event: ' + data[1], data[2], data[3], {'nonInteraction': 1});
 
                 return originalPush(data);
             };
@@ -99,12 +108,9 @@ define([
         // Wiretap.orientationChange
         // eg. Wiretap.orientationChange();
         Wiretap.orientationChange = function() {
-            if (window.innerHeight > window.innerWidth) {
-                Mobify.analytics.ua('mobifyTracker.send', 'event', 'Orientation Change', 'Landscape to Portrait', {'nonInteraction': 1});
-            }
-            else {
-                Mobify.analytics.ua('mobifyTracker.send', 'event', 'Orientation Change', 'Portrait to Landscape', {'nonInteraction': 1});
-            }
+            var data = window.innerHeight > window.innerWidth ? 'Landscape to Portrait' : 'Portrait to Landscape';
+
+            Wiretap.send('Orientation Change', data, {'nonInteraction': 1});
         };
 
         // Wiretap.carouselSwipe
@@ -112,10 +118,10 @@ define([
         // currentSlide = 1, 2, 3, 4, 5, 6
         // eg. Wiretap.carouselSwipe('PDP', 1);
         Wiretap.carouselSwipe = function(title, currentSlide) {
-            var currentCarousel = carousels[title];
+            var currentCarousel = _carousels[title];
 
-            if (swiping && !currentCarousel.swipes.length) {
-                Mobify.analytics.ua('mobifyTracker.send', 'event', 'Carousel - ' + title, 'first-swipe', currentSlide + '');
+            if (_swiping && !currentCarousel.swipes.length) {
+                Wiretap.send('Carousel - ' + title, 'first-swipe', currentSlide + '');
             }
 
             currentCarousel.swipes.push(currentSlide);
@@ -136,7 +142,7 @@ define([
                 }
 
                 if (currentCarousel.fullView) {
-                    Mobify.analytics.ua('mobifyTracker.send', 'event', 'Carousel - ' + title, 'completeView', currentSlide + '');
+                    Wiretap.send('Carousel - ' + title, 'completeView', currentSlide + '');
 
                     currentCarousel.fullViewFired = true;
                 }
@@ -146,8 +152,8 @@ define([
         // Wiretap.carouselLoad
         Wiretap.carouselLoad = function(title, totalSlides) {
             // If the carousel hasn't been initialized, set it up
-            if (!carousels.hasOwnProperty(title)) {
-                carousels[title] = {
+            if (!_carousels.hasOwnProperty(title)) {
+                _carousels[title] = {
                     fullView: false,
                     fullViewFired: false,
                     totalSlides: totalSlides,
@@ -155,22 +161,22 @@ define([
                 };
             }
 
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Carousel - ' + title, 'load', totalSlides + '', {'nonInteraction': 1});
+            Wiretap.send('Carousel - ' + title, 'load', totalSlides + '', {'nonInteraction': 1});
         };
 
         // Wiretap.carouselZoom
         Wiretap.carouselZoom = function(title, currentSlide) {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Carousel - ' + title, 'zoom', currentSlide + '');
+            Wiretap.send('Carousel - ' + title, 'zoom', currentSlide + '');
         };
 
         // Wiretap.carouselSlideClick
         Wiretap.carouselSlideClick = function(title, currentSlide) {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Carousel - ' + title, 'click', currentSlide + '');
+            Wiretap.send('Carousel - ' + title, 'click', currentSlide + '');
         };
 
         // Wiretap.carouselArrowClick
         Wiretap.carouselArrowClick = function(title, currentSlide, direction) {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Carousel - ' + title, 'arrowClick', currentSlide + '-' + direction);
+            Wiretap.send('Carousel - ' + title, 'arrowClick', currentSlide + '-' + direction);
         };
 
         // Wiretap.navigationClick
@@ -178,110 +184,110 @@ define([
         // itemTitle = Pants, Shoes
         // eg. Wiretap.navigationClick('Top Nav', 'Pants');
         Wiretap.navigationClick = function(menuTitle, itemTitle) {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Navigation - ' + menuTitle, 'click', itemTitle);
+            Wiretap.send('Navigation - ' + menuTitle, 'click', itemTitle);
         };
 
         Wiretap.searchToggle = function() {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Search', 'toggle', 'OK');
+            Wiretap.send('Search', 'toggle', 'OK');
         };
 
         Wiretap.minicartToggle = function() {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Minicart', 'toggle', 'OK');
+            Wiretap.send('Minicart', 'toggle', 'OK');
         };
 
         Wiretap.breadcrumbClick = function() {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Breadcrumb', 'interaction', 'OK');
+            Wiretap.send('Breadcrumb', 'interaction', 'OK');
         };
 
         Wiretap.backToTopClick = function() {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Back To Top', 'click', 'OK');
+            Wiretap.send('Back To Top', 'click', 'OK');
         };
 
         Wiretap.newsletterInteraction = function() {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Newsletter', 'interaction', 'OK');
+            Wiretap.send('Newsletter', 'interaction', 'OK');
         };
 
         Wiretap.footerInteraction = function() {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Footer', 'interaction', 'OK');
+            Wiretap.send('Footer', 'interaction', 'OK');
         };
 
         Wiretap.paginationInteraction = function() {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Pagination', 'interaction', 'OK');
+            Wiretap.send('Pagination', 'interaction', 'OK');
         };
 
         Wiretap.filtersToggle = function() {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Filters', 'toggle', 'OK');
+            Wiretap.send('Filters', 'toggle', 'OK');
         };
 
         Wiretap.scrollToBottom = function() {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Scroll To Bottom', 'interaction', 'OK');
+            Wiretap.send('Scroll To Bottom', 'interaction', 'OK');
         };
 
         Wiretap.sizeGuideOpen = function() {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Size Guide', 'open', 'OK');
+            Wiretap.send('Size Guide', 'open', 'OK');
         };
 
         Wiretap.emailFriend = function() {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Email Friend', 'open', 'OK');
+            Wiretap.send('Email Friend', 'open', 'OK');
         };
 
         Wiretap.emailMeBack = function() {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Email Me Back', 'open', 'OK');
+            Wiretap.send('Email Me Back', 'open', 'OK');
         };
 
         Wiretap.adjustColor = function(title) {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', title, 'Adjust Color');
+            Wiretap.send(title, 'Adjust Color');
         };
 
         Wiretap.adjustQuantity = function(title, amount) {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', title, 'Adjust Quantity', amount + '');
+            Wiretap.send(title, 'Adjust Quantity', amount + '');
         };
 
         Wiretap.adjustSize = function(title, amount) {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', title, 'Adjust Size', amount + '');
+            Wiretap.send(title, 'Adjust Size', amount + '');
         };
 
         Wiretap.error = function(title, comment) {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Error', title, comment);
+            Wiretap.send('Error', title, comment);
         };
 
         Wiretap.checkReviews = function(title) {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', title, 'Check Reviews');
+            Wiretap.send(title, 'Check Reviews');
         };
 
         Wiretap.sidebarOpened = function(title) {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', title, 'Sidebar Opened');
+            Wiretap.send(title, 'Sidebar Opened');
         };
 
         Wiretap.sidebarClosed = function(title) {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', title, 'Sidebar Closed');
+            Wiretap.send(title, 'Sidebar Closed');
         };
 
         Wiretap.cartItemAdded = function() {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Cart', 'item-added', 'OK');
+            Wiretap.send('Cart', 'item-added', 'OK');
         };
 
         Wiretap.minicartRemoveItem = function() {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Mini-Cart', 'item-removed', 'OK');
+            Wiretap.send('Mini-Cart', 'item-removed', 'OK');
         };
 
         Wiretap.minicartEditEnable = function() {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Mini-Cart', 'edit-enabled', 'OK');
+            Wiretap.send('Mini-Cart', 'edit-enabled', 'OK');
         };
 
         Wiretap.minicartEditDisable = function() {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Mini-Cart', 'edit-disabled', 'OK');
+            Wiretap.send('Mini-Cart', 'edit-disabled', 'OK');
         };
 
         Wiretap.minicartChangeQuantity = function() {
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Mini-Cart', 'quantity-changed', 'OK');
+            Wiretap.send('Mini-Cart', 'quantity-changed', 'OK');
         };
 
         Wiretap.accordionOpen = function(title, currentItem) {
-            var currentAccordion = accordions[title];
+            var currentAccordion = _accordions[title];
 
             if (!currentAccordion.opens.length) {
-                Mobify.analytics.ua('mobifyTracker.send', 'event', 'Accordion - ' + title, 'first-open', currentItem + '');
+                Wiretap.send('Accordion - ' + title, 'first-open', currentItem + '');
             }
 
             currentAccordion.opens.push(currentItem);
@@ -290,7 +296,7 @@ define([
             // Then this user doesn't mind having multiple opened
             // Send how many are currently opened and haven't been closed
             if (currentAccordion.opens.length > 1 && currentAccordion.opens.length > currentAccordion.closes.length) {
-                Mobify.analytics.ua('mobifyTracker.send', 'event', 'Accordion - ' + title, 'multipleOpened', currentAccordion.opens.length - currentAccordion.closes.length);
+                Wiretap.send('Accordion - ' + title, 'multipleOpened', currentAccordion.opens.length - currentAccordion.closes.length);
             }
 
             // If the user has swiped as much as there swipes, maybe they've been to every slide?
@@ -309,7 +315,7 @@ define([
                 }
 
                 if (currentAccordion.fullView) {
-                    Mobify.analytics.ua('mobifyTracker.send', 'event', 'Accordion - ' + title, 'completeView', currentItem + '');
+                    Wiretap.send('Accordion - ' + title, 'completeView', currentItem + '');
 
                     currentAccordion.fullViewFired = true;
                 }
@@ -317,7 +323,7 @@ define([
         };
 
         Wiretap.accordionClose = function(title, currentItem) {
-            var currentAccordion = accordions[title];
+            var currentAccordion = _accordions[title];
 
             currentAccordion.closes.push(currentItem);
         };
@@ -325,8 +331,8 @@ define([
         // Wiretap.accordionLoad
         Wiretap.accordionLoad = function(title, totalItems) {
             // If the accordion hasn't been initialized, set it up
-            if (!accordions.hasOwnProperty(title)) {
-                accordions[title] = {
+            if (!_accordions.hasOwnProperty(title)) {
+                _accordions[title] = {
                     fullView: false,
                     fullViewFired: false,
                     totalItems: totalItems,
@@ -335,7 +341,7 @@ define([
                 };
             }
 
-            Mobify.analytics.ua('mobifyTracker.send', 'event', 'Accordion - ' + title, 'load', totalItems + '', {'nonInteraction': 1});
+            Wiretap.send('Accordion - ' + title, 'load', totalItems + '', {'nonInteraction': 1});
         };
 
         return Wiretap;
