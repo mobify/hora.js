@@ -79,6 +79,16 @@ define([
                         Wiretap.scrollToBottom();
                     }
                 });
+
+            (function patchAlerts() {
+                var _alert = window.alert;
+
+                window.alert = function(message) {
+                    Wiretap.error('Alert', message);
+
+                    _alert(message);
+                };
+            })();
         };
 
         Wiretap.send = function() {
