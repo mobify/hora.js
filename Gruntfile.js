@@ -28,6 +28,8 @@ module.exports = function(grunt) {
 
     // load npm tasks
     var npmTasks = [
+        'grunt-contrib-connect',
+        'grunt-mocha-phantomjs',
         'grunt-contrib-copy',
         'grunt-contrib-uglify'
     ];
@@ -39,5 +41,7 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask('build', ['lint:dev', 'copy', 'uglify']);
+    grunt.registerTask('test', ['build', 'connect:test', 'mocha_phantomjs']);
+    grunt.registerTask('test:browser', ['build', 'connect:test:keepalive']);
     grunt.registerTask('default', 'build');
 };
