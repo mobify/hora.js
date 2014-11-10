@@ -87,7 +87,7 @@ define([
             if (!window._gaq) {
                 return;
             }
-            
+
             var originalPush = window._gaq.push;
 
             window._gaq.push = function(data) {
