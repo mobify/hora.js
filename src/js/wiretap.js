@@ -64,21 +64,25 @@ define([
         // Initializes Wiretap and sets up implicitly tracked events: Wiretap.orientationChange, Wiretap.scrollToBottom.
         Wiretap.init = function() {
             // Bind events
-            $window
-                .on('touchmove', function() {
-                    _swiping = true;
-                })
-                .on('touchend', function() {
-                    window.setTimeout(function() {
-                        _swiping = false;
-                    }, 50);
-                })
-                .on('orientationchange', Wiretap.orientationChange)
-                .on('scroll', function() {
-                    if ($window.scrollTop() + $window.height() === $doc.height()) {
-                        Wiretap.scrollToBottom();
-                    }
-                });
+            $window.on('load', function() {
+                var windowHeight = $window.height();
+
+                $window
+                    .on('touchmove', function() {
+                        _swiping = true;
+                    })
+                    .on('touchend', function() {
+                        window.setTimeout(function() {
+                            _swiping = false;
+                        }, 50);
+                    })
+                    .on('orientationchange', Wiretap.orientationChange)
+                    .on('scroll', function() {
+                        if ($window.scrollTop() + windowHeight === $doc.height()) {
+                            Wiretap.scrollToBottom();
+                        }
+                    });
+            });
 
             (function patchAlerts() {
                 var _alert = window.alert;
