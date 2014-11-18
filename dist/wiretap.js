@@ -64,21 +64,25 @@ define([
         // Initializes Wiretap and sets up implicitly tracked events: Wiretap.orientationChange, Wiretap.scrollToBottom.
         Wiretap.init = function() {
             // Bind events
-            $window
-                .on('touchmove', function() {
-                    _swiping = true;
-                })
-                .on('touchend', function() {
-                    window.setTimeout(function() {
-                        _swiping = false;
-                    }, 50);
-                })
-                .on('orientationchange', Wiretap.orientationChange)
-                .on('scroll', function() {
-                    if ($window.scrollTop() + $window.height() === $doc.height()) {
-                        Wiretap.scrollToBottom();
-                    }
-                });
+            $window.on('load', function() {
+                var windowHeight = $window.height();
+
+                $window
+                    .on('touchmove', function() {
+                        _swiping = true;
+                    })
+                    .on('touchend', function() {
+                        window.setTimeout(function() {
+                            _swiping = false;
+                        }, 50);
+                    })
+                    .on('orientationchange', Wiretap.orientationChange)
+                    .on('scroll', function() {
+                        if ($window.scrollTop() + windowHeight === $doc.height()) {
+                            Wiretap.scrollToBottom();
+                        }
+                    });
+            });
 
             (function patchAlerts() {
                 var _alert = window.alert;
@@ -165,15 +169,15 @@ define([
                     // By default lets say they have seen all slides
                     // But if we find a slide we haven't visited, we bail
                     // Rather than firing the event
-                    for (var i = 0, l = currentCarousel.totalSlides; i <= l; ++i) {
-                        if (!currentCarousel.viewed.indexOf(i + 1)) {
+                    for (var i = 1, l = currentCarousel.totalSlides; i <= l; ++i) {
+                        if (currentCarousel.viewed.indexOf(i) === -1) {
                             currentCarousel.fullView = false;
                             break;
                         }
                     }
 
                     if (currentCarousel.fullView) {
-                        Wiretap.send('Carousel - ' + title, 'completeView', currentSlide + '');
+                        Wiretap.send('Carousel - ' + title, 'complete-view', currentSlide + '');
 
                         currentCarousel.fullViewFired = true;
                     }
@@ -192,9 +196,13 @@ define([
                         swipes: [],
                         zooms: [],
                         icons: [],
-                        viewed: []
+                        viewed: [],
+                        clicks: []
                     };
                 }
+
+                // Initially populate the carousel with the first slide
+                _carousels[title].viewed.push(1);
 
                 Wiretap.send('Carousel - ' + title, 'load', totalSlides + '', NON_INTERACTION);
             },
@@ -205,11 +213,11 @@ define([
 
                 if (!currentCarousel.zooms.length) {
                     Wiretap.send('Carousel - ' + title, 'first-zoom', currentSlide + '');
+                } else {
+                    Wiretap.send('Carousel - ' + title, 'zoom', currentSlide + '');
                 }
 
                 currentCarousel.zooms.push(currentSlide);
-
-                Wiretap.send('Carousel - ' + title, 'zoom', currentSlide + '');
             },
 
             // Wiretap.carouselSlideClick
@@ -218,12 +226,11 @@ define([
 
                 if (!currentCarousel.clicks.length) {
                     Wiretap.send('Carousel - ' + title, 'first-click', currentSlide + '');
+                } else {
+                    Wiretap.send('Carousel - ' + title, 'click', currentSlide + '');
                 }
 
                 currentCarousel.clicks.push(currentSlide);
-
-
-                Wiretap.send('Carousel - ' + title, 'click', currentSlide + '');
             },
 
             // Wiretap.carouselArrowClick
@@ -232,11 +239,11 @@ define([
 
                 if (!currentCarousel.icons.length) {
                     Wiretap.send('Carousel - ' + title, 'first-icon', currentSlide + '');
+                } else {
+                    Wiretap.send('Carousel - ' + title, 'icon', currentSlide + '-' + direction);
                 }
 
                 currentCarousel.icons.push(currentSlide);
-
-                Wiretap.send('Carousel - ' + title, 'icon', currentSlide + '-' + direction);
             }
         };
 
@@ -250,10 +257,6 @@ define([
 
         Wiretap.searchToggle = function() {
             Wiretap.send('Search', 'toggle', 'OK');
-        };
-
-        Wiretap.minicartToggle = function() {
-            Wiretap.send('Minicart', 'toggle', 'OK');
         };
 
         Wiretap.breadcrumbClick = function() {
@@ -353,6 +356,9 @@ define([
         };
 
         Wiretap.minicart = {
+            toggle: function() {
+                Wiretap.send('Mini-Cart', 'toggle', 'OK');
+            },
             itemRemoved: function() {
                 Wiretap.send('Mini-Cart', 'item-removed', 'OK');
             },
@@ -384,7 +390,7 @@ define([
                 // Then this user doesn't mind having multiple opened
                 // Send how many are currently opened and haven't been closed
                 if (currentAccordion.opens.length > 1 && currentAccordion.opens.length > currentAccordion.closes.length) {
-                    Wiretap.send('Accordion - ' + title, 'multipleOpened', currentAccordion.opens.length - currentAccordion.closes.length);
+                    Wiretap.send('Accordion - ' + title, 'multiple-opened', currentAccordion.opens.length - currentAccordion.closes.length);
                 }
 
                 // If the user has swiped as much as there swipes, maybe they've been to every slide?
@@ -395,15 +401,15 @@ define([
                     // By default lets say they have seen all slides
                     // But if we find a slide we haven't visited, we bail
                     // Rather than firing the event
-                    for (var i = 0, l = currentAccordion.totalItems; i <= l; ++i) {
-                        if (!currentAccordion.opens.indexOf(i + 1)) {
+                    for (var i = 1, l = currentAccordion.totalItems; i <= l; ++i) {
+                        if (currentAccordion.opens.indexOf(i) === -1) {
                             currentAccordion.fullView = false;
                             break;
                         }
                     }
 
                     if (currentAccordion.fullView) {
-                        Wiretap.send('Accordion - ' + title, 'completeView', currentItem + '');
+                        Wiretap.send('Accordion - ' + title, 'complete-view', currentItem + '');
 
                         currentAccordion.fullViewFired = true;
                     }
