@@ -66,6 +66,26 @@ define([
             });
         });
 
+        describe('accordion', function() {
+            it('correctly sends the complete-view event', function(done) {
+                var title = 'Test 1';
+                var size = 3;
+
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Accordion - ' + title
+                        && arguments[3] === 'complete-view') {
+                        done();
+                    }
+                };
+
+                Wiretap.accordion.load(title, size);
+
+                for (var i = 1, l = size; i <= l; i++) {
+                    Wiretap.accordion.open(title, i);
+                }
+            });
+        });
+
         describe('orientationChange', function() {
             it('correctly sends orientationChange data', function(done) {
                 proxyUA(function() {
