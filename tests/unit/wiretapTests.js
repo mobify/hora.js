@@ -64,6 +64,21 @@ define([
                     Wiretap.carousel.swipe(title, i);
                 }
             });
+
+            it('correctly sends slide click event', function(done) {
+                var title = 'Test 1';
+                var size = 1;
+
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Carousel - ' + title
+                        && arguments[3] === 'first-click') {
+                        done();
+                    }
+                };
+
+                Wiretap.carousel.load(title, size);
+                Wiretap.carousel.slideClick(title, 1);
+            });
         });
 
         describe('accordion', function() {
