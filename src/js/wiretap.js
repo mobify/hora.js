@@ -144,9 +144,8 @@ define([
                     if (!currentCarousel.swipes.length) {
                         Wiretap.send('Carousel - ' + title, 'first-swipe', currentSlide + '');
                     }
-                    else {
-                        Wiretap.send('Carousel - ' + title, 'swipe', currentSlide + '');
-                    }
+
+                    Wiretap.send('Carousel - ' + title, 'swipe', currentSlide + '');
 
                     currentCarousel.swipes.push(currentSlide);
                 }
@@ -154,9 +153,8 @@ define([
                     if (!currentCarousel.slides.length) {
                         Wiretap.send('Carousel - ' + title, 'first-slide', currentSlide + '');
                     }
-                    else {
-                        Wiretap.send('Carousel - ' + title, 'slide', currentSlide + '');
-                    }
+
+                    Wiretap.send('Carousel - ' + title, 'slide', currentSlide + '');
 
                     currentCarousel.slides.push(currentSlide);
                 }
@@ -215,9 +213,9 @@ define([
 
                 if (!currentCarousel.zooms.length) {
                     Wiretap.send('Carousel - ' + title, 'first-zoom', currentSlide + '');
-                } else {
-                    Wiretap.send('Carousel - ' + title, 'zoom', currentSlide + '');
                 }
+
+                Wiretap.send('Carousel - ' + title, 'zoom', currentSlide + '');
 
                 currentCarousel.zooms.push(currentSlide);
             },
@@ -228,9 +226,9 @@ define([
 
                 if (!currentCarousel.clicks.length) {
                     Wiretap.send('Carousel - ' + title, 'first-click', currentSlide + '');
-                } else {
-                    Wiretap.send('Carousel - ' + title, 'click', currentSlide + '');
                 }
+
+                Wiretap.send('Carousel - ' + title, 'click', currentSlide + '');
 
                 currentCarousel.clicks.push(currentSlide);
             },
@@ -241,9 +239,9 @@ define([
 
                 if (!currentCarousel.icons.length) {
                     Wiretap.send('Carousel - ' + title, 'first-icon', currentSlide + '');
-                } else {
-                    Wiretap.send('Carousel - ' + title, 'icon', currentSlide + '-' + direction);
                 }
+
+                Wiretap.send('Carousel - ' + title, 'icon', currentSlide + '-' + direction);
 
                 currentCarousel.icons.push(currentSlide);
             }
