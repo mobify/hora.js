@@ -74,7 +74,7 @@ define([
          * @private - exposed on Wiretap for unit testing
          */
         Wiretap.__validateObjectSchema = function(name, o, expectedProperties) {
-            for (var i = 0; i < expectedProperties.length; i++) {
+            for (var i = 0, l = expectedProperties.length; i < l; i++) {
                 var expectedProperty = expectedProperties[i];
 
                 if (!o.hasOwnProperty(expectedProperty)) {
