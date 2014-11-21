@@ -60,7 +60,50 @@ define([
         var _accordions = {};
         var _swiping = false;
 
-        // Wiretap.init
+        $.extend($, {
+            isString: function(obj) {
+                return Object.prototype.toString.call(obj) === '[object String]';
+            }
+        });
+
+        /**
+         * @description Validates whether an object contains all the required properties
+         * @param name - a name for what the object represents
+         * @param o - the object to test the properties of
+         * @param expectedProperties - an Array containing a list of strings of the properties to check
+         * @private - exposed on Wiretap for unit testing
+         */
+        Wiretap.__validateObjectSchema = function(name, o, expectedProperties) {
+            for (var i = 0; i < expectedProperties.length; i++) {
+                var expectedProperty = expectedProperties[i];
+
+                if (!o.hasOwnProperty(expectedProperty)) {
+                    throw 'The ' + name + ' object doesn\'t contain the ' + expectedProperty + ' property, which is required';
+                }
+
+                if (!o[expectedProperty]) {
+                    throw 'The ' + name + ' object contains the ' + expectedProperty + ' property, but it\'s value is falsy';
+                }
+            }
+        };
+
+        /**
+         * @description Converts the value of each property in the object into a string. Used when
+         * sending ecommerce:addTransaction and ecommerce:addItem calls.
+         * @param o
+         * @returns {*}
+         * @private - exposed on Wiretap for unit testing
+         */
+        Wiretap.__stringifyPropertyValues = function(o) {
+            for (var prop in o) {
+                if (o.hasOwnProperty(prop)) {
+                    o[prop] = String(o[prop]);
+                }
+            }
+
+            return o;
+        };
+
         // Initializes Wiretap and sets up implicitly tracked events: Wiretap.orientationChange, Wiretap.scrollToBottom.
         Wiretap.init = function() {
             // Bind events
@@ -89,7 +132,6 @@ define([
             Mobify.analytics.ua.apply(null, args);
         };
 
-        // Wiretap.proxyClassicAnalytics
         // Proxies the classic Google Analytics call so that we capture events fired by desktop
         // We then send them through Mobify's analytics call
         // Example: _gaq.push(["_trackEvent", "product selection", "select a size", a(this.options[this.selectedIndex]).text().trim()])
@@ -107,8 +149,6 @@ define([
             };
         };
 
-        // Wiretap.orientationChange
-        // eg. Wiretap.orientationChange();
         Wiretap.orientationChange = function() {
             var data = window.innerHeight > window.innerWidth ? 'Landscape to Portrait' : 'Portrait to Landscape';
 
@@ -116,8 +156,6 @@ define([
         };
 
         Wiretap.carousel = {
-
-            // Wiretap.carouselSwipe
             // title = Home, PDP, Related Images
             // currentSlide = 1, 2, 3, 4, 5, 6
             // eg. Wiretap.carouselSwipe('PDP', 1);
@@ -153,7 +191,6 @@ define([
                 }
             },
 
-            // Wiretap.carouselLoad
             load: function(title, totalSlides) {
                 // If the carousel hasn't been initialized, set it up
                 if (!_carousels.hasOwnProperty(title)) {
@@ -168,25 +205,19 @@ define([
                 Wiretap.send('Carousel - ' + title, 'load', totalSlides + '', NON_INTERACTION);
             },
 
-            // Wiretap.carouselZoom
             zoom: function(title, currentSlide) {
                 Wiretap.send('Carousel - ' + title, 'zoom', currentSlide + '');
             },
 
-            // Wiretap.carouselSlideClick
             slideClick: function(title, currentSlide) {
                 Wiretap.send('Carousel - ' + title, 'click', currentSlide + '');
             },
 
-            // Wiretap.carouselArrowClick
             arrowClick: function(title, currentSlide, direction) {
                 Wiretap.send('Carousel - ' + title, 'arrowClick', currentSlide + '-' + direction);
             }
         };
 
-        // Wiretap.navigationClick
-        // menuTitle = Top Nav, Flyout
-        // itemTitle = Pants, Shoes
         // eg. Wiretap.navigationClick('Top Nav', 'Pants');
         Wiretap.navigationClick = function(menuTitle, itemTitle) {
             Wiretap.send('Navigation - ' + menuTitle, 'click', itemTitle);
@@ -339,7 +370,6 @@ define([
                 currentAccordion.closes.push(currentItem);
             },
 
-            // Wiretap.accordionLoad
             load: function(title, totalItems) {
                 // If the accordion hasn't been initialized, set it up
                 if (!_accordions.hasOwnProperty(title)) {
@@ -354,6 +384,75 @@ define([
 
                 Wiretap.send('Accordion - ' + title, 'load', totalItems + '', NON_INTERACTION);
             }
+        };
+
+        /**
+         * @description Provides a consistent way to fire transaction tracking in universal analytics
+         * via the ecommerce plugin
+         *
+         * @param {string} transactionId
+         * @param {string} affiliation
+         * @param {object} transaction
+         * @param {array} transactionItems
+         *
+         * @example
+         *
+         * Wiretap.sendTransaction('1234', 'Acme Clothing'
+         * {
+         *    'revenue': '11.99',               // Grand Total.
+         *    'shipping': '5',                  // Shipping.
+         *    'tax': '1.29'                     // Tax.
+         * },
+         * [
+         *   {
+         *      'name': 'Fluffy Pink Bunnies',    // Product name. Required.
+         *      'sku': 'DD23444',                 // SKU/code.
+         *      'category': 'Party Toys',         // Category or variation.
+         *      'price': '11.99',                 // Unit price.
+         *      'quantity': '1'                   // Quantity.
+         *     }
+         * ]);
+         */
+        Wiretap.sendTransaction = function(transactionId, affiliation, transaction, transactionItems) {
+            var ECOMMERCE_PLUGIN = 'mobifyTracker.ecommerce';
+
+            if (!transactionId || !$.isString(transactionId)) {
+                throw 'Wiretap.sendTransaction requires a string containing the transaction ID, i.e. "1234"';
+            }
+
+            if (!affiliation || !$.isString(affiliation)) {
+                throw 'Wiretap.sendTransaction requires a string containing the affiliation, usually the project name, i.e. "Acme Clothing"';
+            }
+
+            if (!transaction || !$.isPlainObject(transaction)) {
+                throw 'Wiretap.sendTransaction requires an object literal containing the transaction details, i.e. {"revenue": "11.99","shipping": "5","tax": "1.29"}';
+            }
+
+            if (!transactionItems || !$.isArray(transactionItems)) {
+                throw 'Wiretap.sendTransaction requires an Array containing the transaction item details';
+            }
+
+            transaction.id = transactionId;
+            transaction.affiliation = affiliation;
+
+            Wiretap.__stringifyPropertyValues(transaction);
+
+            Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':addTransaction', transaction);
+
+            for (var i = 0, l = transactionItems.length; i < l; i++) {
+                var transactionItem = transactionItems[i];
+
+                // Universal Analytics requires that the transaction ID is sent for each item added.
+                // This should match the parent transaction ID submitted in the transaction parameter.
+                transactionItem.id = transactionId;
+
+                Wiretap.__validateObjectSchema('item', transactionItem, ['id', 'name', 'sku']);
+                Wiretap.__stringifyPropertyValues(transactionItem);
+
+                Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':addItem', transactionItem);
+            }
+
+            Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':send');
         };
 
         return Wiretap;
