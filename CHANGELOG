@@ -1,0 +1,2 @@
+0.2.0
+ - Added sendTransaction method for wrapping and error handling sending transactions to UA
