@@ -381,7 +381,7 @@ define([
                 var currentAccordion = _accordions[title];
 
                 if (!currentAccordion.opens.length) {
-                    Wiretap.send('Accordion - ' + title, 'first-open', currentItem + '');
+                    Wiretap.send('Accordion - ' + title, 'first-open', 'Item #' + currentItem);
                 }
 
                 currentAccordion.opens.push(currentItem);
@@ -409,7 +409,7 @@ define([
                     }
 
                     if (currentAccordion.fullView) {
-                        Wiretap.send('Accordion - ' + title, 'complete-view', currentItem + '');
+                        Wiretap.send('Accordion - ' + title, 'complete-view', 'Item #' + currentItem);
 
                         currentAccordion.fullViewFired = true;
                     }
