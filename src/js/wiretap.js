@@ -142,19 +142,19 @@ define([
 
                 if (_swiping) {
                     if (!currentCarousel.swipes.length) {
-                        Wiretap.send('Carousel - ' + title, 'first-swipe', currentSlide + '');
+                        Wiretap.send('Carousel - ' + title, 'first-swipe', 'Slide #' + currentSlide);
                     }
 
-                    Wiretap.send('Carousel - ' + title, 'swipe', currentSlide + '');
+                    Wiretap.send('Carousel - ' + title, 'swipe', 'Slide #' + currentSlide);
 
                     currentCarousel.swipes.push(currentSlide);
                 }
                 else {
                     if (!currentCarousel.slides.length) {
-                        Wiretap.send('Carousel - ' + title, 'first-slide', currentSlide + '');
+                        Wiretap.send('Carousel - ' + title, 'first-slide', 'Slide #' + currentSlide);
                     }
 
-                    Wiretap.send('Carousel - ' + title, 'slide', currentSlide + '');
+                    Wiretap.send('Carousel - ' + title, 'slide', 'Slide #' + currentSlide);
 
                     currentCarousel.slides.push(currentSlide);
                 }
@@ -177,7 +177,7 @@ define([
                     }
 
                     if (currentCarousel.fullView) {
-                        Wiretap.send('Carousel - ' + title, 'complete-view', currentSlide + '');
+                        Wiretap.send('Carousel - ' + title, 'complete-view', 'Slide #' + currentSlide);
 
                         currentCarousel.fullViewFired = true;
                     }
@@ -212,10 +212,10 @@ define([
                 var currentCarousel = _carousels[title];
 
                 if (!currentCarousel.zooms.length) {
-                    Wiretap.send('Carousel - ' + title, 'first-zoom', currentSlide + '');
+                    Wiretap.send('Carousel - ' + title, 'first-zoom', 'Slide #' + currentSlide);
                 }
 
-                Wiretap.send('Carousel - ' + title, 'zoom', currentSlide + '');
+                Wiretap.send('Carousel - ' + title, 'zoom', 'Slide #' + currentSlide);
 
                 currentCarousel.zooms.push(currentSlide);
             },
@@ -225,10 +225,10 @@ define([
                 var currentCarousel = _carousels[title];
 
                 if (!currentCarousel.clicks.length) {
-                    Wiretap.send('Carousel - ' + title, 'first-click', currentSlide + '');
+                    Wiretap.send('Carousel - ' + title, 'first-click', 'Slide #' + currentSlide);
                 }
 
-                Wiretap.send('Carousel - ' + title, 'click', currentSlide + '');
+                Wiretap.send('Carousel - ' + title, 'click', 'Slide #' + currentSlide);
 
                 currentCarousel.clicks.push(currentSlide);
             },
@@ -238,7 +238,7 @@ define([
                 var currentCarousel = _carousels[title];
 
                 if (!currentCarousel.icons.length) {
-                    Wiretap.send('Carousel - ' + title, 'first-icon', currentSlide + '');
+                    Wiretap.send('Carousel - ' + title, 'first-icon', 'Slide #' + currentSlide);
                 }
 
                 Wiretap.send('Carousel - ' + title, 'icon', currentSlide + '-' + direction);
