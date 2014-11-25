@@ -165,6 +165,57 @@ define([
             };
         };
 
+        // Hora.proxyUniversalAnalytics
+        // Proxies the Universal Google Analytics call so that we capture events fired by desktop
+        // We only allow the following events: require, provide, send, ec:setAction, ec:addProduct
+        // Example: ga('ec:setAction','checkout', {'step': 3, 'option': 'visa credit' });
+        Hora.proxyUniversalAnalytics = function() {
+            var _theirGA;
+
+            var _ourGA = function() {
+                // If their analytics.js has loaded, we have _theirGA and should pass through events
+                // Then after
+                if (_theirGA) {
+                    _theirGA.apply(null, arguments);
+                } else {
+                    (window.ga.q = window.ga.q || []).push(arguments);
+                }
+
+                // Check if the first argument is an allowed command
+                if (!/^(require|provide|send|ec:setAction|ec:addProduct)$/mi.exec(arguments[0])) {
+                    return;
+                }
+
+                // Don't send double events
+                if (arguments[0] === 'send' &&
+                   (arguments[1] === 'pageview' || arguments[1] === 'event' && arguments[2] === 'mobify')) {
+                    return;
+                }
+
+                // Clone the array so that we don't modify the original arguments that are passed through to the desktop window.ga
+                var args = Array.prototype.slice.call(arguments, 0);
+
+                // Add our namespace and send the event back to a.js (which should make it back to this function and return above)
+                args[0] = 'mobifyTracker.' + args[0];
+
+                Mobify.analytics.ua.apply(null, args);
+            };
+
+            // Define ga() so that any calls to ga() proxy through our function
+            window.ga = _ourGA;
+
+            // Once their analytics.js has loaded, replace their ga() with ours
+            // Passing a callback to `ga` will execute after analytics.js has loaded
+            // See "Pushing Functions" here: https://developers.google.com/analytics/devguides/collection/analyticsjs/advanced
+            window.ga(function() {
+                _theirGA = window.ga;
+
+                window.ga = _ourGA;
+            });
+        };
+
+        // Hora.orientationChange
+        // eg. Hora.orientationChange();
         Hora.orientationChange = function() {
             var data = window.innerHeight > window.innerWidth ? 'Landscape to Portrait' : 'Portrait to Landscape';
 
