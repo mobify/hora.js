@@ -116,12 +116,18 @@ define([
                         _swiping = false;
                     }, 50);
                 })
-                .on('orientationchange', Wiretap.orientationChange)
-                .on('scroll', function() {
-                    if ($window.scrollTop() + $window.height() === $doc.height()) {
-                        Wiretap.scrollToBottom();
-                    }
-                });
+                .on('orientationchange', Wiretap.orientationChange);
+
+            $window.on('load', function() {
+                var windowHeight = $window.height();
+
+                $window
+                    .on('scroll', function() {
+                        if ($window.scrollTop() + windowHeight === $doc.height()) {
+                            Wiretap.scrollToBottom();
+                        }
+                    });
+            });
 
             (function patchAlerts() {
                 var _alert = window.alert;
@@ -174,21 +180,19 @@ define([
 
                 if (_swiping) {
                     if (!currentCarousel.swipes.length) {
-                        Wiretap.send('Carousel - ' + title, 'first-swipe', currentSlide + '');
+                        Wiretap.send('Carousel - ' + title, 'first-swipe', 'Slide #' + currentSlide);
                     }
-                    else {
-                        Wiretap.send('Carousel - ' + title, 'swipe', currentSlide + '');
-                    }
+
+                    Wiretap.send('Carousel - ' + title, 'swipe', 'Slide #' + currentSlide);
 
                     currentCarousel.swipes.push(currentSlide);
                 }
                 else {
                     if (!currentCarousel.slides.length) {
-                        Wiretap.send('Carousel - ' + title, 'first-slide', currentSlide + '');
+                        Wiretap.send('Carousel - ' + title, 'first-slide', 'Slide #' + currentSlide);
                     }
-                    else {
-                        Wiretap.send('Carousel - ' + title, 'slide', currentSlide + '');
-                    }
+
+                    Wiretap.send('Carousel - ' + title, 'slide', 'Slide #' + currentSlide);
 
                     currentCarousel.slides.push(currentSlide);
                 }
@@ -203,15 +207,15 @@ define([
                     // By default lets say they have seen all slides
                     // But if we find a slide we haven't visited, we bail
                     // Rather than firing the event
-                    for (var i = 0, l = currentCarousel.totalSlides; i <= l; ++i) {
-                        if (!currentCarousel.viewed.indexOf(i + 1)) {
+                    for (var i = 1, l = currentCarousel.totalSlides; i <= l; ++i) {
+                        if (currentCarousel.viewed.indexOf(i) === -1) {
                             currentCarousel.fullView = false;
                             break;
                         }
                     }
 
                     if (currentCarousel.fullView) {
-                        Wiretap.send('Carousel - ' + title, 'completeView', currentSlide + '');
+                        Wiretap.send('Carousel - ' + title, 'complete-view', 'Slide #' + currentSlide);
 
                         currentCarousel.fullViewFired = true;
                     }
@@ -229,9 +233,13 @@ define([
                         swipes: [],
                         zooms: [],
                         icons: [],
-                        viewed: []
+                        viewed: [],
+                        clicks: []
                     };
                 }
+
+                // Initially populate the carousel with the first slide
+                _carousels[title].viewed.push(1);
 
                 Wiretap.send('Carousel - ' + title, 'load', totalSlides + '', NON_INTERACTION);
             },
@@ -240,37 +248,36 @@ define([
                 var currentCarousel = _carousels[title];
 
                 if (!currentCarousel.zooms.length) {
-                    Wiretap.send('Carousel - ' + title, 'first-zoom', currentSlide + '');
+                    Wiretap.send('Carousel - ' + title, 'first-zoom', 'Slide #' + currentSlide);
                 }
 
-                currentCarousel.zooms.push(currentSlide);
+                Wiretap.send('Carousel - ' + title, 'zoom', 'Slide #' + currentSlide);
 
-                Wiretap.send('Carousel - ' + title, 'zoom', currentSlide + '');
+                currentCarousel.zooms.push(currentSlide);
             },
 
             slideClick: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
                 if (!currentCarousel.clicks.length) {
-                    Wiretap.send('Carousel - ' + title, 'first-click', currentSlide + '');
+                    Wiretap.send('Carousel - ' + title, 'first-click', 'Slide #' + currentSlide);
                 }
 
+                Wiretap.send('Carousel - ' + title, 'click', 'Slide #' + currentSlide);
+
                 currentCarousel.clicks.push(currentSlide);
-
-
-                Wiretap.send('Carousel - ' + title, 'click', currentSlide + '');
             },
 
             arrowClick: function(title, currentSlide, direction) {
                 var currentCarousel = _carousels[title];
 
                 if (!currentCarousel.icons.length) {
-                    Wiretap.send('Carousel - ' + title, 'first-icon', currentSlide + '');
+                    Wiretap.send('Carousel - ' + title, 'first-icon', 'Slide #' + currentSlide);
                 }
 
-                currentCarousel.icons.push(currentSlide);
-
                 Wiretap.send('Carousel - ' + title, 'icon', currentSlide + '-' + direction);
+
+                currentCarousel.icons.push(currentSlide);
             }
         };
 
@@ -281,10 +288,6 @@ define([
 
         Wiretap.searchToggle = function() {
             Wiretap.send('Search', 'toggle', 'OK');
-        };
-
-        Wiretap.minicartToggle = function() {
-            Wiretap.send('Minicart', 'toggle', 'OK');
         };
 
         Wiretap.breadcrumbClick = function() {
@@ -384,6 +387,9 @@ define([
         };
 
         Wiretap.minicart = {
+            toggle: function() {
+                Wiretap.send('Mini-Cart', 'toggle', 'OK');
+            },
             itemRemoved: function() {
                 Wiretap.send('Mini-Cart', 'item-removed', 'OK');
             },
@@ -406,7 +412,7 @@ define([
                 var currentAccordion = _accordions[title];
 
                 if (!currentAccordion.opens.length) {
-                    Wiretap.send('Accordion - ' + title, 'first-open', currentItem + '');
+                    Wiretap.send('Accordion - ' + title, 'first-open', 'Item #' + currentItem);
                 }
 
                 currentAccordion.opens.push(currentItem);
@@ -415,7 +421,7 @@ define([
                 // Then this user doesn't mind having multiple opened
                 // Send how many are currently opened and haven't been closed
                 if (currentAccordion.opens.length > 1 && currentAccordion.opens.length > currentAccordion.closes.length) {
-                    Wiretap.send('Accordion - ' + title, 'multipleOpened', currentAccordion.opens.length - currentAccordion.closes.length);
+                    Wiretap.send('Accordion - ' + title, 'multiple-opened', currentAccordion.opens.length - currentAccordion.closes.length);
                 }
 
                 // If the user has swiped as much as there swipes, maybe they've been to every slide?
@@ -426,15 +432,15 @@ define([
                     // By default lets say they have seen all slides
                     // But if we find a slide we haven't visited, we bail
                     // Rather than firing the event
-                    for (var i = 0, l = currentAccordion.totalItems; i <= l; ++i) {
-                        if (!currentAccordion.opens.indexOf(i + 1)) {
+                    for (var i = 1, l = currentAccordion.totalItems; i <= l; ++i) {
+                        if (currentAccordion.opens.indexOf(i) === -1) {
                             currentAccordion.fullView = false;
                             break;
                         }
                     }
 
                     if (currentAccordion.fullView) {
-                        Wiretap.send('Accordion - ' + title, 'completeView', currentItem + '');
+                        Wiretap.send('Accordion - ' + title, 'complete-view', 'Item #' + currentItem);
 
                         currentAccordion.fullViewFired = true;
                     }
