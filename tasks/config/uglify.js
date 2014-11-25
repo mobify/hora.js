@@ -5,7 +5,7 @@ module.exports = function(grunt) {
         },
         build: {
             files: {
-                'dist/wiretap.min.js': 'src/js/wiretap.js'
+                'dist/hora.min.js': 'src/js/hora.js'
             }
         }
     };

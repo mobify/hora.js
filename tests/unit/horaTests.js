@@ -1,7 +1,7 @@
 define([
     '$',
-    'src/js/wiretap'
-], function($, Wiretap) {
+    'src/js/hora'
+], function($, Hora) {
     window.Mobify = {};
     window.Mobify.analytics = {};
     window.Mobify.analytics.ua = function() {};
@@ -10,19 +10,19 @@ define([
         window.Mobify.analytics.ua = callback;
     };
 
-    describe('Wiretap', function() {
+    describe('Hora', function() {
         describe('Object', function() {
-            it('is correctly returned from wiretap module', function() {
-                assert.isDefined(Wiretap);
-                assert.isObject(Wiretap);
+            it('is correctly returned from hora module', function() {
+                assert.isDefined(Hora);
+                assert.isObject(Hora);
             });
 
             it('correctly includes sub-objects', function() {
-                assert.isDefined(Wiretap.carousel);
-                assert.isDefined(Wiretap.sidebar);
-                assert.isDefined(Wiretap.cart);
-                assert.isDefined(Wiretap.minicart);
-                assert.isDefined(Wiretap.accordion);
+                assert.isDefined(Hora.carousel);
+                assert.isDefined(Hora.sidebar);
+                assert.isDefined(Hora.cart);
+                assert.isDefined(Hora.minicart);
+                assert.isDefined(Hora.accordion);
             });
         });
 
@@ -33,7 +33,7 @@ define([
                     done();
                 };
 
-                Wiretap.send();
+                Hora.send();
             });
 
             it('correctly passes through correct parameters including defaults', function(done) {
@@ -42,7 +42,7 @@ define([
                     done();
                 };
 
-                Wiretap.send('one', 'two', 'three');
+                Hora.send('one', 'two', 'three');
             });
         });
 
@@ -58,10 +58,10 @@ define([
                     }
                 };
 
-                Wiretap.carousel.load(title, size);
+                Hora.carousel.load(title, size);
 
                 for (var i = 1, l = size; i <= l; i++) {
-                    Wiretap.carousel.swipe(title, i);
+                    Hora.carousel.swipe(title, i);
                 }
             });
 
@@ -76,8 +76,8 @@ define([
                     }
                 };
 
-                Wiretap.carousel.load(title, size);
-                Wiretap.carousel.slideClick(title, 1);
+                Hora.carousel.load(title, size);
+                Hora.carousel.slideClick(title, 1);
             });
         });
 
@@ -93,10 +93,10 @@ define([
                     }
                 };
 
-                Wiretap.accordion.load(title, size);
+                Hora.accordion.load(title, size);
 
                 for (var i = 1, l = size; i <= l; i++) {
-                    Wiretap.accordion.open(title, i);
+                    Hora.accordion.open(title, i);
                 }
             });
         });
@@ -107,7 +107,7 @@ define([
                     done();
                 });
 
-                Wiretap.init();
+                Hora.init();
 
                 $(window).trigger('orientationchange');
             });
@@ -119,7 +119,7 @@ define([
                 var o = {name: 'name', value: 'value'};
                 var expectedProperties = ['name', 'value'];
 
-                assert.doesNotThrow(function() { Wiretap.__validateObjectSchema(name, o, expectedProperties); });
+                assert.doesNotThrow(function() { Hora.__validateObjectSchema(name, o, expectedProperties); });
             });
 
             it('fails to validate when object does not contain all specified properties', function() {
@@ -127,7 +127,7 @@ define([
                 var o = {name: 'name'};
                 var expectedProperties = ['name', 'value'];
 
-                assert.throws(function() { Wiretap.__validateObjectSchema(name, o, expectedProperties); }, /The Invalid object doesn\'t contain the value property, which is required/);
+                assert.throws(function() { Hora.__validateObjectSchema(name, o, expectedProperties); }, /The Invalid object doesn\'t contain the value property, which is required/);
             });
 
             it('fails to validate when object contains properties that contain falsy values', function() {
@@ -135,42 +135,42 @@ define([
                 var o = {name: null};
                 var expectedProperties = ['name', 'value'];
 
-                assert.throws(function() { Wiretap.__validateObjectSchema(name, o, expectedProperties); }, /The Invalid object contains the name property, but it\'s value is falsy/);
+                assert.throws(function() { Hora.__validateObjectSchema(name, o, expectedProperties); }, /The Invalid object contains the name property, but it\'s value is falsy/);
             });
         });
 
         describe('sendTransaction', function() {
             describe('validate parameters', function() {
                 it('throws an error when transactionId is not present', function() {
-                    assert.throws(function() { Wiretap.sendTransaction(); });
+                    assert.throws(function() { Hora.sendTransaction(); });
                 });
 
                 it('throws an error when transactionId is not a string', function() {
-                    assert.throws(function() { Wiretap.sendTransaction(true); });
+                    assert.throws(function() { Hora.sendTransaction(true); });
                 });
 
                 it('throws an error when affiliation is not present', function() {
-                    assert.throws(function() { Wiretap.sendTransaction('1234'); });
+                    assert.throws(function() { Hora.sendTransaction('1234'); });
                 });
 
                 it('throws an error when affiliation is not a string', function() {
-                    assert.throws(function() { Wiretap.sendTransaction('1234', true); });
+                    assert.throws(function() { Hora.sendTransaction('1234', true); });
                 });
 
                 it('throws an error when transaction is not present', function() {
-                    assert.throws(function() { Wiretap.sendTransaction('1234', 'Acme Clothing'); });
+                    assert.throws(function() { Hora.sendTransaction('1234', 'Acme Clothing'); });
                 });
 
                 it('throws an error when transaction is not an object', function() {
-                    assert.throws(function() { Wiretap.sendTransaction('1234', 'Acme Clothing', true); });
+                    assert.throws(function() { Hora.sendTransaction('1234', 'Acme Clothing', true); });
                 });
 
                 it('throws an error when transactionItems is not present', function() {
-                    assert.throws(function() { Wiretap.sendTransaction('1234', 'Acme Clothing', {}); });
+                    assert.throws(function() { Hora.sendTransaction('1234', 'Acme Clothing', {}); });
                 });
 
                 it('throws an error when transactionItems is not an array', function() {
-                    assert.throws(function() { Wiretap.sendTransaction('1234', 'Acme Clothing', {}, true); });
+                    assert.throws(function() { Hora.sendTransaction('1234', 'Acme Clothing', {}, true); });
                 });
 
                 it('correctly calls ecommerce:addTransaction with the correct parameters', function(done) {
@@ -195,7 +195,7 @@ define([
                         }
                     });
 
-                    Wiretap.sendTransaction('1234', 'Acme Clothing', {
+                    Hora.sendTransaction('1234', 'Acme Clothing', {
                         revenue: '11.99',
                         shipping: '5',
                         tax: '1.29'
@@ -224,7 +224,7 @@ define([
                         }
                     });
 
-                    Wiretap.sendTransaction('1234', 'Acme Clothing', {
+                    Hora.sendTransaction('1234', 'Acme Clothing', {
                         revenue: 11.99,
                         shipping: 5,
                         tax: 1.29
@@ -254,7 +254,7 @@ define([
                         }
                     });
 
-                    Wiretap.sendTransaction(
+                    Hora.sendTransaction(
                         '1234',
                         'Acme Clothing',
                         {
@@ -296,7 +296,7 @@ define([
                         }
                     });
 
-                    Wiretap.sendTransaction(
+                    Hora.sendTransaction(
                         '1234',
                         'Acme Clothing',
                         {
@@ -334,7 +334,7 @@ define([
                         }
                     });
 
-                    Wiretap.sendTransaction(
+                    Hora.sendTransaction(
                         '1234',
                         'Acme Clothing',
                         {
@@ -378,7 +378,7 @@ define([
                         }
                     });
 
-                    Wiretap.sendTransaction(
+                    Hora.sendTransaction(
                         '1234',
                         'Acme Clothing',
                         {

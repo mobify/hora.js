@@ -8,7 +8,7 @@ require(['config'], function() {
         function(require, chai, mocha) {
 
             var tests = [
-                '../../tests/unit/wiretapTests.js'
+                '../../tests/unit/horaTests.js'
             ];
 
             require(tests, function() {

@@ -1,8 +1,8 @@
-Wiretap
+Hora.js
 =====
 
-[![Bower version](https://badge.fury.io/bo/wiretap.svg)](http://badge.fury.io/bo/wiretap)
-[![Circle CI](https://circleci.com/gh/mobify/wiretap.png?style=shield&circle-token=6dc140769144ab9e2be0316878b3b8575f428eb0)](https://circleci.com/gh/mobify/wiretap)
+[![Bower version](https://badge.fury.io/bo/hora.js.svg)](http://badge.fury.io/bo/hora.js)
+[![Circle CI](https://circleci.com/gh/mobify/hora.png?style=shield&circle-token=6dc140769144ab9e2be0316878b3b8575f428eb0)](https://circleci.com/gh/mobify/hora.js)
 
 A library that assists with tracking user-behavior with custom Google Analytics events
 

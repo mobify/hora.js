@@ -1,7 +1,7 @@
 /* global Mobify */
 /* jslint maxstatements: false */
 /*
- Wiretap
+ Hora.js
  -------
  A library that assists with tracking user-behavior with custom Google Analytics events
 
@@ -52,7 +52,7 @@ define([
         var $window = $(window);
         var $doc = $(document);
 
-        var Wiretap = {};
+        var Hora = {};
 
         var NON_INTERACTION = {'nonInteraction': 1};
 
@@ -71,9 +71,9 @@ define([
          * @param name - a name for what the object represents
          * @param o - the object to test the properties of
          * @param expectedProperties - an Array containing a list of strings of the properties to check
-         * @private - exposed on Wiretap for unit testing
+         * @private - exposed on Hora for unit testing
          */
-        Wiretap.__validateObjectSchema = function(name, o, expectedProperties) {
+        Hora.__validateObjectSchema = function(name, o, expectedProperties) {
             for (var i = 0, l = expectedProperties.length; i < l; i++) {
                 var expectedProperty = expectedProperties[i];
 
@@ -92,9 +92,9 @@ define([
          * sending ecommerce:addTransaction and ecommerce:addItem calls.
          * @param o
          * @returns {*}
-         * @private - exposed on Wiretap for unit testing
+         * @private - exposed on Hora for unit testing
          */
-        Wiretap.__stringifyPropertyValues = function(o) {
+        Hora.__stringifyPropertyValues = function(o) {
             for (var prop in o) {
                 if (o.hasOwnProperty(prop)) {
                     o[prop] = String(o[prop]);
@@ -104,8 +104,8 @@ define([
             return o;
         };
 
-        // Initializes Wiretap and sets up implicitly tracked events: Wiretap.orientationChange, Wiretap.scrollToBottom.
-        Wiretap.init = function() {
+        // Initializes Hora and sets up implicitly tracked events: Hora.orientationChange, Hora.scrollToBottom.
+        Hora.init = function() {
             // Bind events
             $window
                 .on('touchmove', function() {
@@ -116,7 +116,7 @@ define([
                         _swiping = false;
                     }, 50);
                 })
-                .on('orientationchange', Wiretap.orientationChange);
+                .on('orientationchange', Hora.orientationChange);
 
             $window.on('load', function() {
                 var windowHeight = $window.height();
@@ -124,7 +124,7 @@ define([
                 $window
                     .on('scroll', function() {
                         if ($window.scrollTop() + windowHeight === $doc.height()) {
-                            Wiretap.scrollToBottom();
+                            Hora.scrollToBottom();
                         }
                     });
             });
@@ -133,14 +133,14 @@ define([
                 var _alert = window.alert;
 
                 window.alert = function(message) {
-                    Wiretap.error('Alert', message);
+                    Hora.error('Alert', message);
 
                     _alert(message);
                 };
             })();
         };
 
-        Wiretap.send = function() {
+        Hora.send = function() {
             var args = Array.prototype.slice.call(arguments);
 
             args.unshift('mobifyTracker.send', 'event');
@@ -151,7 +151,7 @@ define([
         // Proxies the classic Google Analytics call so that we capture events fired by desktop
         // We then send them through Mobify's analytics call
         // Example: _gaq.push(["_trackEvent", "product selection", "select a size", a(this.options[this.selectedIndex]).text().trim()])
-        Wiretap.proxyClassicAnalytics = function() {
+        Hora.proxyClassicAnalytics = function() {
             if (!window._gaq) {
                 return;
             }
@@ -159,40 +159,40 @@ define([
             var originalPush = window._gaq.push;
 
             window._gaq.push = function(data) {
-                Wiretap.send('Desktop Event: ' + data[1], data[2], data[3], NON_INTERACTION);
+                Hora.send('Desktop Event: ' + data[1], data[2], data[3], NON_INTERACTION);
 
                 return originalPush(data);
             };
         };
 
-        Wiretap.orientationChange = function() {
+        Hora.orientationChange = function() {
             var data = window.innerHeight > window.innerWidth ? 'Landscape to Portrait' : 'Portrait to Landscape';
 
-            Wiretap.send('Orientation Change', data, NON_INTERACTION);
+            Hora.send('Orientation Change', data, NON_INTERACTION);
         };
 
-        Wiretap.carousel = {
+        Hora.carousel = {
             // title = Home, PDP, Related Images
             // currentSlide = 1, 2, 3, 4, 5, 6
-            // eg. Wiretap.carouselSwipe('PDP', 1);
+            // eg. Hora.carouselSwipe('PDP', 1);
             swipe: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
                 if (_swiping) {
                     if (!currentCarousel.swipes.length) {
-                        Wiretap.send('Carousel - ' + title, 'first-swipe', 'Slide #' + currentSlide);
+                        Hora.send('Carousel - ' + title, 'first-swipe', 'Slide #' + currentSlide);
                     }
 
-                    Wiretap.send('Carousel - ' + title, 'swipe', 'Slide #' + currentSlide);
+                    Hora.send('Carousel - ' + title, 'swipe', 'Slide #' + currentSlide);
 
                     currentCarousel.swipes.push(currentSlide);
                 }
                 else {
                     if (!currentCarousel.slides.length) {
-                        Wiretap.send('Carousel - ' + title, 'first-slide', 'Slide #' + currentSlide);
+                        Hora.send('Carousel - ' + title, 'first-slide', 'Slide #' + currentSlide);
                     }
 
-                    Wiretap.send('Carousel - ' + title, 'slide', 'Slide #' + currentSlide);
+                    Hora.send('Carousel - ' + title, 'slide', 'Slide #' + currentSlide);
 
                     currentCarousel.slides.push(currentSlide);
                 }
@@ -215,7 +215,7 @@ define([
                     }
 
                     if (currentCarousel.fullView) {
-                        Wiretap.send('Carousel - ' + title, 'complete-view', 'Slide #' + currentSlide);
+                        Hora.send('Carousel - ' + title, 'complete-view', 'Slide #' + currentSlide);
 
                         currentCarousel.fullViewFired = true;
                     }
@@ -241,17 +241,17 @@ define([
                 // Initially populate the carousel with the first slide
                 _carousels[title].viewed.push(1);
 
-                Wiretap.send('Carousel - ' + title, 'load', totalSlides + '', NON_INTERACTION);
+                Hora.send('Carousel - ' + title, 'load', totalSlides + '', NON_INTERACTION);
             },
 
             zoom: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
                 if (!currentCarousel.zooms.length) {
-                    Wiretap.send('Carousel - ' + title, 'first-zoom', 'Slide #' + currentSlide);
+                    Hora.send('Carousel - ' + title, 'first-zoom', 'Slide #' + currentSlide);
                 }
 
-                Wiretap.send('Carousel - ' + title, 'zoom', 'Slide #' + currentSlide);
+                Hora.send('Carousel - ' + title, 'zoom', 'Slide #' + currentSlide);
 
                 currentCarousel.zooms.push(currentSlide);
             },
@@ -260,10 +260,10 @@ define([
                 var currentCarousel = _carousels[title];
 
                 if (!currentCarousel.clicks.length) {
-                    Wiretap.send('Carousel - ' + title, 'first-click', 'Slide #' + currentSlide);
+                    Hora.send('Carousel - ' + title, 'first-click', 'Slide #' + currentSlide);
                 }
 
-                Wiretap.send('Carousel - ' + title, 'click', 'Slide #' + currentSlide);
+                Hora.send('Carousel - ' + title, 'click', 'Slide #' + currentSlide);
 
                 currentCarousel.clicks.push(currentSlide);
             },
@@ -272,98 +272,98 @@ define([
                 var currentCarousel = _carousels[title];
 
                 if (!currentCarousel.icons.length) {
-                    Wiretap.send('Carousel - ' + title, 'first-icon', 'Slide #' + currentSlide);
+                    Hora.send('Carousel - ' + title, 'first-icon', 'Slide #' + currentSlide);
                 }
 
-                Wiretap.send('Carousel - ' + title, 'icon', currentSlide + '-' + direction);
+                Hora.send('Carousel - ' + title, 'icon', currentSlide + '-' + direction);
 
                 currentCarousel.icons.push(currentSlide);
             }
         };
 
-        // eg. Wiretap.navigationClick('Top Nav', 'Pants');
-        Wiretap.navigationClick = function(menuTitle, itemTitle) {
-            Wiretap.send('Navigation - ' + menuTitle, 'click', itemTitle);
+        // eg. Hora.navigationClick('Top Nav', 'Pants');
+        Hora.navigationClick = function(menuTitle, itemTitle) {
+            Hora.send('Navigation - ' + menuTitle, 'click', itemTitle);
         };
 
-        Wiretap.searchToggle = function() {
-            Wiretap.send('Search', 'toggle', 'OK');
+        Hora.searchToggle = function() {
+            Hora.send('Search', 'toggle', 'OK');
         };
 
-        Wiretap.breadcrumbClick = function() {
-            Wiretap.send('Breadcrumb', 'interaction', 'OK');
+        Hora.breadcrumbClick = function() {
+            Hora.send('Breadcrumb', 'interaction', 'OK');
         };
 
-        Wiretap.backToTopClick = function() {
-            Wiretap.send('Back To Top', 'click', 'OK');
+        Hora.backToTopClick = function() {
+            Hora.send('Back To Top', 'click', 'OK');
         };
 
-        Wiretap.newsletterInteraction = function() {
-            Wiretap.send('Newsletter', 'interaction', 'OK');
+        Hora.newsletterInteraction = function() {
+            Hora.send('Newsletter', 'interaction', 'OK');
         };
 
-        Wiretap.footerInteraction = function() {
-            Wiretap.send('Footer', 'interaction', 'OK');
+        Hora.footerInteraction = function() {
+            Hora.send('Footer', 'interaction', 'OK');
         };
 
-        Wiretap.paginationInteraction = function() {
-            Wiretap.send('Pagination', 'interaction', 'OK');
+        Hora.paginationInteraction = function() {
+            Hora.send('Pagination', 'interaction', 'OK');
         };
 
-        Wiretap.filtersToggle = function(title) {
-            Wiretap.send('Filters: ' + title, 'toggle', 'OK');
+        Hora.filtersToggle = function(title) {
+            Hora.send('Filters: ' + title, 'toggle', 'OK');
         };
 
-        Wiretap.filtersChange = function(title, type, amount) {
-            Wiretap.send('Filters: ' + title, 'Change: ' + type, amount);
+        Hora.filtersChange = function(title, type, amount) {
+            Hora.send('Filters: ' + title, 'Change: ' + type, amount);
         };
 
-        Wiretap.scrollToBottom = function() {
-            Wiretap.send('Scroll To Bottom', 'interaction', 'OK');
+        Hora.scrollToBottom = function() {
+            Hora.send('Scroll To Bottom', 'interaction', 'OK');
         };
 
-        Wiretap.sizeGuideOpen = function() {
-            Wiretap.send('Size Guide', 'open', 'OK');
+        Hora.sizeGuideOpen = function() {
+            Hora.send('Size Guide', 'open', 'OK');
         };
 
-        Wiretap.emailFriend = function() {
-            Wiretap.send('Email Friend', 'open', 'OK');
+        Hora.emailFriend = function() {
+            Hora.send('Email Friend', 'open', 'OK');
         };
 
-        Wiretap.emailMeBack = function() {
-            Wiretap.send('Email Me Back', 'open', 'OK');
+        Hora.emailMeBack = function() {
+            Hora.send('Email Me Back', 'open', 'OK');
         };
 
-        Wiretap.adjustColor = function(title) {
-            Wiretap.send(title, 'Adjust Color');
+        Hora.adjustColor = function(title) {
+            Hora.send(title, 'Adjust Color');
         };
 
-        Wiretap.adjustQuantity = function(title, amount) {
-            Wiretap.send(title, 'Adjust Quantity', amount + '');
+        Hora.adjustQuantity = function(title, amount) {
+            Hora.send(title, 'Adjust Quantity', amount + '');
         };
 
-        Wiretap.adjustSize = function(title, amount) {
-            Wiretap.send(title, 'Adjust Size', amount + '');
+        Hora.adjustSize = function(title, amount) {
+            Hora.send(title, 'Adjust Size', amount + '');
         };
 
-        Wiretap.error = function(title, comment) {
-            Wiretap.send('Error', title, comment);
+        Hora.error = function(title, comment) {
+            Hora.send('Error', title, comment);
         };
 
-        Wiretap.checkReviews = function(title) {
-            Wiretap.send(title, 'Check Reviews');
+        Hora.checkReviews = function(title) {
+            Hora.send(title, 'Check Reviews');
         };
 
-        Wiretap.sidebar = {
+        Hora.sidebar = {
             opened: function(title) {
-                Wiretap.send(title, 'Sidebar Opened');
+                Hora.send(title, 'Sidebar Opened');
             },
             closed: function(title) {
-                Wiretap.send(title, 'Sidebar Closed');
+                Hora.send(title, 'Sidebar Closed');
             }
         };
 
-        Wiretap.cart = {
+        Hora.cart = {
             itemAdded: function() {
                 var fullCarouselView = false;
 
@@ -378,41 +378,41 @@ define([
                 }
 
                 if (fullCarouselView) {
-                    Wiretap.send('Cart', 'item-added-after-full-carousel-view', 'OK');
+                    Hora.send('Cart', 'item-added-after-full-carousel-view', 'OK');
                 }
                 else {
-                    Wiretap.send('Cart', 'item-added', 'OK');
+                    Hora.send('Cart', 'item-added', 'OK');
                 }
             }
         };
 
-        Wiretap.minicart = {
+        Hora.minicart = {
             toggle: function() {
-                Wiretap.send('Mini-Cart', 'toggle', 'OK');
+                Hora.send('Mini-Cart', 'toggle', 'OK');
             },
             itemRemoved: function() {
-                Wiretap.send('Mini-Cart', 'item-removed', 'OK');
+                Hora.send('Mini-Cart', 'item-removed', 'OK');
             },
 
             editEnabled: function() {
-                Wiretap.send('Mini-Cart', 'edit-enabled', 'OK');
+                Hora.send('Mini-Cart', 'edit-enabled', 'OK');
             },
 
             editDisabled: function() {
-                Wiretap.send('Mini-Cart', 'edit-disabled', 'OK');
+                Hora.send('Mini-Cart', 'edit-disabled', 'OK');
             },
 
             quantityChanged: function() {
-                Wiretap.send('Mini-Cart', 'quantity-changed', 'OK');
+                Hora.send('Mini-Cart', 'quantity-changed', 'OK');
             }
         };
 
-        Wiretap.accordion = {
+        Hora.accordion = {
             open: function(title, currentItem) {
                 var currentAccordion = _accordions[title];
 
                 if (!currentAccordion.opens.length) {
-                    Wiretap.send('Accordion - ' + title, 'first-open', 'Item #' + currentItem);
+                    Hora.send('Accordion - ' + title, 'first-open', 'Item #' + currentItem);
                 }
 
                 currentAccordion.opens.push(currentItem);
@@ -421,7 +421,7 @@ define([
                 // Then this user doesn't mind having multiple opened
                 // Send how many are currently opened and haven't been closed
                 if (currentAccordion.opens.length > 1 && currentAccordion.opens.length > currentAccordion.closes.length) {
-                    Wiretap.send('Accordion - ' + title, 'multiple-opened', currentAccordion.opens.length - currentAccordion.closes.length);
+                    Hora.send('Accordion - ' + title, 'multiple-opened', currentAccordion.opens.length - currentAccordion.closes.length);
                 }
 
                 // If the user has swiped as much as there swipes, maybe they've been to every slide?
@@ -440,7 +440,7 @@ define([
                     }
 
                     if (currentAccordion.fullView) {
-                        Wiretap.send('Accordion - ' + title, 'complete-view', 'Item #' + currentItem);
+                        Hora.send('Accordion - ' + title, 'complete-view', 'Item #' + currentItem);
 
                         currentAccordion.fullViewFired = true;
                     }
@@ -465,7 +465,7 @@ define([
                     };
                 }
 
-                Wiretap.send('Accordion - ' + title, 'load', totalItems + '', NON_INTERACTION);
+                Hora.send('Accordion - ' + title, 'load', totalItems + '', NON_INTERACTION);
             }
         };
 
@@ -480,7 +480,7 @@ define([
          *
          * @example
          *
-         * Wiretap.sendTransaction('1234', 'Acme Clothing'
+         * Hora.sendTransaction('1234', 'Acme Clothing'
          * {
          *    'revenue': '11.99',               // Grand Total.
          *    'shipping': '5',                  // Shipping.
@@ -496,29 +496,29 @@ define([
          *     }
          * ]);
          */
-        Wiretap.sendTransaction = function(transactionId, affiliation, transaction, transactionItems) {
+        Hora.sendTransaction = function(transactionId, affiliation, transaction, transactionItems) {
             var ECOMMERCE_PLUGIN = 'mobifyTracker.ecommerce';
 
             if (!transactionId || !$.isString(transactionId)) {
-                throw 'Wiretap.sendTransaction requires a string containing the transaction ID, i.e. "1234"';
+                throw 'Hora.sendTransaction requires a string containing the transaction ID, i.e. "1234"';
             }
 
             if (!affiliation || !$.isString(affiliation)) {
-                throw 'Wiretap.sendTransaction requires a string containing the affiliation, usually the project name, i.e. "Acme Clothing"';
+                throw 'Hora.sendTransaction requires a string containing the affiliation, usually the project name, i.e. "Acme Clothing"';
             }
 
             if (!transaction || !$.isPlainObject(transaction)) {
-                throw 'Wiretap.sendTransaction requires an object literal containing the transaction details, i.e. {"revenue": "11.99","shipping": "5","tax": "1.29"}';
+                throw 'Hora.sendTransaction requires an object literal containing the transaction details, i.e. {"revenue": "11.99","shipping": "5","tax": "1.29"}';
             }
 
             if (!transactionItems || !$.isArray(transactionItems)) {
-                throw 'Wiretap.sendTransaction requires an Array containing the transaction item details';
+                throw 'Hora.sendTransaction requires an Array containing the transaction item details';
             }
 
             transaction.id = transactionId;
             transaction.affiliation = affiliation;
 
-            Wiretap.__stringifyPropertyValues(transaction);
+            Hora.__stringifyPropertyValues(transaction);
 
             Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':addTransaction', transaction);
 
@@ -529,8 +529,8 @@ define([
                 // This should match the parent transaction ID submitted in the transaction parameter.
                 transactionItem.id = transactionId;
 
-                Wiretap.__validateObjectSchema('item', transactionItem, ['id', 'name', 'sku']);
-                Wiretap.__stringifyPropertyValues(transactionItem);
+                Hora.__validateObjectSchema('item', transactionItem, ['id', 'name', 'sku']);
+                Hora.__stringifyPropertyValues(transactionItem);
 
                 Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':addItem', transactionItem);
             }
@@ -538,5 +538,5 @@ define([
             Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':send');
         };
 
-        return Wiretap;
+        return Hora;
     });
