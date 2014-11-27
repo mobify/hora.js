@@ -10,7 +10,7 @@ Hora.js is a convenient and simple wrapper for sending Mobify Analytics events (
 |-----|
 
 ## Table of Contents
-**1. [Getting Started]]**
+**1. [Getting Started](https://github.com/mobify/hora.js/wiki/Getting-Started)**
 
 * 1.1. [Installation](https://github.com/mobify/hora.js/wiki/Getting-Started#11-installation)
 * 1.2. [Adding to Project](https://github.com/mobify/hora.js/wiki/Getting-Started#12-adding-to-project)
