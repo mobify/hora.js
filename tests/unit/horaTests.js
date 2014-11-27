@@ -23,6 +23,16 @@ define([
                 assert.isDefined(Hora.cart);
                 assert.isDefined(Hora.minicart);
                 assert.isDefined(Hora.accordion);
+                assert.isDefined(Hora.search);
+                assert.isDefined(Hora.filters);
+                assert.isDefined(Hora.color);
+                assert.isDefined(Hora.quantity);
+                assert.isDefined(Hora.size);
+                assert.isDefined(Hora.error);
+                assert.isDefined(Hora.emailFriend);
+                assert.isDefined(Hora.emailMeBack);
+                assert.isDefined(Hora.sidebar);
+                assert.isDefined(Hora.navigation);
             });
         });
 
@@ -47,13 +57,13 @@ define([
         });
 
         describe('carousel', function() {
-            it('correctly sends the complete-view event', function(done) {
+            it('correctly sends the View All Slides event', function(done) {
                 var title = 'Test 1';
                 var size = 3;
 
                 Mobify.analytics.ua = function() {
                     if (arguments[2] === 'Carousel - ' + title
-                        && arguments[3] === 'complete-view') {
+                        && arguments[3] === 'View All Slides') {
                         done();
                     }
                 };
@@ -65,13 +75,13 @@ define([
                 }
             });
 
-            it('correctly sends slide click event', function(done) {
+            it('correctly sends slide First Click event', function(done) {
                 var title = 'Test 1';
                 var size = 1;
 
                 Mobify.analytics.ua = function() {
                     if (arguments[2] === 'Carousel - ' + title
-                        && arguments[3] === 'first-click') {
+                        && arguments[3] === 'First Click') {
                         done();
                     }
                 };
@@ -82,13 +92,13 @@ define([
         });
 
         describe('accordion', function() {
-            it('correctly sends the complete-view event', function(done) {
+            it('correctly sends the View All Items event', function(done) {
                 var title = 'Test 1';
                 var size = 3;
 
                 Mobify.analytics.ua = function() {
                     if (arguments[2] === 'Accordion - ' + title
-                        && arguments[3] === 'complete-view') {
+                        && arguments[3] === 'View All Items') {
                         done();
                     }
                 };
@@ -102,7 +112,7 @@ define([
         });
 
         describe('orientationChange', function() {
-            it('correctly sends orientationChange data', function(done) {
+            it('correctly sends Orientation Change data', function(done) {
                 proxyUA(function() {
                     done();
                 });

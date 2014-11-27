@@ -77,7 +77,7 @@ define([
                         _swiping = false;
                     }, 50);
                 })
-                .on('orientationchange', Hora.orientationChange);
+                .on('orientationchange', Hora.orientation.change);
 
             $window.on('load', function() {
                 var windowHeight = $window.height();
@@ -85,7 +85,7 @@ define([
                 $window
                     .on('scroll', function() {
                         if ($window.scrollTop() + windowHeight === $doc.height()) {
-                            Hora.scrollToBottom();
+                            Hora.scroll.bottom('Page');
                         }
                     });
             });
@@ -94,7 +94,7 @@ define([
                 var _alert = window.alert;
 
                 window.alert = function(message) {
-                    Hora.error('Alert', message);
+                    Hora.error.alert(message);
 
                     _alert(message);
                 };
@@ -177,10 +177,12 @@ define([
 
         // Hora.orientationChange
         // eg. Hora.orientationChange();
-        Hora.orientationChange = function() {
-            var data = window.innerHeight > window.innerWidth ? 'Landscape to Portrait' : 'Portrait to Landscape';
+        Hora.orientation = {
+            change: function() {
+                var data = window.innerHeight > window.innerWidth ? 'Landscape to Portrait' : 'Portrait to Landscape';
 
-            Hora.send('Orientation Change', data, NON_INTERACTION);
+                Hora.send('Orientation', 'Change', data, NON_INTERACTION);
+            }
         };
 
         Hora.carousel = {
@@ -192,19 +194,19 @@ define([
 
                 if (_swiping) {
                     if (!currentCarousel.swipes.length) {
-                        Hora.send('Carousel - ' + title, 'first-swipe', 'Slide #' + currentSlide);
+                        Hora.send('Carousel - ' + title, 'First Swipe', 'Slide #' + currentSlide);
                     }
 
-                    Hora.send('Carousel - ' + title, 'swipe', 'Slide #' + currentSlide);
+                    Hora.send('Carousel - ' + title, 'Swipe', 'Slide #' + currentSlide);
 
                     currentCarousel.swipes.push(currentSlide);
                 }
                 else {
                     if (!currentCarousel.slides.length) {
-                        Hora.send('Carousel - ' + title, 'first-slide', 'Slide #' + currentSlide);
+                        Hora.send('Carousel - ' + title, 'First Slide', 'Slide #' + currentSlide);
                     }
 
-                    Hora.send('Carousel - ' + title, 'slide', 'Slide #' + currentSlide);
+                    Hora.send('Carousel - ' + title, 'Slide', 'Slide #' + currentSlide);
 
                     currentCarousel.slides.push(currentSlide);
                 }
@@ -227,7 +229,7 @@ define([
                     }
 
                     if (currentCarousel.fullView) {
-                        Hora.send('Carousel - ' + title, 'complete-view', 'Slide #' + currentSlide);
+                        Hora.send('Carousel - ' + title, 'View All Slides', 'Slide #' + currentSlide);
 
                         currentCarousel.fullViewFired = true;
                     }
@@ -253,17 +255,17 @@ define([
                 // Initially populate the carousel with the first slide
                 _carousels[title].viewed.push(1);
 
-                Hora.send('Carousel - ' + title, 'load', totalSlides + '', NON_INTERACTION);
+                Hora.send('Carousel - ' + title, 'Load', 'Total ' + totalSlides, NON_INTERACTION);
             },
 
             zoom: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
                 if (!currentCarousel.zooms.length) {
-                    Hora.send('Carousel - ' + title, 'first-zoom', 'Slide #' + currentSlide);
+                    Hora.send('Carousel - ' + title, 'First Zoom', 'Slide #' + currentSlide);
                 }
 
-                Hora.send('Carousel - ' + title, 'zoom', 'Slide #' + currentSlide);
+                Hora.send('Carousel - ' + title, 'Zoom', 'Slide #' + currentSlide);
 
                 currentCarousel.zooms.push(currentSlide);
             },
@@ -272,10 +274,10 @@ define([
                 var currentCarousel = _carousels[title];
 
                 if (!currentCarousel.clicks.length) {
-                    Hora.send('Carousel - ' + title, 'first-click', 'Slide #' + currentSlide);
+                    Hora.send('Carousel - ' + title, 'First Click', 'Slide #' + currentSlide);
                 }
 
-                Hora.send('Carousel - ' + title, 'click', 'Slide #' + currentSlide);
+                Hora.send('Carousel - ' + title, 'Click', 'Slide #' + currentSlide);
 
                 currentCarousel.clicks.push(currentSlide);
             },
@@ -284,99 +286,138 @@ define([
                 var currentCarousel = _carousels[title];
 
                 if (!currentCarousel.icons.length) {
-                    Hora.send('Carousel - ' + title, 'first-icon', 'Slide #' + currentSlide);
+                    Hora.send('Carousel - ' + title, 'First Icon', 'Slide #' + currentSlide);
                 }
 
-                Hora.send('Carousel - ' + title, 'icon', currentSlide + '-' + direction);
+                Hora.send('Carousel - ' + title, 'Icon', currentSlide + '-' + direction);
 
                 currentCarousel.icons.push(currentSlide);
             }
         };
 
         // eg. Hora.navigationClick('Top Nav', 'Pants');
-        Hora.navigationClick = function(menuTitle, itemTitle) {
-            Hora.send('Navigation - ' + menuTitle, 'click', itemTitle);
+        Hora.navigation = {
+            click: function(menuTitle, itemTitle) {
+                Hora.send('Navigation - ' + menuTitle, 'Click', itemTitle);
+            }
         };
 
-        Hora.searchToggle = function() {
-            Hora.send('Search', 'toggle', 'OK');
+        Hora.search = {
+            toggle: function() {
+                Hora.send('Search', 'Toggle', 'OK');
+            }
         };
 
-        Hora.breadcrumbClick = function() {
-            Hora.send('Breadcrumb', 'interaction', 'OK');
+        Hora.breadcrumb = {
+            interact: function() {
+                Hora.send('Breadcrumb', 'Interact', 'OK');
+            }
         };
 
-        Hora.backToTopClick = function() {
-            Hora.send('Back To Top', 'click', 'OK');
+        Hora.backToTop = {
+            click: function() {
+                Hora.send('Back To Top', 'Click', 'OK');
+            }
         };
 
-        Hora.newsletterInteraction = function() {
-            Hora.send('Newsletter', 'interaction', 'OK');
+        Hora.newsletter = {
+            interact: function() {
+                Hora.send('Newsletter', 'Interact', 'OK');
+            }
         };
 
-        Hora.footerInteraction = function() {
-            Hora.send('Footer', 'interaction', 'OK');
+        Hora.footer = {
+            interact: function() {
+                Hora.send('Footer', 'Interact', 'OK');
+            }
         };
 
-        Hora.paginationInteraction = function() {
-            Hora.send('Pagination', 'interaction', 'OK');
+        Hora.pagination = {
+            interact: function() {
+                Hora.send('Pagination', 'Interact', 'OK');
+            }
         };
 
-        Hora.filtersToggle = function(title) {
-            Hora.send('Filters: ' + title, 'toggle', 'OK');
+        Hora.filters = {
+            toggle: function(title) {
+                Hora.send('Filters: ' + title, 'Toggle', 'OK');
+            }
         };
 
-        Hora.filtersChange = function(title, type, amount) {
-            Hora.send('Filters: ' + title, 'Change: ' + type, amount);
+        Hora.filters = {
+            change: function(title, type, amount) {
+                Hora.send('Filters: ' + title, 'Change: ' + type, amount);
+            }
         };
 
-        Hora.scrollToBottom = function() {
-            Hora.send('Scroll To Bottom', 'interaction', 'OK');
+        Hora.scrollToBottom = {
+            open: function() {
+                Hora.send('Scroll To Bottom', 'Interact', 'OK');
+            }
         };
 
-        Hora.sizeGuideOpen = function() {
-            Hora.send('Size Guide', 'open', 'OK');
+        Hora.sizeGuideOpen = {
+            open: function() {
+                Hora.send('Size Guide', 'Open', 'OK');
+            }
         };
 
-        Hora.emailFriend = function() {
-            Hora.send('Email Friend', 'open', 'OK');
+        Hora.emailFriend = {
+            open: function() {
+                Hora.send('Email Friend', 'Open', 'OK');
+            }
         };
 
-        Hora.emailMeBack = function() {
-            Hora.send('Email Me Back', 'open', 'OK');
+        Hora.emailMeBack = {
+            open: function() {
+                Hora.send('Email Me Back', 'Open', 'OK');
+            }
         };
 
-        Hora.adjustColor = function(title) {
-            Hora.send(title, 'Adjust Color');
+        Hora.color = {
+            change: function(title) {
+                Hora.send(title, 'Change Color');
+            }
         };
 
-        Hora.adjustQuantity = function(title, amount) {
-            Hora.send(title, 'Adjust Quantity', amount + '');
+        Hora.quantity = {
+            change: function(title, amount) {
+                Hora.send(title, 'Change Quantity', amount + '');
+            }
         };
 
-        Hora.adjustSize = function(title, amount) {
-            Hora.send(title, 'Adjust Size', amount + '');
+        Hora.size = {
+            change: function(title, amount) {
+                Hora.send(title, 'Change Size', amount + '');
+            }
         };
 
-        Hora.error = function(title, comment) {
-            Hora.send('Error', title, comment);
+        Hora.error = {
+            error: function(title, comment) {
+                Hora.send('Error', title, comment);
+            },
+            alert: function(comment) {
+                Hora.send('Error', 'Alert', comment);
+            }
         };
 
-        Hora.checkReviews = function(title) {
-            Hora.send(title, 'Check Reviews');
+        Hora.reviews = {
+            read: function(title) {
+                Hora.send(title, 'Reviews Read');
+            }
         };
 
         Hora.sidebar = {
-            opened: function(title) {
-                Hora.send(title, 'Sidebar Opened');
+            open: function(title) {
+                Hora.send(title, 'Sidebar Open');
             },
-            closed: function(title) {
-                Hora.send(title, 'Sidebar Closed');
+            close: function(title) {
+                Hora.send(title, 'Sidebar Close');
             }
         };
 
         Hora.cart = {
-            itemAdded: function() {
+            addItem: function() {
                 var fullCarouselView = false;
 
                 for (var title in _carousels) {
@@ -390,18 +431,22 @@ define([
                 }
 
                 if (fullCarouselView) {
-                    Hora.send('Cart', 'item-added-after-full-carousel-view', 'OK');
+                    Hora.send('Cart', 'Add Item After View All Carousel Items', 'OK');
                 }
                 else {
-                    Hora.send('Cart', 'item-added', 'OK');
+                    Hora.send('Cart', 'Add Item', 'OK');
                 }
+            },
+            removeItem: function() {
+                // TODO
             }
         };
 
         Hora.minicart = {
             toggle: function() {
-                Hora.send('Mini-Cart', 'toggle', 'OK');
+                Hora.send('Mini-Cart', 'Toggle', 'OK');
             },
+
             itemRemoved: function() {
                 Hora.send('Mini-Cart', 'item-removed', 'OK');
             },
@@ -414,8 +459,8 @@ define([
                 Hora.send('Mini-Cart', 'edit-disabled', 'OK');
             },
 
-            quantityChanged: function() {
-                Hora.send('Mini-Cart', 'quantity-changed', 'OK');
+            changeQuantity: function() {
+                Hora.quantity.change('Mini-Cart', 'OK');
             }
         };
 
@@ -424,7 +469,7 @@ define([
                 var currentAccordion = _accordions[title];
 
                 if (!currentAccordion.opens.length) {
-                    Hora.send('Accordion - ' + title, 'first-open', 'Item #' + currentItem);
+                    Hora.send('Accordion - ' + title, 'First Open', 'Item #' + currentItem);
                 }
 
                 currentAccordion.opens.push(currentItem);
@@ -433,7 +478,7 @@ define([
                 // Then this user doesn't mind having multiple opened
                 // Send how many are currently opened and haven't been closed
                 if (currentAccordion.opens.length > 1 && currentAccordion.opens.length > currentAccordion.closes.length) {
-                    Hora.send('Accordion - ' + title, 'multiple-opened', currentAccordion.opens.length - currentAccordion.closes.length);
+                    Hora.send('Accordion - ' + title, 'Open Multiple', currentAccordion.opens.length - currentAccordion.closes.length);
                 }
 
                 // If the user has swiped as much as there swipes, maybe they've been to every slide?
@@ -452,7 +497,7 @@ define([
                     }
 
                     if (currentAccordion.fullView) {
-                        Hora.send('Accordion - ' + title, 'complete-view', 'Item #' + currentItem);
+                        Hora.send('Accordion - ' + title, 'View All Items', 'Item #' + currentItem);
 
                         currentAccordion.fullViewFired = true;
                     }
@@ -477,7 +522,7 @@ define([
                     };
                 }
 
-                Hora.send('Accordion - ' + title, 'load', totalItems + '', NON_INTERACTION);
+                Hora.send('Accordion - ' + title, 'Load', 'Total ' + totalItems, NON_INTERACTION);
             }
         };
 
