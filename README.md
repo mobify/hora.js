@@ -4,6 +4,7 @@ Hora.js
 ![Creeper](https://s3.amazonaws.com/uploads.hipchat.com/15359/425065/PbAANygwM20lNpS/hora.png)
 
 [![Bower version](https://badge.fury.io/bo/hora.js.svg)](http://badge.fury.io/bo/hora.js)
+[![Circle CI](https://circleci.com/gh/mobify/hora.js.svg?style=svg)](https://circleci.com/gh/mobify/hora.js)
 
 A library that assists with tracking user-behavior with custom Google Analytics events
 
