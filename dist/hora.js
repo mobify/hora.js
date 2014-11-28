@@ -27,6 +27,18 @@ define([
             }
         });
 
+        Hora.__carousels = {
+            clear: function() {
+                _carousels = [];
+            }
+        };
+
+        Hora.__accordions = {
+            clear: function() {
+                _accordions = [];
+            }
+        };
+
         /**
          * @description Validates whether an object contains all the required properties
          * @param name - a name for what the object represents
@@ -304,46 +316,46 @@ define([
 
         Hora.search = {
             toggle: function() {
-                Hora.send('Search', 'Toggle', 'OK');
+                Hora.send('Search', 'Toggle');
             }
         };
 
         Hora.breadcrumb = {
             interact: function() {
-                Hora.send('Breadcrumb', 'Interact', 'OK');
+                Hora.send('Breadcrumb', 'Interact');
             }
         };
 
         Hora.backToTop = {
             click: function() {
-                Hora.send('Back To Top', 'Click', 'OK');
+                Hora.send('Back To Top', 'Click');
             }
         };
 
         Hora.newsletter = {
             interact: function() {
-                Hora.send('Newsletter', 'Interact', 'OK');
+                Hora.send('Newsletter', 'Interact');
             }
         };
 
         Hora.footer = {
             interact: function() {
-                Hora.send('Footer', 'Interact', 'OK');
+                Hora.send('Footer', 'Interact');
             }
         };
 
         Hora.pagination = {
             interact: function() {
-                Hora.send('Pagination', 'Interact', 'OK');
+                Hora.send('Pagination', 'Interact');
             }
         };
 
         Hora.filters = {
             toggle: function(title) {
-                Hora.send('Filters: ' + title, 'Toggle', 'OK');
+                Hora.send('Filters - ' + title, 'Toggle');
             },
             change: function(title, type, amount) {
-                Hora.send('Filters: ' + title, 'Change: ' + type, amount);
+                Hora.send('Filters - ' + title, 'Change: ' + type, amount);
             }
         };
 
@@ -364,37 +376,37 @@ define([
 
         Hora.sizeGuide = {
             open: function() {
-                Hora.send('Size Guide', 'Open', 'OK');
+                Hora.send('Size Guide', 'Open');
             }
         };
 
         Hora.emailFriend = {
             open: function() {
-                Hora.send('Email Friend', 'Open', 'OK');
+                Hora.send('Email Friend', 'Open');
             }
         };
 
         Hora.emailMeBack = {
             open: function() {
-                Hora.send('Email Me Back', 'Open', 'OK');
+                Hora.send('Email Me Back', 'Open');
             }
         };
 
         Hora.color = {
             change: function(title) {
-                Hora.send(title, 'Change Color');
+                Hora.send('Color - ' + title, 'Change');
             }
         };
 
         Hora.quantity = {
             change: function(title, amount) {
-                Hora.send(title, 'Change Quantity', amount + '');
+                Hora.send('Quantity - ' + title, 'Change', amount + '');
             }
         };
 
         Hora.size = {
             change: function(title, amount) {
-                Hora.send(title, 'Change Size', amount + '');
+                Hora.send('Size - ' + title, 'Change', amount + '');
             }
         };
 
@@ -409,16 +421,16 @@ define([
 
         Hora.reviews = {
             read: function(title) {
-                Hora.send(title, 'Reviews Read');
+                Hora.send('Reviews - ' + title, 'Read');
             }
         };
 
         Hora.sidebar = {
             open: function(title) {
-                Hora.send(title, 'Sidebar Open');
+                Hora.send('Sidebar - ' + title, 'Open');
             },
             close: function(title) {
-                Hora.send(title, 'Sidebar Close');
+                Hora.send('Sidebar - ' + title, 'Close');
             }
         };
 
@@ -437,10 +449,10 @@ define([
                 }
 
                 if (fullCarouselView) {
-                    Hora.send('Cart', 'Add Item After View All Carousel Items', 'OK');
+                    Hora.send('Cart', 'Add Item After View All Carousel Items');
                 }
                 else {
-                    Hora.send('Cart', 'Add Item', 'OK');
+                    Hora.send('Cart', 'Add Item');
                 }
             },
             removeItem: function() {
@@ -450,23 +462,23 @@ define([
 
         Hora.minicart = {
             toggle: function() {
-                Hora.send('Mini-Cart', 'Toggle', 'OK');
+                Hora.send('Mini-Cart', 'Toggle');
             },
 
             itemRemoved: function() {
-                Hora.send('Mini-Cart', 'item-removed', 'OK');
+                Hora.send('Mini-Cart', 'item-removed');
             },
 
             editEnabled: function() {
-                Hora.send('Mini-Cart', 'edit-enabled', 'OK');
+                Hora.send('Mini-Cart', 'edit-enabled');
             },
 
             editDisabled: function() {
-                Hora.send('Mini-Cart', 'edit-disabled', 'OK');
+                Hora.send('Mini-Cart', 'edit-disabled');
             },
 
             changeQuantity: function() {
-                Hora.quantity.change('Mini-Cart', 'OK');
+                Hora.quantity.change('Mini-Cart');
             }
         };
 

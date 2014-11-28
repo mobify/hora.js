@@ -85,6 +85,8 @@ define([
 
                 Hora.carousel.load(title, size);
                 Hora.carousel.slide(title, 1);
+
+                Hora.__carousels.clear();
             });
 
             it('correctly sends the View All Slides event', function(done) {
@@ -103,6 +105,8 @@ define([
                 for (var i = 1, l = size; i <= l; i++) {
                     Hora.carousel.slide(title, i);
                 }
+
+                Hora.__carousels.clear();
             });
 
             it('correctly sends the First Click event', function(done) {
@@ -118,6 +122,8 @@ define([
 
                 Hora.carousel.load(title, size);
                 Hora.carousel.slideClick(title, 1);
+
+                Hora.__carousels.clear();
             });
         });
 
@@ -135,6 +141,8 @@ define([
                 };
 
                 Hora.accordion.load(title, size);
+
+                Hora.__accordions.clear();
             });
 
             it('correctly sends the View All Items event', function(done) {
@@ -153,6 +161,8 @@ define([
                 for (var i = 1, l = size; i <= l; i++) {
                     Hora.accordion.open(title, i);
                 }
+
+                Hora.__accordions.clear();
             });
 
             it('correctly sends the First Open event', function(done) {
@@ -168,6 +178,8 @@ define([
 
                 Hora.accordion.load(title, size);
                 Hora.accordion.open(title, 1);
+
+                Hora.__accordions.clear();
             });
 
             it('correctly sends the Multiple Open event', function(done) {
@@ -184,6 +196,8 @@ define([
                 Hora.accordion.load(title, size);
                 Hora.accordion.open(title, 1);
                 Hora.accordion.open(title, 2);
+
+                Hora.__accordions.clear();
             });
         });
 
@@ -252,6 +266,293 @@ define([
                 Hora.scroll.bottom(title);
             });
         });
+
+        describe('search', function() {
+            it('correctly sends the Toggle event', function(done) {
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Search'
+                        && arguments[3] === 'Toggle') {
+                        done();
+                    }
+                };
+
+                Hora.search.toggle();
+            });
+        });
+
+        describe('breadcrumb', function() {
+            it('correctly sends the Interact event', function(done) {
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Breadcrumb'
+                        && arguments[3] === 'Interact') {
+                        done();
+                    }
+                };
+
+                Hora.breadcrumb.interact();
+            });
+        });
+
+        describe('newsletter', function() {
+            it('correctly sends the Interact event', function(done) {
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Newsletter'
+                        && arguments[3] === 'Interact') {
+                        done();
+                    }
+                };
+
+                Hora.newsletter.interact();
+            });
+        });
+
+        describe('backToTop', function() {
+            it('correctly sends the Click event', function(done) {
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Back To Top'
+                        && arguments[3] === 'Click') {
+                        done();
+                    }
+                };
+
+                Hora.backToTop.click();
+            });
+        });
+
+        describe('footer', function() {
+            it('correctly sends the Interact event', function(done) {
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Footer'
+                        && arguments[3] === 'Interact') {
+                        done();
+                    }
+                };
+
+                Hora.footer.interact();
+            });
+        });
+
+        describe('pagination', function() {
+            it('correctly sends the Interact event', function(done) {
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Pagination'
+                        && arguments[3] === 'Interact') {
+                        done();
+                    }
+                };
+
+                Hora.pagination.interact();
+            });
+        });
+
+        describe('filters', function() {
+            it('correctly sends the Toggle event', function(done) {
+                var title = 'Test 1';
+
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Filters - ' + title
+                        && arguments[3] === 'Toggle') {
+                        done();
+                    }
+                };
+
+                Hora.filters.toggle(title);
+            });
+        });
+
+        describe('sizeGuide', function() {
+            it('correctly sends the Open event', function(done) {
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Size Guide'
+                        && arguments[3] === 'Open') {
+                        done();
+                    }
+                };
+
+                Hora.sizeGuide.open();
+            });
+        });
+
+        describe('emailFriend', function() {
+            it('correctly sends the Open event', function(done) {
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Email Friend'
+                        && arguments[3] === 'Open') {
+                        done();
+                    }
+                };
+
+                Hora.emailFriend.open();
+            });
+        });
+
+        describe('emailMeBack', function() {
+            it('correctly sends the Open event', function(done) {
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Email Me Back'
+                        && arguments[3] === 'Open') {
+                        done();
+                    }
+                };
+
+                Hora.emailMeBack.open();
+            });
+        });
+
+        describe('color', function() {
+            it('correctly sends the Change event', function(done) {
+                var title = 'Test 1';
+
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Color - ' + title
+                        && arguments[3] === 'Change') {
+                        done();
+                    }
+                };
+
+                Hora.color.change(title);
+            });
+        });
+
+        describe('quantity', function() {
+            it('correctly sends the Change event', function(done) {
+                var title = 'Test 1';
+
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Quantity - ' + title
+                        && arguments[3] === 'Change') {
+                        done();
+                    }
+                };
+
+                Hora.quantity.change(title);
+            });
+        });
+
+        describe('size', function() {
+            it('correctly sends the Change event', function(done) {
+                var title = 'Test 1';
+
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Size - ' + title
+                        && arguments[3] === 'Change') {
+                        done();
+                    }
+                };
+
+                Hora.size.change(title);
+            });
+        });
+
+        describe('error', function() {
+            it('correctly sends the Alert event', function(done) {
+                var message = 'Unknown Error';
+
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Error'
+                        && arguments[3] === 'Alert'
+                        && arguments[4] === message) {
+                        done();
+                    }
+                };
+
+                Hora.error.alert(message);
+            });
+        });
+
+        describe('reviews', function() {
+            it('correctly sends the Read event', function(done) {
+                var title = 'Test 1';
+
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Reviews - ' + title
+                        && arguments[3] === 'Read') {
+                        done();
+                    }
+                };
+
+                Hora.reviews.read(title);
+            });
+        });
+
+        describe('sidebar', function() {
+            it('correctly sends the Open event', function(done) {
+                var title = 'Test 1';
+
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Sidebar - ' + title
+                        && arguments[3] === 'Open') {
+                        done();
+                    }
+                };
+
+                Hora.sidebar.open(title);
+            });
+
+            it('correctly sends the Close event', function(done) {
+                var title = 'Test 2';
+
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Sidebar - ' + title
+                        && arguments[3] === 'Close') {
+                        done();
+                    }
+                };
+
+                Hora.sidebar.close(title);
+            });
+        });
+
+        describe('cart', function() {
+            it('correctly sends the Add Item event', function(done) {
+                var title = 'Product Title 1';
+
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Cart'
+                        && arguments[3] === 'Add Item') {
+                        done();
+                    }
+                };
+
+                Hora.cart.addItem(title);
+            });
+
+            it('correctly sends the Add Item After View All Carousel Items event', function(done) {
+                var title = 'Product Title 2';
+
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Cart'
+                        && arguments[3] === 'Add Item After View All Carousel Items') {
+                        done();
+                    }
+                };
+
+                var carouselTitle = 'Test 5';
+                var size = 2;
+
+                Hora.carousel.load(carouselTitle, size);
+                Hora.carousel.slide(carouselTitle, 1);
+                Hora.carousel.slide(carouselTitle, 2);
+
+                Hora.cart.addItem(title);
+
+                Hora.__carousels.clear();
+            });
+        });
+
+        describe('minicart', function() {
+            it('correctly sends the Toggle event', function(done) {
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Mini-Cart'
+                        && arguments[3] === 'Toggle') {
+                        done();
+                    }
+                };
+
+                Hora.minicart.toggle();
+            });
+        });
+
 
         describe('__validateObjectSchema', function() {
             it('validates when object contains all specified properties', function() {
