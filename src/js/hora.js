@@ -142,7 +142,7 @@ define([
         // Proxies the Universal Google Analytics call so that we capture events fired by desktop
         // We only allow the following events: require, provide, send, ec:setAction, ec:addProduct
         // Example: ga('ec:setAction','checkout', {'step': 3, 'option': 'visa credit' });
-        Hora.proxyUniversalAnalytics = function() {
+        Hora.proxyUniversalAnalytics = function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
             var _theirGA;
 
             var _ourGA = function() {
@@ -155,13 +155,13 @@ define([
                 }
 
                 // Check if the first argument is an allowed command
-                if (!/^(require|provide|send|ec:setAction|ec:addProduct)$/mi.exec(arguments[0])) {
+                if (!/^(require|provide|send|ec:setAction|ec:addProduct)$/mi.exec(action)) {
                     return;
                 }
 
                 // Don't send double events
-                if (arguments[0] === 'send' &&
-                   (arguments[1] === 'pageview' || arguments[1] === 'event' && arguments[2] === 'mobify')) {
+                if (action === 'send' &&
+                   (hitType === 'pageview' || hitType === 'event' && eventCategory === 'mobify')) {
                     return;
                 }
 
