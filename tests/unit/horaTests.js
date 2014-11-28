@@ -157,7 +157,7 @@ define([
                 var title = 'Test 2';
                 var size = 3;
 
-                proxyUA(onCall(5, 5, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(onCall(8, 8, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Accordion - ' + title);
                     assert.equal(eventAction, 'View All Items');
                 }, done));
@@ -190,7 +190,7 @@ define([
                 var title = 'Test 4';
                 var size = 2;
 
-                proxyUA(onCall(3, 3, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(onCall(5, 5, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Accordion - ' + title);
                     assert.equal(eventAction, 'Open Multiple');
                 }, done));

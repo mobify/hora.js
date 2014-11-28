@@ -490,6 +490,8 @@ define([
                     Hora.send('Accordion - ' + title, 'First Open', 'Item #' + currentItem);
                 }
 
+                Hora.send('Accordion - ' + title, 'Open', 'Item #' + currentItem);
+
                 currentAccordion.opens.push(currentItem);
 
                 // If there's more than one accordion item opened, and we've opened more than we've closed
