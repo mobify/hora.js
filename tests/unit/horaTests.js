@@ -57,8 +57,38 @@ define([
         });
 
         describe('carousel', function() {
-            it('correctly sends the View All Slides event', function(done) {
+            it('correctly sends the Load event', function(done) {
                 var title = 'Test 1';
+                var size = 1;
+
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Carousel - ' + title
+                        && arguments[3] === 'Load'
+                        && arguments[4] === 'Total ' + size) {
+                        done();
+                    }
+                };
+
+                Hora.carousel.load(title, size);
+            });
+
+            it('correctly sends the First Slide event', function(done) {
+                var title = 'Test 2';
+                var size = 1;
+
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Carousel - ' + title
+                        && arguments[3] === 'First Slide') {
+                        done();
+                    }
+                };
+
+                Hora.carousel.load(title, size);
+                Hora.carousel.slide(title, 1);
+            });
+
+            it('correctly sends the View All Slides event', function(done) {
+                var title = 'Test 3';
                 var size = 3;
 
                 Mobify.analytics.ua = function() {
@@ -71,12 +101,12 @@ define([
                 Hora.carousel.load(title, size);
 
                 for (var i = 1, l = size; i <= l; i++) {
-                    Hora.carousel.swipe(title, i);
+                    Hora.carousel.slide(title, i);
                 }
             });
 
-            it('correctly sends slide First Click event', function(done) {
-                var title = 'Test 1';
+            it('correctly sends the First Click event', function(done) {
+                var title = 'Test 4';
                 var size = 1;
 
                 Mobify.analytics.ua = function() {
@@ -92,8 +122,23 @@ define([
         });
 
         describe('accordion', function() {
-            it('correctly sends the View All Items event', function(done) {
+            it('correctly sends the Load event', function(done) {
                 var title = 'Test 1';
+                var size = 2;
+
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Accordion - ' + title
+                        && arguments[3] === 'Load'
+                        && arguments[4] === 'Total ' + size) {
+                        done();
+                    }
+                };
+
+                Hora.accordion.load(title, size);
+            });
+
+            it('correctly sends the View All Items event', function(done) {
+                var title = 'Test 2';
                 var size = 3;
 
                 Mobify.analytics.ua = function() {
@@ -109,6 +154,37 @@ define([
                     Hora.accordion.open(title, i);
                 }
             });
+
+            it('correctly sends the First Open event', function(done) {
+                var title = 'Test 3';
+                var size = 2;
+
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Accordion - ' + title
+                        && arguments[3] === 'First Open') {
+                        done();
+                    }
+                };
+
+                Hora.accordion.load(title, size);
+                Hora.accordion.open(title, 1);
+            });
+
+            it('correctly sends the Multiple Open event', function(done) {
+                var title = 'Test 4';
+                var size = 2;
+
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Accordion - ' + title
+                        && arguments[3] === 'Open Multiple') {
+                        done();
+                    }
+                };
+
+                Hora.accordion.load(title, size);
+                Hora.accordion.open(title, 1);
+                Hora.accordion.open(title, 2);
+            });
         });
 
         describe('orientationChange', function() {
@@ -120,6 +196,60 @@ define([
                 Hora.init();
 
                 $(window).trigger('orientationchange');
+            });
+        });
+
+        describe('scroll', function() {
+            it('correctly sends the Up event', function(done) {
+                var title = 'Test 1';
+
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Scroll - ' + title
+                        && arguments[3] === 'Up') {
+                        done();
+                    }
+                };
+
+                Hora.scroll.up(title);
+            });
+
+            it('correctly sends the Down event', function(done) {
+                var title = 'Test 2';
+
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Scroll - ' + title
+                        && arguments[3] === 'Down') {
+                        done();
+                    }
+                };
+
+                Hora.scroll.down(title);
+            });
+
+            it('correctly sends the Top event', function(done) {
+                var title = 'Test 3';
+
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Scroll - ' + title
+                        && arguments[3] === 'Top') {
+                        done();
+                    }
+                };
+
+                Hora.scroll.top(title);
+            });
+
+            it('correctly sends the Bottom event', function(done) {
+                var title = 'Test 4';
+
+                Mobify.analytics.ua = function() {
+                    if (arguments[2] === 'Scroll - ' + title
+                        && arguments[3] === 'Bottom') {
+                        done();
+                    }
+                };
+
+                Hora.scroll.bottom(title);
             });
         });
 

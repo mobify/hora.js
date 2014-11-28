@@ -188,8 +188,8 @@ define([
         Hora.carousel = {
             // title = Home, PDP, Related Images
             // currentSlide = 1, 2, 3, 4, 5, 6
-            // eg. Hora.carouselSwipe('PDP', 1);
-            swipe: function(title, currentSlide) {
+            // eg. Hora.carousel.slide('PDP', 1);
+            slide: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
                 if (_swiping) {
@@ -341,22 +341,28 @@ define([
         Hora.filters = {
             toggle: function(title) {
                 Hora.send('Filters: ' + title, 'Toggle', 'OK');
-            }
-        };
-
-        Hora.filters = {
+            },
             change: function(title, type, amount) {
                 Hora.send('Filters: ' + title, 'Change: ' + type, amount);
             }
         };
 
-        Hora.scrollToBottom = {
-            open: function() {
-                Hora.send('Scroll To Bottom', 'Interact', 'OK');
+        Hora.scroll = {
+            up: function(title) {
+                Hora.send('Scroll - ' + title, 'Up');
+            },
+            down: function(title) {
+                Hora.send('Scroll - ' + title, 'Down');
+            },
+            top: function(title) {
+                Hora.send('Scroll - ' + title, 'Top');
+            },
+            bottom: function(title) {
+                Hora.send('Scroll - ' + title, 'Bottom');
             }
         };
 
-        Hora.sizeGuideOpen = {
+        Hora.sizeGuide = {
             open: function() {
                 Hora.send('Size Guide', 'Open', 'OK');
             }
