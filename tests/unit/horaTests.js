@@ -10,7 +10,21 @@ define([
         window.Mobify.analytics.ua = callback;
     };
 
-    var onCall = function(start, finish, validator, done) {
+    /**
+     * @description Helper function for validating something (usually GA event category/action) after X calls.
+     *
+     * @param {int} start - Which interaction to call the validator callback on
+     * @param {int} finish - WHich interation to call the done callback on
+     * @param {function} validator - Callback that does some checking/asserts
+     * @param {function} done - Callback to when the asserting is finished
+     *
+     * @example
+     *
+     * proxyUA(proxyAssert(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+     *     assert.equal(eventCategory, 'Something');
+     * }, done));
+     */
+    var proxyAssert = function(start, finish, validator, done) {
         var count = 0;
 
         return function() {
@@ -91,7 +105,7 @@ define([
                 var title = 'Test 2';
                 var size = 1;
 
-                proxyUA(onCall(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(proxyAssert(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Carousel - ' + title);
                     assert.equal(eventAction, 'First Slide');
                 }, done));
@@ -106,7 +120,7 @@ define([
                 var title = 'Test 3';
                 var size = 3;
 
-                proxyUA(onCall(6, 6, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(proxyAssert(6, 6, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Carousel - ' + title);
                     assert.equal(eventAction, 'View All Slides');
                 }, done));
@@ -124,7 +138,7 @@ define([
                 var title = 'Test 4';
                 var size = 1;
 
-                proxyUA(onCall(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(proxyAssert(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Carousel - ' + title);
                     assert.equal(eventAction, 'First Click');
                 }, done));
@@ -157,7 +171,7 @@ define([
                 var title = 'Test 2';
                 var size = 3;
 
-                proxyUA(onCall(8, 8, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(proxyAssert(8, 8, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Accordion - ' + title);
                     assert.equal(eventAction, 'View All Items');
                 }, done));
@@ -175,7 +189,7 @@ define([
                 var title = 'Test 3';
                 var size = 2;
 
-                proxyUA(onCall(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(proxyAssert(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Accordion - ' + title);
                     assert.equal(eventAction, 'First Open');
                 }, done));
@@ -190,7 +204,7 @@ define([
                 var title = 'Test 4';
                 var size = 2;
 
-                proxyUA(onCall(5, 5, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(proxyAssert(5, 5, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Accordion - ' + title);
                     assert.equal(eventAction, 'Open Multiple');
                 }, done));
@@ -487,7 +501,7 @@ define([
             it('correctly sends the Add Item event', function(done) {
                 var title = 'Product Title 1';
 
-                proxyUA(onCall(1, 1, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(proxyAssert(1, 1, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Cart');
                     assert.equal(eventAction, 'Add Item');
                 }, done));
@@ -498,7 +512,7 @@ define([
             it('correctly sends the Add Item After View All Carousel Items event', function(done) {
                 var title = 'Product Title 2';
 
-                proxyUA(onCall(6, 6, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(proxyAssert(6, 6, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Cart');
                     assert.equal(eventAction, 'Add Item After View All Carousel Items');
                 }, done));
