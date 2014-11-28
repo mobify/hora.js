@@ -10,6 +10,22 @@ define([
         window.Mobify.analytics.ua = callback;
     };
 
+    var onCall = function(start, finish, validator, done) {
+        var count = 0;
+
+        return function() {
+            count++;
+
+            if (count === start) {
+                validator.apply(null, arguments);
+            }
+
+            if (count === finish) {
+                done();
+            }
+        };
+    };
+
     describe('Hora', function() {
         describe('Object', function() {
             it('is correctly returned from hora module', function() {
@@ -38,19 +54,19 @@ define([
 
         describe('send', function() {
             it('correctly passes through default parameters when no parameters passed', function(done) {
-                Mobify.analytics.ua = function() {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.lengthOf(arguments, 2);
                     done();
-                };
+                });
 
                 Hora.send();
             });
 
             it('correctly passes through correct parameters including defaults', function(done) {
-                Mobify.analytics.ua = function() {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.lengthOf(arguments, 5);
                     done();
-                };
+                });
 
                 Hora.send('one', 'two', 'three');
             });
@@ -61,13 +77,12 @@ define([
                 var title = 'Test 1';
                 var size = 1;
 
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Carousel - ' + title
-                        && arguments[3] === 'Load'
-                        && arguments[4] === 'Total ' + size) {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Carousel - ' + title);
+                    assert.equal(eventAction, 'Load');
+                    assert.equal(eventLabel, 'Total ' + size);
+                    done();
+                });
 
                 Hora.carousel.load(title, size);
             });
@@ -76,12 +91,10 @@ define([
                 var title = 'Test 2';
                 var size = 1;
 
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Carousel - ' + title
-                        && arguments[3] === 'First Slide') {
-                        done();
-                    }
-                };
+                proxyUA(onCall(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Carousel - ' + title);
+                    assert.equal(eventAction, 'First Slide');
+                }, done));
 
                 Hora.carousel.load(title, size);
                 Hora.carousel.slide(title, 1);
@@ -93,12 +106,10 @@ define([
                 var title = 'Test 3';
                 var size = 3;
 
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Carousel - ' + title
-                        && arguments[3] === 'View All Slides') {
-                        done();
-                    }
-                };
+                proxyUA(onCall(6, 6, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Carousel - ' + title);
+                    assert.equal(eventAction, 'View All Slides');
+                }, done));
 
                 Hora.carousel.load(title, size);
 
@@ -113,12 +124,10 @@ define([
                 var title = 'Test 4';
                 var size = 1;
 
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Carousel - ' + title
-                        && arguments[3] === 'First Click') {
-                        done();
-                    }
-                };
+                proxyUA(onCall(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Carousel - ' + title);
+                    assert.equal(eventAction, 'First Click');
+                }, done));
 
                 Hora.carousel.load(title, size);
                 Hora.carousel.slideClick(title, 1);
@@ -132,13 +141,12 @@ define([
                 var title = 'Test 1';
                 var size = 2;
 
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Accordion - ' + title
-                        && arguments[3] === 'Load'
-                        && arguments[4] === 'Total ' + size) {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Accordion - ' + title);
+                    assert.equal(eventAction, 'Load');
+                    assert.equal(eventLabel, 'Total ' + size);
+                    done();
+                });
 
                 Hora.accordion.load(title, size);
 
@@ -149,12 +157,10 @@ define([
                 var title = 'Test 2';
                 var size = 3;
 
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Accordion - ' + title
-                        && arguments[3] === 'View All Items') {
-                        done();
-                    }
-                };
+                proxyUA(onCall(5, 5, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Accordion - ' + title);
+                    assert.equal(eventAction, 'View All Items');
+                }, done));
 
                 Hora.accordion.load(title, size);
 
@@ -169,12 +175,10 @@ define([
                 var title = 'Test 3';
                 var size = 2;
 
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Accordion - ' + title
-                        && arguments[3] === 'First Open') {
-                        done();
-                    }
-                };
+                proxyUA(onCall(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Accordion - ' + title);
+                    assert.equal(eventAction, 'First Open');
+                }, done));
 
                 Hora.accordion.load(title, size);
                 Hora.accordion.open(title, 1);
@@ -186,12 +190,10 @@ define([
                 var title = 'Test 4';
                 var size = 2;
 
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Accordion - ' + title
-                        && arguments[3] === 'Open Multiple') {
-                        done();
-                    }
-                };
+                proxyUA(onCall(3, 3, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Accordion - ' + title);
+                    assert.equal(eventAction, 'Open Multiple');
+                }, done));
 
                 Hora.accordion.load(title, size);
                 Hora.accordion.open(title, 1);
@@ -203,7 +205,7 @@ define([
 
         describe('orientationChange', function() {
             it('correctly sends Orientation Change data', function(done) {
-                proxyUA(function() {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     done();
                 });
 
@@ -217,12 +219,11 @@ define([
             it('correctly sends the Up event', function(done) {
                 var title = 'Test 1';
 
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Scroll - ' + title
-                        && arguments[3] === 'Up') {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Scroll - ' + title);
+                    assert.equal(eventAction, 'Up');
+                    done();
+                });
 
                 Hora.scroll.up(title);
             });
@@ -230,12 +231,11 @@ define([
             it('correctly sends the Down event', function(done) {
                 var title = 'Test 2';
 
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Scroll - ' + title
-                        && arguments[3] === 'Down') {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Scroll - ' + title);
+                    assert.equal(eventAction, 'Down');
+                    done();
+                });
 
                 Hora.scroll.down(title);
             });
@@ -243,12 +243,11 @@ define([
             it('correctly sends the Top event', function(done) {
                 var title = 'Test 3';
 
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Scroll - ' + title
-                        && arguments[3] === 'Top') {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Scroll - ' + title);
+                    assert.equal(eventAction, 'Top');
+                    done();
+                });
 
                 Hora.scroll.top(title);
             });
@@ -256,12 +255,11 @@ define([
             it('correctly sends the Bottom event', function(done) {
                 var title = 'Test 4';
 
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Scroll - ' + title
-                        && arguments[3] === 'Bottom') {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Scroll - ' + title);
+                    assert.equal(eventAction, 'Bottom');
+                    done();
+                });
 
                 Hora.scroll.bottom(title);
             });
@@ -269,12 +267,11 @@ define([
 
         describe('search', function() {
             it('correctly sends the Toggle event', function(done) {
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Search'
-                        && arguments[3] === 'Toggle') {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Search');
+                    assert.equal(eventAction, 'Toggle');
+                    done();
+                });
 
                 Hora.search.toggle();
             });
@@ -282,12 +279,11 @@ define([
 
         describe('breadcrumb', function() {
             it('correctly sends the Interact event', function(done) {
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Breadcrumb'
-                        && arguments[3] === 'Interact') {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Breadcrumb');
+                    assert.equal(eventAction, 'Interact');
+                    done();
+                });
 
                 Hora.breadcrumb.interact();
             });
@@ -295,12 +291,11 @@ define([
 
         describe('newsletter', function() {
             it('correctly sends the Interact event', function(done) {
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Newsletter'
-                        && arguments[3] === 'Interact') {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Newsletter');
+                    assert.equal(eventAction, 'Interact');
+                    done();
+                });
 
                 Hora.newsletter.interact();
             });
@@ -308,12 +303,11 @@ define([
 
         describe('backToTop', function() {
             it('correctly sends the Click event', function(done) {
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Back To Top'
-                        && arguments[3] === 'Click') {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Back To Top');
+                    assert.equal(eventAction, 'Click');
+                    done();
+                });
 
                 Hora.backToTop.click();
             });
@@ -321,12 +315,11 @@ define([
 
         describe('footer', function() {
             it('correctly sends the Interact event', function(done) {
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Footer'
-                        && arguments[3] === 'Interact') {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Footer');
+                    assert.equal(eventAction, 'Interact');
+                    done();
+                });
 
                 Hora.footer.interact();
             });
@@ -334,12 +327,11 @@ define([
 
         describe('pagination', function() {
             it('correctly sends the Interact event', function(done) {
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Pagination'
-                        && arguments[3] === 'Interact') {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Pagination');
+                    assert.equal(eventAction, 'Interact');
+                    done();
+                });
 
                 Hora.pagination.interact();
             });
@@ -349,12 +341,11 @@ define([
             it('correctly sends the Toggle event', function(done) {
                 var title = 'Test 1';
 
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Filters - ' + title
-                        && arguments[3] === 'Toggle') {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Filters - ' + title);
+                    assert.equal(eventAction, 'Toggle');
+                    done();
+                });
 
                 Hora.filters.toggle(title);
             });
@@ -362,12 +353,11 @@ define([
 
         describe('sizeGuide', function() {
             it('correctly sends the Open event', function(done) {
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Size Guide'
-                        && arguments[3] === 'Open') {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Size Guide');
+                    assert.equal(eventAction, 'Open');
+                    done();
+                });
 
                 Hora.sizeGuide.open();
             });
@@ -375,12 +365,11 @@ define([
 
         describe('emailFriend', function() {
             it('correctly sends the Open event', function(done) {
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Email Friend'
-                        && arguments[3] === 'Open') {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Email Friend');
+                    assert.equal(eventAction, 'Open');
+                    done();
+                });
 
                 Hora.emailFriend.open();
             });
@@ -388,12 +377,11 @@ define([
 
         describe('emailMeBack', function() {
             it('correctly sends the Open event', function(done) {
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Email Me Back'
-                        && arguments[3] === 'Open') {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Email Me Back');
+                    assert.equal(eventAction, 'Open');
+                    done();
+                });
 
                 Hora.emailMeBack.open();
             });
@@ -403,12 +391,11 @@ define([
             it('correctly sends the Change event', function(done) {
                 var title = 'Test 1';
 
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Color - ' + title
-                        && arguments[3] === 'Change') {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Color - ' + title);
+                    assert.equal(eventAction, 'Change');
+                    done();
+                });
 
                 Hora.color.change(title);
             });
@@ -418,12 +405,11 @@ define([
             it('correctly sends the Change event', function(done) {
                 var title = 'Test 1';
 
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Quantity - ' + title
-                        && arguments[3] === 'Change') {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Quantity - ' + title);
+                    assert.equal(eventAction, 'Change');
+                    done();
+                });
 
                 Hora.quantity.change(title);
             });
@@ -433,12 +419,11 @@ define([
             it('correctly sends the Change event', function(done) {
                 var title = 'Test 1';
 
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Size - ' + title
-                        && arguments[3] === 'Change') {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Size - ' + title);
+                    assert.equal(eventAction, 'Change');
+                    done();
+                });
 
                 Hora.size.change(title);
             });
@@ -448,13 +433,11 @@ define([
             it('correctly sends the Alert event', function(done) {
                 var message = 'Unknown Error';
 
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Error'
-                        && arguments[3] === 'Alert'
-                        && arguments[4] === message) {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Error');
+                    assert.equal(eventAction, 'Alert');
+                    done();
+                });
 
                 Hora.error.alert(message);
             });
@@ -464,12 +447,11 @@ define([
             it('correctly sends the Read event', function(done) {
                 var title = 'Test 1';
 
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Reviews - ' + title
-                        && arguments[3] === 'Read') {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Reviews - ' + title);
+                    assert.equal(eventAction, 'Read');
+                    done();
+                });
 
                 Hora.reviews.read(title);
             });
@@ -479,12 +461,11 @@ define([
             it('correctly sends the Open event', function(done) {
                 var title = 'Test 1';
 
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Sidebar - ' + title
-                        && arguments[3] === 'Open') {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Sidebar - ' + title);
+                    assert.equal(eventAction, 'Open');
+                    done();
+                });
 
                 Hora.sidebar.open(title);
             });
@@ -492,12 +473,11 @@ define([
             it('correctly sends the Close event', function(done) {
                 var title = 'Test 2';
 
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Sidebar - ' + title
-                        && arguments[3] === 'Close') {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Sidebar - ' + title);
+                    assert.equal(eventAction, 'Close');
+                    done();
+                });
 
                 Hora.sidebar.close(title);
             });
@@ -507,12 +487,10 @@ define([
             it('correctly sends the Add Item event', function(done) {
                 var title = 'Product Title 1';
 
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Cart'
-                        && arguments[3] === 'Add Item') {
-                        done();
-                    }
-                };
+                proxyUA(onCall(1, 1, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Cart');
+                    assert.equal(eventAction, 'Add Item');
+                }, done));
 
                 Hora.cart.addItem(title);
             });
@@ -520,12 +498,10 @@ define([
             it('correctly sends the Add Item After View All Carousel Items event', function(done) {
                 var title = 'Product Title 2';
 
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Cart'
-                        && arguments[3] === 'Add Item After View All Carousel Items') {
-                        done();
-                    }
-                };
+                proxyUA(onCall(6, 6, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Cart');
+                    assert.equal(eventAction, 'Add Item After View All Carousel Items');
+                }, done));
 
                 var carouselTitle = 'Test 5';
                 var size = 2;
@@ -542,12 +518,11 @@ define([
 
         describe('minicart', function() {
             it('correctly sends the Toggle event', function(done) {
-                Mobify.analytics.ua = function() {
-                    if (arguments[2] === 'Mini-Cart'
-                        && arguments[3] === 'Toggle') {
-                        done();
-                    }
-                };
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Mini-Cart');
+                    assert.equal(eventAction, 'Toggle');
+                    done();
+                });
 
                 Hora.minicart.toggle();
             });
