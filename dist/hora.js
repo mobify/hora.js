@@ -307,7 +307,6 @@ define([
             }
         };
 
-        // eg. Hora.navigationClick('Top Nav', 'Pants');
         Hora.navigation = {
             click: function(menuTitle, itemTitle) {
                 Hora.send('Navigation - ' + menuTitle, 'Click', itemTitle);
@@ -465,16 +464,12 @@ define([
                 Hora.send('Mini-Cart', 'Toggle');
             },
 
-            itemRemoved: function() {
-                Hora.send('Mini-Cart', 'item-removed');
+            enableEdit: function() {
+                Hora.send('Mini-Cart', 'Enable Edit');
             },
 
-            editEnabled: function() {
-                Hora.send('Mini-Cart', 'edit-enabled');
-            },
-
-            editDisabled: function() {
-                Hora.send('Mini-Cart', 'edit-disabled');
+            disableEdit: function() {
+                Hora.send('Mini-Cart', 'Disable Edit');
             },
 
             changeQuantity: function() {

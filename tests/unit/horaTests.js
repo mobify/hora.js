@@ -526,6 +526,26 @@ define([
 
                 Hora.minicart.toggle();
             });
+
+            it('correctly sends the Enable Edit event', function(done) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Mini-Cart');
+                    assert.equal(eventAction, 'Enable Edit');
+                    done();
+                });
+
+                Hora.minicart.enableEdit();
+            });
+
+            it('correctly sends the Disable Edit event', function(done) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Mini-Cart');
+                    assert.equal(eventAction, 'Disable Edit');
+                    done();
+                });
+
+                Hora.minicart.disableEdit();
+            });
         });
 
 
