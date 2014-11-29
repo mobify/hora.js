@@ -486,6 +486,12 @@ define([
             }
         };
 
+        Hora.checkout = {
+            start: function(message) {
+                Hora.send('Checkout', 'Start', message);
+            }
+        };
+
         Hora.accordion = {
             open: function(title, currentItem) {
                 var currentAccordion = _accordions[title];

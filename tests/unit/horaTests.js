@@ -598,6 +598,19 @@ define([
             });
         });
 
+        describe('checkout', function() {
+            it('correctly sends the Change event', function(done) {
+                var message = 'Checkout Page - PayPal Button';
+
+                proxyUA(proxyAssert(1, 1, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Checkout');
+                    assert.equal(eventAction, 'Start');
+                    assert.equal(eventLabel, message);
+                }, done));
+
+                Hora.checkout.start(message);
+            });
+        });
 
         describe('__validateObjectSchema', function() {
             it('validates when object contains all specified properties', function() {
