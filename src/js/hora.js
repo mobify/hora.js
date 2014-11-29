@@ -410,11 +410,20 @@ define([
         };
 
         Hora.error = {
-            error: function(title, comment) {
+            generic: function(title, comment) {
                 Hora.send('Error', title, comment);
             },
             alert: function(comment) {
                 Hora.send('Error', 'Alert', comment);
+            },
+            unsuccessfulSubmission: function(comment) {
+                Hora.send('Error', 'Unsuccessful Submission', comment);
+            },
+            unsuccessfulAddToCart: function(comment) {
+                Hora.send('Error', 'Unsuccessful Add To Cart', comment);
+            },
+            unsuccessfulPlaceOrder: function(comment) {
+                Hora.send('Error', 'Unsuccessful Place Order', comment);
             }
         };
 

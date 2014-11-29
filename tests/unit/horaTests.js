@@ -455,6 +455,42 @@ define([
 
                 Hora.error.alert(message);
             });
+
+            it('correctly sends the Unsuccessful Submission event', function(done) {
+                var message = 'Message here';
+
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Error');
+                    assert.equal(eventAction, 'Unsuccessful Submission');
+                    done();
+                });
+
+                Hora.error.unsuccessfulSubmission(message);
+            });
+
+            it('correctly sends the Unsuccessful Add To Cart event', function(done) {
+                var message = 'Message here';
+
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Error');
+                    assert.equal(eventAction, 'Unsuccessful Add To Cart');
+                    done();
+                });
+
+                Hora.error.unsuccessfulAddToCart(message);
+            });
+
+            it('correctly sends the Unsuccessful Place Order event', function(done) {
+                var message = 'Message here';
+
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Error');
+                    assert.equal(eventAction, 'Unsuccessful Place Order');
+                    done();
+                });
+
+                Hora.error.unsuccessfulPlaceOrder(message);
+            });
         });
 
         describe('reviews', function() {
