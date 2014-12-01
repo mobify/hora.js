@@ -294,14 +294,14 @@ define([
                 currentCarousel.clicks.push(currentSlide);
             },
 
-            arrowClick: function(title, currentSlide, direction) {
+            iconClick: function(title, currentSlide, direction) {
                 var currentCarousel = _carousels[title];
 
                 if (!currentCarousel.icons.length) {
                     Hora.send('Carousel - ' + title, 'First Icon', 'Slide #' + currentSlide);
                 }
 
-                Hora.send('Carousel - ' + title, 'Icon', currentSlide + '-' + direction);
+                Hora.send('Carousel - ' + title, 'Icon', 'Slide #' + currentSlide, direction);
 
                 currentCarousel.icons.push(currentSlide);
             }

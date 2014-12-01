@@ -141,10 +141,44 @@ define([
                 proxyUA(proxyAssert(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Carousel - ' + title);
                     assert.equal(eventAction, 'First Click');
+                    assert.equal(eventLabel, 'Slide #1');
                 }, done));
 
                 Hora.carousel.load(title, size);
                 Hora.carousel.slideClick(title, 1);
+
+                Hora.__carousels.clear();
+            });
+
+            it('correctly sends the First Icon event', function(done) {
+                var title = 'Test 4';
+                var size = 1;
+
+                proxyUA(proxyAssert(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Carousel - ' + title);
+                    assert.equal(eventAction, 'First Icon');
+                    assert.equal(eventLabel, 'Slide #1');
+                }, done));
+
+                Hora.carousel.load(title, size);
+                Hora.carousel.iconClick(title, 1);
+
+                Hora.__carousels.clear();
+            });
+
+            it('correctly sends the Icon event', function(done) {
+                var title = 'Test 4';
+                var size = 1;
+
+                proxyUA(proxyAssert(3, 3, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Carousel - ' + title);
+                    assert.equal(eventAction, 'Icon');
+                    assert.equal(eventLabel, 'Slide #1');
+                    assert.equal(eventValue, 'Previous');
+                }, done));
+
+                Hora.carousel.load(title, size);
+                Hora.carousel.iconClick(title, 1, 'Previous');
 
                 Hora.__carousels.clear();
             });
