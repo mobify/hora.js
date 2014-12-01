@@ -374,8 +374,8 @@ define([
         };
 
         Hora.sizeGuide = {
-            open: function() {
-                Hora.send('Size Guide', 'Open');
+            open: function(title) {
+                Hora.send('Size Guide - ' + title, 'Open');
             }
         };
 

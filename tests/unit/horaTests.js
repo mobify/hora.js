@@ -367,13 +367,15 @@ define([
 
         describe('sizeGuide', function() {
             it('correctly sends the Open event', function(done) {
+                var title = 'Test 1';
+
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
-                    assert.equal(eventCategory, 'Size Guide');
+                    assert.equal(eventCategory, 'Size Guide - ' + title);
                     assert.equal(eventAction, 'Open');
                     done();
                 });
 
-                Hora.sizeGuide.open();
+                Hora.sizeGuide.open(title);
             });
         });
 
