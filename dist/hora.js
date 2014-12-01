@@ -320,8 +320,8 @@ define([
         };
 
         Hora.breadcrumb = {
-            interact: function() {
-                Hora.send('Breadcrumb', 'Interact');
+            click: function() {
+                Hora.send('Breadcrumb', 'Click');
             }
         };
 
@@ -332,20 +332,20 @@ define([
         };
 
         Hora.newsletter = {
-            interact: function() {
-                Hora.send('Newsletter', 'Interact');
+            click: function() {
+                Hora.send('Newsletter', 'Click');
             }
         };
 
         Hora.footer = {
-            interact: function() {
-                Hora.send('Footer', 'Interact');
+            click: function() {
+                Hora.send('Footer', 'Click');
             }
         };
 
         Hora.pagination = {
-            interact: function() {
-                Hora.send('Pagination', 'Interact');
+            click: function() {
+                Hora.send('Pagination', 'Click');
             }
         };
 

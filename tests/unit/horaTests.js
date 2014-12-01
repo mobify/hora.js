@@ -292,26 +292,26 @@ define([
         });
 
         describe('breadcrumb', function() {
-            it('correctly sends the Interact event', function(done) {
+            it('correctly sends the Click event', function(done) {
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Breadcrumb');
-                    assert.equal(eventAction, 'Interact');
+                    assert.equal(eventAction, 'Click');
                     done();
                 });
 
-                Hora.breadcrumb.interact();
+                Hora.breadcrumb.click();
             });
         });
 
         describe('newsletter', function() {
-            it('correctly sends the Interact event', function(done) {
+            it('correctly sends the Click event', function(done) {
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Newsletter');
-                    assert.equal(eventAction, 'Interact');
+                    assert.equal(eventAction, 'Click');
                     done();
                 });
 
-                Hora.newsletter.interact();
+                Hora.newsletter.click();
             });
         });
 
@@ -328,26 +328,26 @@ define([
         });
 
         describe('footer', function() {
-            it('correctly sends the Interact event', function(done) {
+            it('correctly sends the Click event', function(done) {
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Footer');
-                    assert.equal(eventAction, 'Interact');
+                    assert.equal(eventAction, 'Click');
                     done();
                 });
 
-                Hora.footer.interact();
+                Hora.footer.click();
             });
         });
 
         describe('pagination', function() {
-            it('correctly sends the Interact event', function(done) {
+            it('correctly sends the Click event', function(done) {
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Pagination');
-                    assert.equal(eventAction, 'Interact');
+                    assert.equal(eventAction, 'Click');
                     done();
                 });
 
-                Hora.pagination.interact();
+                Hora.pagination.click();
             });
         });
 
