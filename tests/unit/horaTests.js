@@ -379,25 +379,29 @@ define([
 
         describe('emailFriend', function() {
             it('correctly sends the Open event', function(done) {
+                var title = 'Test 1';
+
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
-                    assert.equal(eventCategory, 'Email Friend');
+                    assert.equal(eventCategory, 'Email Friend - ' + title);
                     assert.equal(eventAction, 'Open');
                     done();
                 });
 
-                Hora.emailFriend.open();
+                Hora.emailFriend.open(title);
             });
         });
 
         describe('emailMeBack', function() {
             it('correctly sends the Open event', function(done) {
+                var title = 'Test 1';
+                
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
-                    assert.equal(eventCategory, 'Email Me Back');
+                    assert.equal(eventCategory, 'Email Me Back - ' + title);
                     assert.equal(eventAction, 'Open');
                     done();
                 });
 
-                Hora.emailMeBack.open();
+                Hora.emailMeBack.open(title);
             });
         });
 

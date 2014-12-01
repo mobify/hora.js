@@ -380,14 +380,14 @@ define([
         };
 
         Hora.emailFriend = {
-            open: function() {
-                Hora.send('Email Friend', 'Open');
+            open: function(title) {
+                Hora.send('Email Friend - ' + title, 'Open');
             }
         };
 
         Hora.emailMeBack = {
-            open: function() {
-                Hora.send('Email Me Back', 'Open');
+            open: function(title) {
+                Hora.send('Email Me Back - ' + title, 'Open');
             }
         };
 
