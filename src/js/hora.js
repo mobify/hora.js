@@ -468,7 +468,7 @@ define([
                 }
 
                 if (fullCarouselView) {
-                    Hora.send('Cart', 'Add Item After View All Carousel Items');
+                    Hora.send('Cart', 'Add Item After View All Carousel Slides');
                 }
                 else {
                     Hora.send('Cart', 'Add Item');
