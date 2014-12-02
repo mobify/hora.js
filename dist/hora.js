@@ -115,7 +115,7 @@ define([
                 };
             })();
 
-            Hora.send('Init', null, null, null, NON_INTERACTION);
+            Hora.send(templateName, 'Init', null, null, NON_INTERACTION);
         };
 
         Hora.send = function() {

@@ -92,7 +92,8 @@ define([
                 var templateName = 'PDP';
 
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
-                    assert.equal(eventCategory, 'Init');
+                    assert.equal(eventCategory, templateName);
+                    assert.equal(eventAction, 'Init');
                     assert.equal(eventLabel, templateName);
 
                     done();
