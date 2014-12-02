@@ -567,7 +567,7 @@ define([
          *
          * @example
          *
-         * Hora.sendTransaction('1234', 'Acme Clothing'
+         * Hora.transaction.send('1234', 'Acme Clothing'
          * {
          *    'revenue': '11.99',               // Grand Total.
          *    'shipping': '5',                  // Shipping.
@@ -583,46 +583,48 @@ define([
          *     }
          * ]);
          */
-        Hora.sendTransaction = function(transactionId, affiliation, transaction, transactionItems) {
-            var ECOMMERCE_PLUGIN = 'mobifyTracker.ecommerce';
+        Hora.transaction = {
+            send: function(transactionId, affiliation, transaction, transactionItems) {
+                var ECOMMERCE_PLUGIN = 'mobifyTracker.ecommerce';
 
-            if (!transactionId || !$.isString(transactionId)) {
-                throw 'Hora.sendTransaction requires a string containing the transaction ID, i.e. "1234"';
+                if (!transactionId || !$.isString(transactionId)) {
+                    throw 'Hora.transaction.send requires a string containing the transaction ID, i.e. "1234"';
+                }
+
+                if (!affiliation || !$.isString(affiliation)) {
+                    throw 'Hora.transaction.send requires a string containing the affiliation, usually the project name, i.e. "Acme Clothing"';
+                }
+
+                if (!transaction || !$.isPlainObject(transaction)) {
+                    throw 'Hora.transaction.send requires an object literal containing the transaction details, i.e. {"revenue": "11.99","shipping": "5","tax": "1.29"}';
+                }
+
+                if (!transactionItems || !$.isArray(transactionItems)) {
+                    throw 'Hora.transaction.send requires an Array containing the transaction item details';
+                }
+
+                transaction.id = transactionId;
+                transaction.affiliation = affiliation;
+
+                Hora.__stringifyPropertyValues(transaction);
+
+                Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':addTransaction', transaction);
+
+                for (var i = 0, l = transactionItems.length; i < l; i++) {
+                    var transactionItem = transactionItems[i];
+
+                    // Universal Analytics requires that the transaction ID is sent for each item added.
+                    // This should match the parent transaction ID submitted in the transaction parameter.
+                    transactionItem.id = transactionId;
+
+                    Hora.__validateObjectSchema('item', transactionItem, ['id', 'name', 'sku']);
+                    Hora.__stringifyPropertyValues(transactionItem);
+
+                    Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':addItem', transactionItem);
+                }
+
+                Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':send');
             }
-
-            if (!affiliation || !$.isString(affiliation)) {
-                throw 'Hora.sendTransaction requires a string containing the affiliation, usually the project name, i.e. "Acme Clothing"';
-            }
-
-            if (!transaction || !$.isPlainObject(transaction)) {
-                throw 'Hora.sendTransaction requires an object literal containing the transaction details, i.e. {"revenue": "11.99","shipping": "5","tax": "1.29"}';
-            }
-
-            if (!transactionItems || !$.isArray(transactionItems)) {
-                throw 'Hora.sendTransaction requires an Array containing the transaction item details';
-            }
-
-            transaction.id = transactionId;
-            transaction.affiliation = affiliation;
-
-            Hora.__stringifyPropertyValues(transaction);
-
-            Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':addTransaction', transaction);
-
-            for (var i = 0, l = transactionItems.length; i < l; i++) {
-                var transactionItem = transactionItems[i];
-
-                // Universal Analytics requires that the transaction ID is sent for each item added.
-                // This should match the parent transaction ID submitted in the transaction parameter.
-                transactionItem.id = transactionId;
-
-                Hora.__validateObjectSchema('item', transactionItem, ['id', 'name', 'sku']);
-                Hora.__stringifyPropertyValues(transactionItem);
-
-                Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':addItem', transactionItem);
-            }
-
-            Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':send');
         };
 
         return Hora;

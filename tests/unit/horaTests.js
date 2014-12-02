@@ -694,38 +694,38 @@ define([
             });
         });
 
-        describe('sendTransaction', function() {
-            describe('validate parameters', function() {
+        describe('transaction', function() {
+            describe('validate Send parameters', function() {
                 it('throws an error when transactionId is not present', function() {
-                    assert.throws(function() { Hora.sendTransaction(); });
+                    assert.throws(function() { Hora.transaction.send(); });
                 });
 
                 it('throws an error when transactionId is not a string', function() {
-                    assert.throws(function() { Hora.sendTransaction(true); });
+                    assert.throws(function() { Hora.transaction.send(true); });
                 });
 
                 it('throws an error when affiliation is not present', function() {
-                    assert.throws(function() { Hora.sendTransaction('1234'); });
+                    assert.throws(function() { Hora.transaction.send('1234'); });
                 });
 
                 it('throws an error when affiliation is not a string', function() {
-                    assert.throws(function() { Hora.sendTransaction('1234', true); });
+                    assert.throws(function() { Hora.transaction.send('1234', true); });
                 });
 
                 it('throws an error when transaction is not present', function() {
-                    assert.throws(function() { Hora.sendTransaction('1234', 'Acme Clothing'); });
+                    assert.throws(function() { Hora.transaction.send('1234', 'Acme Clothing'); });
                 });
 
                 it('throws an error when transaction is not an object', function() {
-                    assert.throws(function() { Hora.sendTransaction('1234', 'Acme Clothing', true); });
+                    assert.throws(function() { Hora.transaction.send('1234', 'Acme Clothing', true); });
                 });
 
                 it('throws an error when transactionItems is not present', function() {
-                    assert.throws(function() { Hora.sendTransaction('1234', 'Acme Clothing', {}); });
+                    assert.throws(function() { Hora.transaction.send('1234', 'Acme Clothing', {}); });
                 });
 
                 it('throws an error when transactionItems is not an array', function() {
-                    assert.throws(function() { Hora.sendTransaction('1234', 'Acme Clothing', {}, true); });
+                    assert.throws(function() { Hora.transaction.send('1234', 'Acme Clothing', {}, true); });
                 });
 
                 it('correctly calls ecommerce:addTransaction with the correct parameters', function(done) {
@@ -742,7 +742,7 @@ define([
                         });
                     }, done));
 
-                    Hora.sendTransaction('1234', 'Acme Clothing', {
+                    Hora.transaction.send('1234', 'Acme Clothing', {
                         revenue: '11.99',
                         shipping: '5',
                         tax: '1.29'
@@ -763,7 +763,7 @@ define([
                         });
                     }, done));
 
-                    Hora.sendTransaction('1234', 'Acme Clothing', {
+                    Hora.transaction.send('1234', 'Acme Clothing', {
                         revenue: 11.99,
                         shipping: 5,
                         tax: 1.29
@@ -785,7 +785,7 @@ define([
                         });
                     }, done));
 
-                    Hora.sendTransaction(
+                    Hora.transaction.send(
                         '1234',
                         'Acme Clothing',
                         {
@@ -819,7 +819,7 @@ define([
                         });
                     }, done));
 
-                    Hora.sendTransaction(
+                    Hora.transaction.send(
                         '1234',
                         'Acme Clothing',
                         {
@@ -857,7 +857,7 @@ define([
                         }
                     });
 
-                    Hora.sendTransaction(
+                    Hora.transaction.send(
                         '1234',
                         'Acme Clothing',
                         {
@@ -897,7 +897,7 @@ define([
                         assert.equal(type, 'mobifyTracker.ecommerce:send');
                     }, done));
 
-                    Hora.sendTransaction(
+                    Hora.transaction.send(
                         '1234',
                         'Acme Clothing',
                         {
