@@ -731,24 +731,16 @@ define([
                 it('correctly calls ecommerce:addTransaction with the correct parameters', function(done) {
                     var callCount = 0;
 
-                    proxyUA(function(type, transaction) {
-                        callCount++;
-
-                        if (callCount === 1) {
-                            assert.equal(type, 'mobifyTracker.ecommerce:addTransaction');
-                            assert.deepEqual(transaction, {
-                                id: '1234',
-                                affiliation: 'Acme Clothing',
-                                revenue: '11.99',
-                                shipping: '5',
-                                tax: '1.29'
-                            });
-                        }
-
-                        if (callCount === 2) {
-                            done();
-                        }
-                    });
+                    proxyUA(proxyAssert(1, 2, function(type, transaction) {
+                        assert.equal(type, 'mobifyTracker.ecommerce:addTransaction');
+                        assert.deepEqual(transaction, {
+                            id: '1234',
+                            affiliation: 'Acme Clothing',
+                            revenue: '11.99',
+                            shipping: '5',
+                            tax: '1.29'
+                        });
+                    }, done));
 
                     Hora.sendTransaction('1234', 'Acme Clothing', {
                         revenue: '11.99',
@@ -760,24 +752,16 @@ define([
                 it('correctly stringifies ecommerce:addTransaction parameters', function(done) {
                     var callCount = 0;
 
-                    proxyUA(function(type, transaction) {
-                        callCount++;
-
-                        if (callCount === 1) {
-                            assert.equal(type, 'mobifyTracker.ecommerce:addTransaction');
-                            assert.deepEqual(transaction, {
-                                id: '1234',
-                                affiliation: 'Acme Clothing',
-                                revenue: '11.99',
-                                shipping: '5',
-                                tax: '1.29'
-                            });
-                        }
-
-                        if (callCount === 2) {
-                            done();
-                        }
-                    });
+                    proxyUA(proxyAssert(1, 2, function(type, transaction) {
+                        assert.equal(type, 'mobifyTracker.ecommerce:addTransaction');
+                        assert.deepEqual(transaction, {
+                            id: '1234',
+                            affiliation: 'Acme Clothing',
+                            revenue: '11.99',
+                            shipping: '5',
+                            tax: '1.29'
+                        });
+                    }, done));
 
                     Hora.sendTransaction('1234', 'Acme Clothing', {
                         revenue: 11.99,
@@ -789,25 +773,17 @@ define([
                 it('correctly calls ecommerce:addItem with the correct parameters', function(done) {
                     var callCount = 0;
 
-                    proxyUA(function(type, transactionItem) {
-                        callCount++;
-
-                        if (callCount === 2) {
-                            assert.equal(type, 'mobifyTracker.ecommerce:addItem');
-                            assert.deepEqual(transactionItem, {
-                                id: '1234',
-                                name: 'Fluffy Pink Bunnies',
-                                sku: 'DD23444',
-                                category: 'Party Toys',
-                                price: '11.99',
-                                quantity: '1'
-                            });
-                        }
-
-                        if (callCount === 3) {
-                            done();
-                        }
-                    });
+                    proxyUA(proxyAssert(2, 3, function(type, transactionItem) {
+                        assert.equal(type, 'mobifyTracker.ecommerce:addItem');
+                        assert.deepEqual(transactionItem, {
+                            id: '1234',
+                            name: 'Fluffy Pink Bunnies',
+                            sku: 'DD23444',
+                            category: 'Party Toys',
+                            price: '11.99',
+                            quantity: '1'
+                        });
+                    }, done));
 
                     Hora.sendTransaction(
                         '1234',
@@ -831,25 +807,17 @@ define([
                 it('correctly stringifies ecommerce:addItem parameters', function(done) {
                     var callCount = 0;
 
-                    proxyUA(function(type, transactionItem) {
-                        callCount++;
-
-                        if (callCount === 2) {
-                            assert.equal(type, 'mobifyTracker.ecommerce:addItem');
-                            assert.deepEqual(transactionItem, {
-                                id: '1234',
-                                name: 'Fluffy Pink Bunnies',
-                                sku: 'DD23444',
-                                category: 'Party Toys',
-                                price: '11.99',
-                                quantity: '1'
-                            });
-                        }
-
-                        if (callCount === 3) {
-                            done();
-                        }
-                    });
+                    proxyUA(proxyAssert(2, 3, function(type, transactionItem) {
+                        assert.equal(type, 'mobifyTracker.ecommerce:addItem');
+                        assert.deepEqual(transactionItem, {
+                            id: '1234',
+                            name: 'Fluffy Pink Bunnies',
+                            sku: 'DD23444',
+                            category: 'Party Toys',
+                            price: '11.99',
+                            quantity: '1'
+                        });
+                    }, done));
 
                     Hora.sendTransaction(
                         '1234',
@@ -922,16 +890,12 @@ define([
                         ]);
                 });
 
-                it('correctly calls send with the right method name', function() {
+                it('correctly calls send with the right method name', function(done) {
                     var callCount = 0;
 
-                    proxyUA(function(type) {
-                        callCount++;
-
-                        if (callCount === 3) {
-                            assert.equal(type, 'mobifyTracker.ecommerce:send');
-                        }
-                    });
+                    proxyUA(proxyAssert(3, 3, function(type) {
+                        assert.equal(type, 'mobifyTracker.ecommerce:send');
+                    }, done));
 
                     Hora.sendTransaction(
                         '1234',
