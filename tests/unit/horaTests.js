@@ -54,7 +54,8 @@ define([
                 assert.isDefined(Hora.minicart);
                 assert.isDefined(Hora.accordion);
                 assert.isDefined(Hora.search);
-                assert.isDefined(Hora.filters);
+                assert.isDefined(Hora.filter);
+                assert.isDefined(Hora.review);
                 assert.isDefined(Hora.color);
                 assert.isDefined(Hora.quantity);
                 assert.isDefined(Hora.size);
@@ -253,8 +254,8 @@ define([
             });
         });
 
-        describe('orientationChange', function() {
-            it('correctly sends Orientation Change data', function(done) {
+        describe('orientation', function() {
+            it('correctly sends Change data', function(done) {
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     done();
                 });
@@ -387,17 +388,17 @@ define([
             });
         });
 
-        describe('filters', function() {
+        describe('filter', function() {
             it('correctly sends the Toggle event', function(done) {
                 var title = 'Test 1';
 
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
-                    assert.equal(eventCategory, 'Filters - ' + title);
+                    assert.equal(eventCategory, 'Filter - ' + title);
                     assert.equal(eventAction, 'Toggle');
                     done();
                 });
 
-                Hora.filters.toggle(title);
+                Hora.filter.toggle(title);
             });
         });
 
@@ -549,17 +550,17 @@ define([
             });
         });
 
-        describe('reviews', function() {
+        describe('review', function() {
             it('correctly sends the Read event', function(done) {
                 var title = 'Test 1';
 
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
-                    assert.equal(eventCategory, 'Reviews - ' + title);
+                    assert.equal(eventCategory, 'Review - ' + title);
                     assert.equal(eventAction, 'Read');
                     done();
                 });
 
-                Hora.reviews.read(title);
+                Hora.review.read(title);
             });
         });
 

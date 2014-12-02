@@ -349,12 +349,12 @@ define([
             }
         };
 
-        Hora.filters = {
+        Hora.filter = {
             toggle: function(title) {
-                Hora.send('Filters - ' + title, 'Toggle');
+                Hora.send('Filter - ' + title, 'Toggle');
             },
             change: function(title, type, amount) {
-                Hora.send('Filters - ' + title, 'Change: ' + type, amount);
+                Hora.send('Filter - ' + title, 'Change: ' + type, amount);
             }
         };
 
@@ -427,9 +427,9 @@ define([
             }
         };
 
-        Hora.reviews = {
+        Hora.review = {
             read: function(title) {
-                Hora.send('Reviews - ' + title, 'Read');
+                Hora.send('Review - ' + title, 'Read');
             }
         };
 
