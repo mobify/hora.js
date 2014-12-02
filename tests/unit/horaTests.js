@@ -486,6 +486,20 @@ define([
         });
 
         describe('error', function() {
+            it('correctly sends the Generic Error event', function(done) {
+                var title = 'Section 1';
+                var message = 'Unknown Error';
+
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                    assert.equal(eventCategory, 'Error');
+                    assert.equal(eventAction, title);
+                    assert.equal(eventLabel, message);
+                    done();
+                });
+
+                Hora.error.generic(title, message);
+            });
+
             it('correctly sends the Alert event', function(done) {
                 var message = 'Unknown Error';
 
