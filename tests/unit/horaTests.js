@@ -839,7 +839,7 @@ define([
                 });
             });
 
-            describe('ensure calls', function() {
+            describe('ensure Send calls', function() {
                 it('correctly calls ecommerce:addItem for each item', function(done) {
                     var callCount = 0;
                     var items = [];
