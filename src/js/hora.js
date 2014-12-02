@@ -20,6 +20,7 @@ define([
         var _carousels = {};
         var _accordions = {};
         var _swiping = false;
+        var _templateName;
 
         $.extend($, {
             isString: function(obj) {
@@ -78,7 +79,9 @@ define([
         };
 
         // Initializes Hora and sets up implicitly tracked events: Hora.orientationChange, Hora.scrollToBottom.
-        Hora.init = function() {
+        Hora.init = function(templateName) {
+            _templateName = templateName;
+
             // Bind events
             $window
                 .on('touchmove', function() {
@@ -111,10 +114,17 @@ define([
                     _alert(message);
                 };
             })();
+
+            Hora.send('Init', null, null, null, NON_INTERACTION);
         };
 
         Hora.send = function() {
             var args = Array.prototype.slice.call(arguments);
+
+            // Set the event label as the template name, if it has been initialized in Hora.init
+            if (_templateName) {
+                args[2] = _templateName + (args[2] ? ' - ' + args[2] : ''); // Append the event label argument if it's been passed in
+            }
 
             args.unshift('mobifyTracker.send', 'event');
 
@@ -191,9 +201,9 @@ define([
         // eg. Hora.orientationChange();
         Hora.orientation = {
             change: function() {
-                var data = window.innerHeight > window.innerWidth ? 'Landscape to Portrait' : 'Portrait to Landscape';
+                var position = (window.innerHeight > window.innerWidth) ? 'Landscape to Portrait' : 'Portrait to Landscape';
 
-                Hora.send('Orientation', 'Change', data, NON_INTERACTION);
+                Hora.send('Orientation', 'Change ' + position, null, null, NON_INTERACTION);
             }
         };
 
@@ -206,19 +216,19 @@ define([
 
                 if (_swiping) {
                     if (!currentCarousel.swipes.length) {
-                        Hora.send('Carousel - ' + title, 'First Swipe', 'Slide #' + currentSlide);
+                        Hora.send('Carousel - ' + title, 'First Swipe Slide #' + currentSlide, null, currentSlide);
                     }
 
-                    Hora.send('Carousel - ' + title, 'Swipe', 'Slide #' + currentSlide);
+                    Hora.send('Carousel - ' + title, 'Swipe Slide #' + currentSlide, null, currentSlide);
 
                     currentCarousel.swipes.push(currentSlide);
                 }
                 else {
                     if (!currentCarousel.slides.length) {
-                        Hora.send('Carousel - ' + title, 'First Slide', 'Slide #' + currentSlide);
+                        Hora.send('Carousel - ' + title, 'First Move Slide #' + currentSlide, null, currentSlide);
                     }
 
-                    Hora.send('Carousel - ' + title, 'Slide', 'Slide #' + currentSlide);
+                    Hora.send('Carousel - ' + title, 'Move Slide #' + currentSlide, null, currentSlide);
 
                     currentCarousel.slides.push(currentSlide);
                 }
@@ -241,7 +251,7 @@ define([
                     }
 
                     if (currentCarousel.fullView) {
-                        Hora.send('Carousel - ' + title, 'View All Slides', 'Slide #' + currentSlide);
+                        Hora.send('Carousel - ' + title, 'View All Slides', null, currentCarousel.totalSlides);
 
                         currentCarousel.fullViewFired = true;
                     }
@@ -267,17 +277,17 @@ define([
                 // Initially populate the carousel with the first slide
                 _carousels[title].viewed.push(1);
 
-                Hora.send('Carousel - ' + title, 'Load', 'Total ' + totalSlides, NON_INTERACTION);
+                Hora.send('Carousel - ' + title, 'Load', null, totalSlides, NON_INTERACTION);
             },
 
             zoom: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
                 if (!currentCarousel.zooms.length) {
-                    Hora.send('Carousel - ' + title, 'First Zoom', 'Slide #' + currentSlide);
+                    Hora.send('Carousel - ' + title, 'First Zoom Slide #' + currentSlide, null, currentSlide);
                 }
 
-                Hora.send('Carousel - ' + title, 'Zoom', 'Slide #' + currentSlide);
+                Hora.send('Carousel - ' + title, 'Zoom Slide #' + currentSlide, null, currentSlide);
 
                 currentCarousel.zooms.push(currentSlide);
             },
@@ -286,22 +296,23 @@ define([
                 var currentCarousel = _carousels[title];
 
                 if (!currentCarousel.clicks.length) {
-                    Hora.send('Carousel - ' + title, 'First Click', 'Slide #' + currentSlide);
+                    Hora.send('Carousel - ' + title, 'First Click Slide #' + currentSlide, null, currentSlide);
                 }
 
-                Hora.send('Carousel - ' + title, 'Click', 'Slide #' + currentSlide);
+                Hora.send('Carousel - ' + title, 'Click Slide #' + currentSlide, null, currentSlide);
 
                 currentCarousel.clicks.push(currentSlide);
             },
 
             iconClick: function(title, currentSlide, direction) {
                 var currentCarousel = _carousels[title];
+                var directionTitle = (direction === -1) ? 'Previous' : 'Next';
 
                 if (!currentCarousel.icons.length) {
-                    Hora.send('Carousel - ' + title, 'First Icon', 'Slide #' + currentSlide);
+                    Hora.send('Carousel - ' + title, 'First Icon Slide #' + currentSlide, null, currentSlide);
                 }
 
-                Hora.send('Carousel - ' + title, 'Icon', 'Slide #' + currentSlide, direction);
+                Hora.send('Carousel - ' + title, directionTitle + ' Icon Slide #' + currentSlide, null, currentSlide);
 
                 currentCarousel.icons.push(currentSlide);
             }
@@ -309,7 +320,7 @@ define([
 
         Hora.navigation = {
             click: function(menuTitle, itemTitle) {
-                Hora.send('Navigation - ' + menuTitle, 'Click', itemTitle);
+                Hora.send('Navigation - ' + menuTitle, 'Click ' + itemTitle);
             }
         };
 
@@ -354,7 +365,7 @@ define([
                 Hora.send('Filter - ' + title, 'Toggle');
             },
             change: function(title, type, amount) {
-                Hora.send('Filter - ' + title, 'Change: ' + type, amount);
+                Hora.send('Filter - ' + title, 'Change: ' + type + ' ' + amount);
             }
         };
 
@@ -399,31 +410,31 @@ define([
 
         Hora.quantity = {
             change: function(title, amount) {
-                Hora.send('Quantity - ' + title, 'Change', amount + '');
+                Hora.send('Quantity - ' + title, 'Change', null, amount);
             }
         };
 
         Hora.size = {
             change: function(title, amount) {
-                Hora.send('Size - ' + title, 'Change', amount + '');
+                Hora.send('Size - ' + title, 'Change', null, amount);
             }
         };
 
         Hora.error = {
             generic: function(title, comment) {
-                Hora.send('Error', title, comment);
+                Hora.send('Error', title + ': ' + comment);
             },
             alert: function(comment) {
-                Hora.send('Error', 'Alert', comment);
+                Hora.send('Error', 'Alert: ' + comment);
             },
             unsuccessfulSubmission: function(comment) {
-                Hora.send('Error', 'Unsuccessful Submission', comment);
+                Hora.send('Error', 'Unsuccessful Submission: ' + comment);
             },
             unsuccessfulAddToCart: function(comment) {
-                Hora.send('Error', 'Unsuccessful Add To Cart', comment);
+                Hora.send('Error', 'Unsuccessful Add To Cart: ' + comment);
             },
             unsuccessfulPlaceOrder: function(comment) {
-                Hora.send('Error', 'Unsuccessful Place Order', comment);
+                Hora.send('Error', 'Unsuccessful Place Order: ' + comment);
             }
         };
 
@@ -488,7 +499,7 @@ define([
 
         Hora.checkout = {
             start: function(message) {
-                Hora.send('Checkout', 'Start', message);
+                Hora.send('Checkout', 'Start: ' + message);
             }
         };
 
@@ -497,10 +508,10 @@ define([
                 var currentAccordion = _accordions[title];
 
                 if (!currentAccordion.opens.length) {
-                    Hora.send('Accordion - ' + title, 'First Open', 'Item #' + currentItem);
+                    Hora.send('Accordion - ' + title, 'First Open Item #' + currentItem, null, currentItem);
                 }
 
-                Hora.send('Accordion - ' + title, 'Open', 'Item #' + currentItem);
+                Hora.send('Accordion - ' + title, 'Open Item #' + currentItem, null, currentItem);
 
                 currentAccordion.opens.push(currentItem);
 
@@ -508,7 +519,7 @@ define([
                 // Then this user doesn't mind having multiple opened
                 // Send how many are currently opened and haven't been closed
                 if (currentAccordion.opens.length > 1 && currentAccordion.opens.length > currentAccordion.closes.length) {
-                    Hora.send('Accordion - ' + title, 'Open Multiple', 'Total ' + (currentAccordion.opens.length - currentAccordion.closes.length));
+                    Hora.send('Accordion - ' + title, 'Open Multiple Items', null, currentAccordion.opens.length - currentAccordion.closes.length);
                 }
 
                 // If the user has swiped as much as there swipes, maybe they've been to every slide?
@@ -527,7 +538,7 @@ define([
                     }
 
                     if (currentAccordion.fullView) {
-                        Hora.send('Accordion - ' + title, 'View All Items', 'Total ' + currentAccordion.totalItems);
+                        Hora.send('Accordion - ' + title, 'View All Items', null, currentAccordion.totalItems);
 
                         currentAccordion.fullViewFired = true;
                     }
@@ -552,7 +563,7 @@ define([
                     };
                 }
 
-                Hora.send('Accordion - ' + title, 'Load', 'Total ' + totalItems, NON_INTERACTION);
+                Hora.send('Accordion - ' + title, 'Load', null, totalItems, NON_INTERACTION);
             }
         };
 
