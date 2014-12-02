@@ -508,7 +508,7 @@ define([
                 // Then this user doesn't mind having multiple opened
                 // Send how many are currently opened and haven't been closed
                 if (currentAccordion.opens.length > 1 && currentAccordion.opens.length > currentAccordion.closes.length) {
-                    Hora.send('Accordion - ' + title, 'Open Multiple', currentAccordion.opens.length - currentAccordion.closes.length);
+                    Hora.send('Accordion - ' + title, 'Open Multiple', 'Total ' + (currentAccordion.opens.length - currentAccordion.closes.length));
                 }
 
                 // If the user has swiped as much as there swipes, maybe they've been to every slide?
@@ -527,7 +527,7 @@ define([
                     }
 
                     if (currentAccordion.fullView) {
-                        Hora.send('Accordion - ' + title, 'View All Items', 'Item #' + currentItem);
+                        Hora.send('Accordion - ' + title, 'View All Items', 'Total ' + currentAccordion.totalItems);
 
                         currentAccordion.fullViewFired = true;
                     }

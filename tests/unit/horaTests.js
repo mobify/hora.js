@@ -208,6 +208,7 @@ define([
                 proxyUA(proxyAssert(8, 8, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Accordion - ' + title);
                     assert.equal(eventAction, 'View All Items');
+                    assert.equal(eventLabel, 'Total ' + size);
                 }, done));
 
                 Hora.accordion.load(title, size);
@@ -241,6 +242,7 @@ define([
                 proxyUA(proxyAssert(5, 5, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Accordion - ' + title);
                     assert.equal(eventAction, 'Open Multiple');
+                    assert.equal(eventLabel, 'Total 2');
                 }, done));
 
                 Hora.accordion.load(title, size);
