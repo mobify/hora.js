@@ -193,7 +193,7 @@ define([
             change: function() {
                 var position = (window.innerHeight > window.innerWidth) ? 'Landscape to Portrait' : 'Portrait to Landscape';
 
-                Hora.send('Orientation', 'Change ' + position, null, null, NON_INTERACTION);
+                Hora.send('Orientation', 'Change', position, NON_INTERACTION);
             }
         };
 
@@ -206,19 +206,19 @@ define([
 
                 if (_swiping) {
                     if (!currentCarousel.swipes.length) {
-                        Hora.send('Carousel - ' + title, 'First Swipe Slide #' + currentSlide, null, currentSlide);
+                        Hora.send('Carousel - ' + title, 'First Swipe', 'Slide #' + currentSlide, currentSlide);
                     }
 
-                    Hora.send('Carousel - ' + title, 'Swipe Slide #' + currentSlide, null, currentSlide);
+                    Hora.send('Carousel - ' + title, 'Swipe', 'Slide #' + currentSlide, currentSlide);
 
                     currentCarousel.swipes.push(currentSlide);
                 }
                 else {
                     if (!currentCarousel.slides.length) {
-                        Hora.send('Carousel - ' + title, 'First Move Slide #' + currentSlide, null, currentSlide);
+                        Hora.send('Carousel - ' + title, 'First Move', 'Slide #' + currentSlide, currentSlide);
                     }
 
-                    Hora.send('Carousel - ' + title, 'Move Slide #' + currentSlide, null, currentSlide);
+                    Hora.send('Carousel - ' + title, 'Move', 'Slide #' + currentSlide, currentSlide);
 
                     currentCarousel.slides.push(currentSlide);
                 }
@@ -241,7 +241,7 @@ define([
                     }
 
                     if (currentCarousel.fullView) {
-                        Hora.send('Carousel - ' + title, 'View All Slides', null, currentCarousel.totalSlides);
+                        Hora.send('Carousel - ' + title, 'View All Slides', 'Total ' + currentCarousel.totalSlides, currentCarousel.totalSlides);
 
                         currentCarousel.fullViewFired = true;
                     }
@@ -267,17 +267,17 @@ define([
                 // Initially populate the carousel with the first slide
                 _carousels[title].viewed.push(1);
 
-                Hora.send('Carousel - ' + title, 'Load', null, totalSlides, NON_INTERACTION);
+                Hora.send('Carousel - ' + title, 'Load', 'Total ' + totalSlides, totalSlides, NON_INTERACTION);
             },
 
             zoom: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
                 if (!currentCarousel.zooms.length) {
-                    Hora.send('Carousel - ' + title, 'First Zoom Slide #' + currentSlide, null, currentSlide);
+                    Hora.send('Carousel - ' + title, 'First Zoom', 'Slide #' + currentSlide, currentSlide);
                 }
 
-                Hora.send('Carousel - ' + title, 'Zoom Slide #' + currentSlide, null, currentSlide);
+                Hora.send('Carousel - ' + title, 'Zoom', 'Slide #' + currentSlide, currentSlide);
 
                 currentCarousel.zooms.push(currentSlide);
             },
@@ -286,10 +286,10 @@ define([
                 var currentCarousel = _carousels[title];
 
                 if (!currentCarousel.clicks.length) {
-                    Hora.send('Carousel - ' + title, 'First Click Slide #' + currentSlide, null, currentSlide);
+                    Hora.send('Carousel - ' + title, 'First Click', 'Slide #' + currentSlide, currentSlide);
                 }
 
-                Hora.send('Carousel - ' + title, 'Click Slide #' + currentSlide, null, currentSlide);
+                Hora.send('Carousel - ' + title, 'Click',  'Slide #' + currentSlide, currentSlide);
 
                 currentCarousel.clicks.push(currentSlide);
             },
@@ -299,10 +299,10 @@ define([
                 var directionTitle = (direction === -1) ? 'Previous' : 'Next';
 
                 if (!currentCarousel.icons.length) {
-                    Hora.send('Carousel - ' + title, 'First Icon Slide #' + currentSlide, null, currentSlide);
+                    Hora.send('Carousel - ' + title, 'First Icon', 'Slide #' + currentSlide, currentSlide);
                 }
 
-                Hora.send('Carousel - ' + title, directionTitle + ' Icon Slide #' + currentSlide, null, currentSlide);
+                Hora.send('Carousel - ' + title, directionTitle + ' Icon', 'Slide #' + currentSlide, currentSlide);
 
                 currentCarousel.icons.push(currentSlide);
             }
@@ -310,7 +310,7 @@ define([
 
         Hora.navigation = {
             click: function(menuTitle, itemTitle) {
-                Hora.send('Navigation - ' + menuTitle, 'Click ' + itemTitle);
+                Hora.send('Navigation - ' + menuTitle, 'Click', itemTitle);
             }
         };
 
@@ -355,7 +355,7 @@ define([
                 Hora.send('Filter - ' + title, 'Toggle');
             },
             change: function(title, type, amount) {
-                Hora.send('Filter - ' + title, 'Change: ' + type + ' ' + amount);
+                Hora.send('Filter - ' + title, 'Change: ' + type, amount);
             }
         };
 
@@ -412,19 +412,19 @@ define([
 
         Hora.error = {
             generic: function(title, comment) {
-                Hora.send('Error', title + ': ' + comment);
+                Hora.send('Error', title, comment);
             },
             alert: function(comment) {
-                Hora.send('Error', 'Alert: ' + comment);
+                Hora.send('Error', 'Alert', comment);
             },
             unsuccessfulSubmission: function(comment) {
-                Hora.send('Error', 'Unsuccessful Submission: ' + comment);
+                Hora.send('Error', 'Unsuccessful Submission', comment);
             },
             unsuccessfulAddToCart: function(comment) {
-                Hora.send('Error', 'Unsuccessful Add To Cart: ' + comment);
+                Hora.send('Error', 'Unsuccessful Add To Cart', comment);
             },
             unsuccessfulPlaceOrder: function(comment) {
-                Hora.send('Error', 'Unsuccessful Place Order: ' + comment);
+                Hora.send('Error', 'Unsuccessful Place Order', comment);
             }
         };
 
@@ -489,7 +489,7 @@ define([
 
         Hora.checkout = {
             start: function(message) {
-                Hora.send('Checkout', 'Start: ' + message);
+                Hora.send('Checkout', 'Start', message);
             }
         };
 
@@ -498,10 +498,10 @@ define([
                 var currentAccordion = _accordions[title];
 
                 if (!currentAccordion.opens.length) {
-                    Hora.send('Accordion - ' + title, 'First Open Item #' + currentItem, null, currentItem);
+                    Hora.send('Accordion - ' + title, 'First Open', 'Item #' + currentItem, currentItem);
                 }
 
-                Hora.send('Accordion - ' + title, 'Open Item #' + currentItem, null, currentItem);
+                Hora.send('Accordion - ' + title, 'Open', 'Item #' + currentItem, currentItem);
 
                 currentAccordion.opens.push(currentItem);
 
@@ -509,7 +509,9 @@ define([
                 // Then this user doesn't mind having multiple opened
                 // Send how many are currently opened and haven't been closed
                 if (currentAccordion.opens.length > 1 && currentAccordion.opens.length > currentAccordion.closes.length) {
-                    Hora.send('Accordion - ' + title, 'Open Multiple Items', null, currentAccordion.opens.length - currentAccordion.closes.length);
+                    var total = currentAccordion.opens.length - currentAccordion.closes.length;
+
+                    Hora.send('Accordion - ' + title, 'Open Multiple Items', 'Total ' + total, total);
                 }
 
                 // If the user has swiped as much as there swipes, maybe they've been to every slide?
@@ -528,7 +530,7 @@ define([
                     }
 
                     if (currentAccordion.fullView) {
-                        Hora.send('Accordion - ' + title, 'View All Items', null, currentAccordion.totalItems);
+                        Hora.send('Accordion - ' + title, 'View All Items', 'Total ' + currentAccordion.totalItems, currentAccordion.totalItems);
 
                         currentAccordion.fullViewFired = true;
                     }
@@ -553,7 +555,7 @@ define([
                     };
                 }
 
-                Hora.send('Accordion - ' + title, 'Load', null, totalItems, NON_INTERACTION);
+                Hora.send('Accordion - ' + title, 'Load', 'Total ' + totalItems, totalItems, NON_INTERACTION);
             }
         };
 

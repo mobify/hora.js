@@ -41,6 +41,8 @@ define([
     };
 
     describe('Hora', function() {
+        Hora.init();
+
         describe('Object', function() {
             it('is correctly returned from hora module', function() {
                 assert.isDefined(Hora);
@@ -86,7 +88,7 @@ define([
                 Hora.send('one', 'two', 'three');
             });
         });
-        
+
         describe('carousel', function() {
             it('correctly sends the Load event', function(done) {
                 var title = 'Test 1';
@@ -95,6 +97,7 @@ define([
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Carousel - ' + title);
                     assert.equal(eventAction, 'Load');
+                    assert.equal(eventLabel, 'Total ' + size);
                     assert.equal(eventValue, size);
                     done();
                 });
@@ -108,7 +111,8 @@ define([
 
                 proxyUA(proxyAssert(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Carousel - ' + title);
-                    assert.equal(eventAction, 'First Move Slide #1');
+                    assert.equal(eventAction, 'First Move');
+                    assert.equal(eventLabel, 'Slide #1');
                 }, done));
 
                 Hora.carousel.load(title, size);
@@ -124,6 +128,7 @@ define([
                 proxyUA(proxyAssert(6, 6, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Carousel - ' + title);
                     assert.equal(eventAction, 'View All Slides');
+                    assert.equal(eventLabel, 'Total ' + size);
                     assert.equal(eventValue, size);
                 }, done));
 
@@ -142,7 +147,8 @@ define([
 
                 proxyUA(proxyAssert(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Carousel - ' + title);
-                    assert.equal(eventAction, 'First Click Slide #1');
+                    assert.equal(eventAction, 'First Click');
+                    assert.equal(eventLabel, 'Slide #1');
                     assert.equal(eventValue, 1);
                 }, done));
 
@@ -158,7 +164,8 @@ define([
 
                 proxyUA(proxyAssert(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Carousel - ' + title);
-                    assert.equal(eventAction, 'First Icon Slide #1');
+                    assert.equal(eventAction, 'First Icon');
+                    assert.equal(eventLabel, 'Slide #1');
                     assert.equal(eventValue, 1);
                 }, done));
 
@@ -174,7 +181,8 @@ define([
 
                 proxyUA(proxyAssert(3, 3, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Carousel - ' + title);
-                    assert.equal(eventAction, 'Previous Icon Slide #1');
+                    assert.equal(eventAction, 'Previous Icon');
+                    assert.equal(eventLabel, 'Slide #1');
                     assert.equal(eventValue, 1);
                 }, done));
 
@@ -209,6 +217,7 @@ define([
                 proxyUA(proxyAssert(8, 8, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Accordion - ' + title);
                     assert.equal(eventAction, 'View All Items');
+                    assert.equal(eventLabel, 'Total ' + size);
                     assert.equal(eventValue, size);
                 }, done));
 
@@ -227,7 +236,8 @@ define([
 
                 proxyUA(proxyAssert(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Accordion - ' + title);
-                    assert.equal(eventAction, 'First Open Item #1');
+                    assert.equal(eventAction, 'First Open');
+                    assert.equal(eventLabel, 'Item #1');
                 }, done));
 
                 Hora.accordion.load(title, size);
@@ -243,6 +253,7 @@ define([
                 proxyUA(proxyAssert(5, 5, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Accordion - ' + title);
                     assert.equal(eventAction, 'Open Multiple Items');
+                    assert.equal(eventLabel, 'Total ' + size);
                     assert.equal(eventValue, size);
                 }, done));
 
@@ -493,7 +504,8 @@ define([
 
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Error');
-                    assert.equal(eventAction, title + ': ' + message);
+                    assert.equal(eventAction, title);
+                    assert.equal(eventLabel, message);
                     done();
                 });
 
@@ -505,7 +517,8 @@ define([
 
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Error');
-                    assert.equal(eventAction, 'Alert: ' + message);
+                    assert.equal(eventAction, 'Alert');
+                    assert.equal(eventLabel, message);
                     done();
                 });
 
@@ -517,7 +530,8 @@ define([
 
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Error');
-                    assert.equal(eventAction, 'Unsuccessful Submission: ' + message);
+                    assert.equal(eventAction, 'Unsuccessful Submission');
+                    assert.equal(eventLabel, message);
                     done();
                 });
 
@@ -529,7 +543,8 @@ define([
 
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Error');
-                    assert.equal(eventAction, 'Unsuccessful Add To Cart: ' + message);
+                    assert.equal(eventAction, 'Unsuccessful Add To Cart');
+                    assert.equal(eventLabel, message);
                     done();
                 });
 
@@ -541,7 +556,8 @@ define([
 
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Error');
-                    assert.equal(eventAction, 'Unsuccessful Place Order: ' + message);
+                    assert.equal(eventAction, 'Unsuccessful Place Order');
+                    assert.equal(eventLabel, message);
                     done();
                 });
 
@@ -660,7 +676,8 @@ define([
 
                 proxyUA(proxyAssert(1, 1, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Checkout');
-                    assert.equal(eventAction, 'Start: ' + message);
+                    assert.equal(eventAction, 'Start');
+                    assert.equal(eventLabel, message);
                 }, done));
 
                 Hora.checkout.start(message);
