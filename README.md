@@ -2,7 +2,7 @@ Hora.js
 =====
 
 [![Bower version](https://badge.fury.io/bo/hora.js.svg)](http://badge.fury.io/bo/hora.js)
-[![Circle CI](https://circleci.com/gh/mobify/hora.js.svg?style=svg)](https://circleci.com/gh/mobify/hora.js)
+[![Circle CI](https://circleci.com/gh/mobify/hora.js.svg?style=shield)](https://circleci.com/gh/mobify/hora.js)
 
 Hora.js is a convenient and simple wrapper for sending Mobify Analytics events (which are custom Google Analytics events). Everything you need to get started and figure out Hora is here. Because creepers gonna creep. Prepare yourself.
 
