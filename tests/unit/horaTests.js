@@ -86,23 +86,7 @@ define([
                 Hora.send('one', 'two', 'three');
             });
         });
-
-        describe('init', function() {
-            it('correctly initializes with the template name', function(done) {
-                var templateName = 'PDP';
-
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
-                    assert.equal(eventCategory, templateName);
-                    assert.equal(eventAction, 'Init');
-                    assert.equal(eventLabel, templateName);
-
-                    done();
-                });
-
-                Hora.init(templateName);
-            });
-        });
-
+        
         describe('carousel', function() {
             it('correctly sends the Load event', function(done) {
                 var title = 'Test 1';
