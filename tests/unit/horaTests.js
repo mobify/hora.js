@@ -475,14 +475,16 @@ define([
         describe('quantity', function() {
             it('correctly sends the Change event', function(done) {
                 var title = 'Test 1';
+                var quantity = 5;
 
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Quantity - ' + title);
                     assert.equal(eventAction, 'Change');
+                    assert.equal(eventValue, quantity);
                     done();
                 });
 
-                Hora.quantity.change(title);
+                Hora.quantity.change(title, quantity);
             });
         });
 

@@ -492,8 +492,8 @@ define([
                 Hora.send('Mini-Cart', 'Disable Edit');
             },
 
-            changeQuantity: function() {
-                Hora.quantity.change('Mini-Cart');
+            changeQuantity: function(amount) {
+                Hora.quantity.change('Mini-Cart', amount);
             }
         };
 
