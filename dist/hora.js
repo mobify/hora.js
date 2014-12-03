@@ -95,7 +95,6 @@ define([
         Hora.init = function(templateName) {
             _templateName = templateName;
 
-            // Bind events
             $window
                 .on('touchmove', function() {
                     _swiping = true;
@@ -105,18 +104,17 @@ define([
                         _swiping = false;
                     }, 50);
                 })
-                .on('orientationchange', Hora.orientation.change);
+                .on('orientationchange', Hora.orientation.change)
+                .on('load', function() {
+                    var windowHeight = $window.height();
 
-            $window.on('load', function() {
-                var windowHeight = $window.height();
-
-                $window
-                    .on('scroll', function() {
-                        if ($window.scrollTop() + windowHeight === $doc.height()) {
-                            Hora.scroll.bottom('Page');
-                        }
-                    });
-            });
+                    $window
+                        .on('scroll', function() {
+                            if ($window.scrollTop() + windowHeight === $doc.height()) {
+                                Hora.scroll.bottom('Page');
+                            }
+                        });
+                });
 
             (function patchAlerts() {
                 var _alert = window.alert;
@@ -131,9 +129,11 @@ define([
             Hora.send(templateName, 'Init', null, null, NON_INTERACTION);
         };
 
-        // Proxies the classic Google Analytics call so that we capture events fired by desktop
-        // We then send them through Mobify's analytics call
-        // Example: _gaq.push(["_trackEvent", "product selection", "select a size", a(this.options[this.selectedIndex]).text().trim()])
+        /**
+         * Proxies the classic Google Analytics call so that we capture events fired by desktop
+         * We then send them through Mobify's analytics call
+         * Example: _gaq.push(["_trackEvent", "product selection", "select a size", a(this.options[this.selectedIndex]).text().trim()])
+         */
         Hora.proxyClassicAnalytics = function() {
             if (!window._gaq) {
                 return;
@@ -148,10 +148,11 @@ define([
             };
         };
 
-        // Hora.proxyUniversalAnalytics
-        // Proxies the Universal Google Analytics call so that we capture events fired by desktop
-        // We only allow the following events: require, provide, send, ec:setAction, ec:addProduct
-        // Example: ga('ec:setAction','checkout', {'step': 3, 'option': 'visa credit' });
+        /**
+         * Proxies the Universal Google Analytics call so that we capture events fired by desktop
+         * We only allow the following events: require, provide, send, ec:setAction, ec:addProduct
+         * Example: ga('ec:setAction','checkout', {'step': 3, 'option': 'visa credit' });
+         */
         Hora.proxyUniversalAnalytics = function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
             var _theirGA;
 
@@ -214,21 +215,23 @@ define([
             slide: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
+                title = 'Carousel - ' + title;
+
                 if (_swiping) {
                     if (!currentCarousel.swipes.length) {
-                        Hora.send('Carousel - ' + title, 'First Swipe Slide #' + currentSlide, null, currentSlide);
+                        Hora.send(title, 'First Swipe Slide #' + currentSlide, null, currentSlide);
                     }
 
-                    Hora.send('Carousel - ' + title, 'Swipe Slide #' + currentSlide, null, currentSlide);
+                    Hora.send(title, 'Swipe Slide #' + currentSlide, null, currentSlide);
 
                     currentCarousel.swipes.push(currentSlide);
                 }
                 else {
                     if (!currentCarousel.slides.length) {
-                        Hora.send('Carousel - ' + title, 'First Move Slide #' + currentSlide, null, currentSlide);
+                        Hora.send(title, 'First Move Slide #' + currentSlide, null, currentSlide);
                     }
 
-                    Hora.send('Carousel - ' + title, 'Move Slide #' + currentSlide, null, currentSlide);
+                    Hora.send(title, 'Move Slide #' + currentSlide, null, currentSlide);
 
                     currentCarousel.slides.push(currentSlide);
                 }
@@ -251,7 +254,7 @@ define([
                     }
 
                     if (currentCarousel.fullView) {
-                        Hora.send('Carousel - ' + title, 'View All Slides', null, currentCarousel.totalSlides);
+                        Hora.send(title, 'View All Slides', null, currentCarousel.totalSlides);
 
                         currentCarousel.fullViewFired = true;
                     }
@@ -283,11 +286,13 @@ define([
             zoom: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
+                title = 'Carousel - ' + title;
+
                 if (!currentCarousel.zooms.length) {
-                    Hora.send('Carousel - ' + title, 'First Zoom Slide #' + currentSlide, null, currentSlide);
+                    Hora.send(title, 'First Zoom Slide #' + currentSlide, null, currentSlide);
                 }
 
-                Hora.send('Carousel - ' + title, 'Zoom Slide #' + currentSlide, null, currentSlide);
+                Hora.send(title, 'Zoom Slide #' + currentSlide, null, currentSlide);
 
                 currentCarousel.zooms.push(currentSlide);
             },
@@ -295,11 +300,13 @@ define([
             slideClick: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
+                title = 'Carousel - ' + title;
+
                 if (!currentCarousel.clicks.length) {
-                    Hora.send('Carousel - ' + title, 'First Click Slide #' + currentSlide, null, currentSlide);
+                    Hora.send(title, 'First Click Slide #' + currentSlide, null, currentSlide);
                 }
 
-                Hora.send('Carousel - ' + title, 'Click Slide #' + currentSlide, null, currentSlide);
+                Hora.send(title, 'Click Slide #' + currentSlide, null, currentSlide);
 
                 currentCarousel.clicks.push(currentSlide);
             },
@@ -308,11 +315,13 @@ define([
                 var currentCarousel = _carousels[title];
                 var directionTitle = (direction === -1) ? 'Previous' : 'Next';
 
+                title = 'Carousel - ' + title;
+
                 if (!currentCarousel.icons.length) {
-                    Hora.send('Carousel - ' + title, 'First Icon Slide #' + currentSlide, null, currentSlide);
+                    Hora.send(title, 'First Icon Slide #' + currentSlide, null, currentSlide);
                 }
 
-                Hora.send('Carousel - ' + title, directionTitle + ' Icon Slide #' + currentSlide, null, currentSlide);
+                Hora.send(title, directionTitle + ' Icon Slide #' + currentSlide, null, currentSlide);
 
                 currentCarousel.icons.push(currentSlide);
             }
@@ -507,11 +516,13 @@ define([
             open: function(title, currentItem) {
                 var currentAccordion = _accordions[title];
 
+                title = 'Accordion - ' + title;
+
                 if (!currentAccordion.opens.length) {
-                    Hora.send('Accordion - ' + title, 'First Open Item #' + currentItem, null, currentItem);
+                    Hora.send(title, 'First Open Item #' + currentItem, null, currentItem);
                 }
 
-                Hora.send('Accordion - ' + title, 'Open Item #' + currentItem, null, currentItem);
+                Hora.send(title, 'Open Item #' + currentItem, null, currentItem);
 
                 currentAccordion.opens.push(currentItem);
 
@@ -519,7 +530,7 @@ define([
                 // Then this user doesn't mind having multiple opened
                 // Send how many are currently opened and haven't been closed
                 if (currentAccordion.opens.length > 1 && currentAccordion.opens.length > currentAccordion.closes.length) {
-                    Hora.send('Accordion - ' + title, 'Open Multiple Items', null, currentAccordion.opens.length - currentAccordion.closes.length);
+                    Hora.send(title, 'Open Multiple Items', null, currentAccordion.opens.length - currentAccordion.closes.length);
                 }
 
                 // If the user has swiped as much as there swipes, maybe they've been to every slide?
@@ -538,7 +549,7 @@ define([
                     }
 
                     if (currentAccordion.fullView) {
-                        Hora.send('Accordion - ' + title, 'View All Items', null, currentAccordion.totalItems);
+                        Hora.send(title, 'View All Items', null, currentAccordion.totalItems);
 
                         currentAccordion.fullViewFired = true;
                     }
