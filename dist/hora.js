@@ -78,6 +78,19 @@ define([
             return o;
         };
 
+        Hora.send = function() {
+            var args = Array.prototype.slice.call(arguments);
+
+            // Set the event label as the template name, if it has been initialized in Hora.init
+            if (_templateName) {
+                args[2] = _templateName + (args[2] ? ' - ' + args[2] : ''); // Append the event label argument if it's been passed in
+            }
+
+            args.unshift('mobifyTracker.send', 'event');
+
+            Mobify.analytics.ua.apply(null, args);
+        };
+
         // Initializes Hora and sets up implicitly tracked events: Hora.orientationChange, Hora.scrollToBottom.
         Hora.init = function(templateName) {
             _templateName = templateName;
@@ -116,19 +129,6 @@ define([
             })();
 
             Hora.send(templateName, 'Init', null, null, NON_INTERACTION);
-        };
-
-        Hora.send = function() {
-            var args = Array.prototype.slice.call(arguments);
-
-            // Set the event label as the template name, if it has been initialized in Hora.init
-            if (_templateName) {
-                args[2] = _templateName + (args[2] ? ' - ' + args[2] : ''); // Append the event label argument if it's been passed in
-            }
-
-            args.unshift('mobifyTracker.send', 'event');
-
-            Mobify.analytics.ua.apply(null, args);
         };
 
         // Proxies the classic Google Analytics call so that we capture events fired by desktop
@@ -468,7 +468,7 @@ define([
                 }
 
                 if (fullCarouselView) {
-                    Hora.send('Cart', 'Add Item After View All Carousel Items');
+                    Hora.send('Cart', 'Add Item After View All Carousel Slides');
                 }
                 else {
                     Hora.send('Cart', 'Add Item');

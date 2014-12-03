@@ -615,12 +615,12 @@ define([
                 Hora.cart.addItem(title);
             });
 
-            it('correctly sends the Add Item After View All Carousel Items event', function(done) {
+            it('correctly sends the Add Item After View All Carousel Slides event', function(done) {
                 var title = 'Product Title 2';
 
                 proxyUA(proxyAssert(6, 6, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
                     assert.equal(eventCategory, 'Cart');
-                    assert.equal(eventAction, 'Add Item After View All Carousel Items');
+                    assert.equal(eventAction, 'Add Item After View All Carousel Slides');
                 }, done));
 
                 var carouselTitle = 'Test 5';
