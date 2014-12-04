@@ -480,7 +480,7 @@ define([
                 });
             },
             removeItem: function() {
-                // TODO
+                Hora.send('Cart', 'Remove Item', 'None', 0);
             }
         };
 

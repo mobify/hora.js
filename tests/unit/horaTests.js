@@ -656,6 +656,17 @@ define([
 
                 Hora.__carousels.clear();
             });
+
+            it('correctly sends the Remove Item event', function(done) {
+                var title = 'Product Title 1';
+
+                proxyUA(proxyAssert(1, 1, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
+                    assert.equal(eventCategory, 'Cart');
+                    assert.equal(eventAction, 'Remove Item');
+                }, done));
+
+                Hora.cart.removeItem(title);
+            });
         });
 
         describe('minicart', function() {
