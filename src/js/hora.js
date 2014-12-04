@@ -457,7 +457,7 @@ define([
                     }
                 }
 
-                Hora.send('Cart', 'Add Item', null, null, {
+                Hora.send('Cart', 'Add Item', 'None', 0, {
                     'metric15': fullCarouselView ? 1 : 0
                 });
             },
