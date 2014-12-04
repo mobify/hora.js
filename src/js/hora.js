@@ -209,20 +209,16 @@ define([
                 title = 'Carousel - ' + title;
 
                 if (_swiping) {
-                    if (!currentCarousel.swipes.length) {
-                        Hora.send(title, 'First Swipe', 'Slide #' + currentSlide, currentSlide);
-                    }
-
-                    Hora.send(title, 'Swipe', 'Slide #' + currentSlide, currentSlide);
+                    Hora.send(title, 'Swipe', 'Slide #' + currentSlide, currentSlide, {
+                        'metric15': currentCarousel.swipes.length === 0 ? 1 : 0
+                    });
 
                     currentCarousel.swipes.push(currentSlide);
                 }
                 else {
-                    if (!currentCarousel.slides.length) {
-                        Hora.send(title, 'First Move', 'Slide #' + currentSlide, currentSlide);
-                    }
-
-                    Hora.send(title, 'Move', 'Slide #' + currentSlide, currentSlide);
+                    Hora.send(title, 'Move', 'Slide #' + currentSlide, currentSlide, {
+                        'metric15': currentCarousel.slides.length === 0 ? 1 : 0
+                    });
 
                     currentCarousel.slides.push(currentSlide);
                 }
@@ -279,11 +275,9 @@ define([
 
                 title = 'Carousel - ' + title;
 
-                if (!currentCarousel.zooms.length) {
-                    Hora.send(title, 'First Zoom', 'Slide #' + currentSlide, currentSlide);
-                }
-
-                Hora.send(title, 'Zoom', 'Slide #' + currentSlide, currentSlide);
+                Hora.send(title, 'Zoom', 'Slide #' + currentSlide, currentSlide, {
+                    'metric15': currentCarousel.zooms.length === 0 ? 1 : 0
+                });
 
                 currentCarousel.zooms.push(currentSlide);
             },
@@ -293,11 +287,9 @@ define([
 
                 title = 'Carousel - ' + title;
 
-                if (!currentCarousel.clicks.length) {
-                    Hora.send(title, 'First Click', 'Slide #' + currentSlide, currentSlide);
-                }
-
-                Hora.send(title, 'Click',  'Slide #' + currentSlide, currentSlide);
+                Hora.send(title, 'Click',  'Slide #' + currentSlide, currentSlide, {
+                    'metric15': currentCarousel.clicks.length === 0 ? 1 : 0
+                });
 
                 currentCarousel.clicks.push(currentSlide);
             },
@@ -308,11 +300,9 @@ define([
 
                 title = 'Carousel - ' + title;
 
-                if (!currentCarousel.icons.length) {
-                    Hora.send(title, 'First Icon', 'Slide #' + currentSlide, currentSlide);
-                }
-
-                Hora.send(title, directionTitle + ' Icon', 'Slide #' + currentSlide, currentSlide);
+                Hora.send(title, directionTitle + ' Icon', 'Slide #' + currentSlide, currentSlide, {
+                    'metric15': currentCarousel.icons.length === 0 ? 1 : 0
+                });
 
                 currentCarousel.icons.push(currentSlide);
             }
@@ -467,12 +457,9 @@ define([
                     }
                 }
 
-                if (fullCarouselView) {
-                    Hora.send('Cart', 'Add Item After View All Carousel Slides');
-                }
-                else {
-                    Hora.send('Cart', 'Add Item');
-                }
+                Hora.send('Cart', 'Add Item', null, null, {
+                    'metric15': fullCarouselView ? 1 : 0
+                });
             },
             removeItem: function() {
                 // TODO
@@ -509,11 +496,9 @@ define([
 
                 title = 'Accordion - ' + title;
 
-                if (!currentAccordion.opens.length) {
-                    Hora.send(title, 'First Open', 'Item #' + currentItem, currentItem);
-                }
-
-                Hora.send(title, 'Open', 'Item #' + currentItem, currentItem);
+                Hora.send(title, 'Open', 'Item #' + currentItem, currentItem, {
+                    'metric15': currentAccordion.opens.length === 0 ? 1 : 0
+                });
 
                 currentAccordion.opens.push(currentItem);
 

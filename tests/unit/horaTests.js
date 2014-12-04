@@ -20,7 +20,7 @@ define([
      *
      * @example
      *
-     * proxyUA(proxyAssert(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+     * proxyUA(proxyAssert(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
      *     assert.equal(eventCategory, 'Something');
      * }, done));
      */
@@ -71,7 +71,7 @@ define([
 
         describe('send', function() {
             it('correctly passes through default parameters when no parameters passed', function(done) {
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.lengthOf(arguments, 2);
                     done();
                 });
@@ -80,7 +80,7 @@ define([
             });
 
             it('correctly passes through correct parameters including defaults', function(done) {
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.lengthOf(arguments, 5);
                     done();
                 });
@@ -94,7 +94,7 @@ define([
                 var title = 'Test 1';
                 var size = 1;
 
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Carousel - ' + title);
                     assert.equal(eventAction, 'Load');
                     assert.equal(eventLabel, 'Total ' + size);
@@ -105,14 +105,18 @@ define([
                 Hora.carousel.load(title, size);
             });
 
-            it('correctly sends the First Move event', function(done) {
+            it('correctly sends the Move event with the First Item metric', function(done) {
                 var title = 'Test 2';
                 var size = 1;
 
-                proxyUA(proxyAssert(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(proxyAssert(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Carousel - ' + title);
-                    assert.equal(eventAction, 'First Move');
+                    assert.equal(eventAction, 'Move');
                     assert.equal(eventLabel, 'Slide #1');
+                    assert.equal(eventValue, 1);
+                    assert.deepEqual(eventParams, {
+                        'metric15': 1
+                    });
                 }, done));
 
                 Hora.carousel.load(title, size);
@@ -125,7 +129,7 @@ define([
                 var title = 'Test 3';
                 var size = 3;
 
-                proxyUA(proxyAssert(6, 6, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(proxyAssert(5, 5, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Carousel - ' + title);
                     assert.equal(eventAction, 'View All Slides');
                     assert.equal(eventLabel, 'Total ' + size);
@@ -141,15 +145,18 @@ define([
                 Hora.__carousels.clear();
             });
 
-            it('correctly sends the First Click event', function(done) {
+            it('correctly sends the Click event with the First Item metric', function(done) {
                 var title = 'Test 4';
                 var size = 1;
 
-                proxyUA(proxyAssert(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(proxyAssert(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Carousel - ' + title);
-                    assert.equal(eventAction, 'First Click');
+                    assert.equal(eventAction, 'Click');
                     assert.equal(eventLabel, 'Slide #1');
                     assert.equal(eventValue, 1);
+                    assert.deepEqual(eventParams, {
+                        'metric15': 1
+                    });
                 }, done));
 
                 Hora.carousel.load(title, size);
@@ -158,15 +165,18 @@ define([
                 Hora.__carousels.clear();
             });
 
-            it('correctly sends the First Icon event', function(done) {
+            it('correctly sends the Icon event with the First Item metric', function(done) {
                 var title = 'Test 4';
                 var size = 1;
 
-                proxyUA(proxyAssert(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(proxyAssert(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Carousel - ' + title);
-                    assert.equal(eventAction, 'First Icon');
+                    assert.equal(eventAction, 'Next Icon');
                     assert.equal(eventLabel, 'Slide #1');
                     assert.equal(eventValue, 1);
+                    assert.deepEqual(eventParams, {
+                        'metric15': 1
+                    });
                 }, done));
 
                 Hora.carousel.load(title, size);
@@ -175,18 +185,22 @@ define([
                 Hora.__carousels.clear();
             });
 
-            it('correctly sends the Icon event', function(done) {
+            it('correctly sends the Icon event without the First Item metric', function(done) {
                 var title = 'Test 4';
                 var size = 1;
 
-                proxyUA(proxyAssert(3, 3, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(proxyAssert(3, 3, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Carousel - ' + title);
                     assert.equal(eventAction, 'Previous Icon');
                     assert.equal(eventLabel, 'Slide #1');
                     assert.equal(eventValue, 1);
+                    assert.deepEqual(eventParams, {
+                        'metric15': 0
+                    });
                 }, done));
 
                 Hora.carousel.load(title, size);
+                Hora.carousel.iconClick(title, 1, 1);
                 Hora.carousel.iconClick(title, 1, -1);
 
                 Hora.__carousels.clear();
@@ -198,7 +212,7 @@ define([
                 var title = 'Test 1';
                 var size = 2;
 
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Accordion - ' + title);
                     assert.equal(eventAction, 'Load');
                     assert.equal(eventValue, size);
@@ -214,7 +228,7 @@ define([
                 var title = 'Test 2';
                 var size = 3;
 
-                proxyUA(proxyAssert(8, 8, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(proxyAssert(7, 7, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Accordion - ' + title);
                     assert.equal(eventAction, 'View All Items');
                     assert.equal(eventLabel, 'Total ' + size);
@@ -230,14 +244,17 @@ define([
                 Hora.__accordions.clear();
             });
 
-            it('correctly sends the First Open event', function(done) {
+            it('correctly sends the Open event without the First Item metric', function(done) {
                 var title = 'Test 3';
                 var size = 2;
 
-                proxyUA(proxyAssert(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(proxyAssert(2, 2, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Accordion - ' + title);
-                    assert.equal(eventAction, 'First Open');
+                    assert.equal(eventAction, 'Open');
                     assert.equal(eventLabel, 'Item #1');
+                    assert.deepEqual(eventParams, {
+                        'metric15': 1
+                    });
                 }, done));
 
                 Hora.accordion.load(title, size);
@@ -250,7 +267,7 @@ define([
                 var title = 'Test 4';
                 var size = 2;
 
-                proxyUA(proxyAssert(5, 5, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(proxyAssert(4, 4, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Accordion - ' + title);
                     assert.equal(eventAction, 'Open Multiple Items');
                     assert.equal(eventLabel, 'Total ' + size);
@@ -267,7 +284,7 @@ define([
 
         describe('orientation', function() {
             it('correctly sends Change data', function(done) {
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     done();
                 });
 
@@ -279,7 +296,7 @@ define([
             it('correctly sends the Up event', function(done) {
                 var title = 'Test 1';
 
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Scroll - ' + title);
                     assert.equal(eventAction, 'Up');
                     done();
@@ -291,7 +308,7 @@ define([
             it('correctly sends the Down event', function(done) {
                 var title = 'Test 2';
 
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Scroll - ' + title);
                     assert.equal(eventAction, 'Down');
                     done();
@@ -303,7 +320,7 @@ define([
             it('correctly sends the Top event', function(done) {
                 var title = 'Test 3';
 
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Scroll - ' + title);
                     assert.equal(eventAction, 'Top');
                     done();
@@ -315,7 +332,7 @@ define([
             it('correctly sends the Bottom event', function(done) {
                 var title = 'Test 4';
 
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Scroll - ' + title);
                     assert.equal(eventAction, 'Bottom');
                     done();
@@ -327,7 +344,7 @@ define([
 
         describe('search', function() {
             it('correctly sends the Toggle event', function(done) {
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Search');
                     assert.equal(eventAction, 'Toggle');
                     done();
@@ -339,7 +356,7 @@ define([
 
         describe('breadcrumb', function() {
             it('correctly sends the Click event', function(done) {
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Breadcrumb');
                     assert.equal(eventAction, 'Click');
                     done();
@@ -351,7 +368,7 @@ define([
 
         describe('newsletter', function() {
             it('correctly sends the Click event', function(done) {
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Newsletter');
                     assert.equal(eventAction, 'Click');
                     done();
@@ -363,7 +380,7 @@ define([
 
         describe('backToTop', function() {
             it('correctly sends the Click event', function(done) {
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Back To Top');
                     assert.equal(eventAction, 'Click');
                     done();
@@ -375,7 +392,7 @@ define([
 
         describe('footer', function() {
             it('correctly sends the Click event', function(done) {
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Footer');
                     assert.equal(eventAction, 'Click');
                     done();
@@ -387,7 +404,7 @@ define([
 
         describe('pagination', function() {
             it('correctly sends the Click event', function(done) {
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Pagination');
                     assert.equal(eventAction, 'Click');
                     done();
@@ -401,7 +418,7 @@ define([
             it('correctly sends the Toggle event', function(done) {
                 var title = 'Test 1';
 
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Filter - ' + title);
                     assert.equal(eventAction, 'Toggle');
                     done();
@@ -415,7 +432,7 @@ define([
             it('correctly sends the Open event', function(done) {
                 var title = 'Test 1';
 
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Size Guide - ' + title);
                     assert.equal(eventAction, 'Open');
                     done();
@@ -429,7 +446,7 @@ define([
             it('correctly sends the Open event', function(done) {
                 var title = 'Test 1';
 
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Email Friend - ' + title);
                     assert.equal(eventAction, 'Open');
                     done();
@@ -443,7 +460,7 @@ define([
             it('correctly sends the Open event', function(done) {
                 var title = 'Test 1';
                 
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Email Me Back - ' + title);
                     assert.equal(eventAction, 'Open');
                     done();
@@ -457,7 +474,7 @@ define([
             it('correctly sends the Change event', function(done) {
                 var title = 'Test 1';
 
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Color - ' + title);
                     assert.equal(eventAction, 'Change');
                     done();
@@ -472,7 +489,7 @@ define([
                 var title = 'Test 1';
                 var quantity = 5;
 
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Quantity - ' + title);
                     assert.equal(eventAction, 'Change');
                     assert.equal(eventValue, quantity);
@@ -487,7 +504,7 @@ define([
             it('correctly sends the Change event', function(done) {
                 var title = 'Test 1';
 
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Size - ' + title);
                     assert.equal(eventAction, 'Change');
                     done();
@@ -502,7 +519,7 @@ define([
                 var title = 'Section 1';
                 var message = 'Unknown Error';
 
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Error');
                     assert.equal(eventAction, title);
                     assert.equal(eventLabel, message);
@@ -515,7 +532,7 @@ define([
             it('correctly sends the Alert event', function(done) {
                 var message = 'Unknown Error';
 
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Error');
                     assert.equal(eventAction, 'Alert');
                     assert.equal(eventLabel, message);
@@ -528,7 +545,7 @@ define([
             it('correctly sends the Unsuccessful Submission event', function(done) {
                 var message = 'Message here';
 
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Error');
                     assert.equal(eventAction, 'Unsuccessful Submission');
                     assert.equal(eventLabel, message);
@@ -541,7 +558,7 @@ define([
             it('correctly sends the Unsuccessful Add To Cart event', function(done) {
                 var message = 'Message here';
 
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Error');
                     assert.equal(eventAction, 'Unsuccessful Add To Cart');
                     assert.equal(eventLabel, message);
@@ -554,7 +571,7 @@ define([
             it('correctly sends the Unsuccessful Place Order event', function(done) {
                 var message = 'Message here';
 
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Error');
                     assert.equal(eventAction, 'Unsuccessful Place Order');
                     assert.equal(eventLabel, message);
@@ -569,7 +586,7 @@ define([
             it('correctly sends the Read event', function(done) {
                 var title = 'Test 1';
 
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Review - ' + title);
                     assert.equal(eventAction, 'Read');
                     done();
@@ -583,7 +600,7 @@ define([
             it('correctly sends the Open event', function(done) {
                 var title = 'Test 1';
 
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Sidebar - ' + title);
                     assert.equal(eventAction, 'Open');
                     done();
@@ -595,7 +612,7 @@ define([
             it('correctly sends the Close event', function(done) {
                 var title = 'Test 2';
 
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Sidebar - ' + title);
                     assert.equal(eventAction, 'Close');
                     done();
@@ -609,7 +626,7 @@ define([
             it('correctly sends the Add Item event', function(done) {
                 var title = 'Product Title 1';
 
-                proxyUA(proxyAssert(1, 1, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(proxyAssert(1, 1, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Cart');
                     assert.equal(eventAction, 'Add Item');
                 }, done));
@@ -617,12 +634,15 @@ define([
                 Hora.cart.addItem(title);
             });
 
-            it('correctly sends the Add Item After View All Carousel Slides event', function(done) {
+            it('correctly sends the Add Item event with the View All Carousel Slides metric', function(done) {
                 var title = 'Product Title 2';
 
-                proxyUA(proxyAssert(6, 6, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(proxyAssert(5, 5, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Cart');
-                    assert.equal(eventAction, 'Add Item After View All Carousel Slides');
+                    assert.equal(eventAction, 'Add Item');
+                    assert.deepEqual(eventParams, {
+                        'metric15': 1
+                    });
                 }, done));
 
                 var carouselTitle = 'Test 5';
@@ -640,7 +660,7 @@ define([
 
         describe('minicart', function() {
             it('correctly sends the Toggle event', function(done) {
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Mini-Cart');
                     assert.equal(eventAction, 'Toggle');
                     done();
@@ -650,7 +670,7 @@ define([
             });
 
             it('correctly sends the Enable Edit event', function(done) {
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Mini-Cart');
                     assert.equal(eventAction, 'Enable Edit');
                     done();
@@ -660,7 +680,7 @@ define([
             });
 
             it('correctly sends the Disable Edit event', function(done) {
-                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Mini-Cart');
                     assert.equal(eventAction, 'Disable Edit');
                     done();
@@ -674,7 +694,7 @@ define([
             it('correctly sends the Change event', function(done) {
                 var message = 'Checkout Page - PayPal Button';
 
-                proxyUA(proxyAssert(1, 1, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+                proxyUA(proxyAssert(1, 1, function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Checkout');
                     assert.equal(eventAction, 'Start');
                     assert.equal(eventLabel, message);
