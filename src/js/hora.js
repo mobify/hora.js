@@ -209,6 +209,9 @@ define([
                 title = 'Carousel - ' + title;
 
                 if (_swiping) {
+                    // metric15 - First Item
+                    //  1 - was the first item swiped
+                    //  0 - was not the first item swiped
                     Hora.send(title, 'Swipe', 'Slide #' + currentSlide, currentSlide, {
                         'metric15': currentCarousel.swipes.length === 0 ? 1 : 0
                     });
@@ -216,6 +219,9 @@ define([
                     currentCarousel.swipes.push(currentSlide);
                 }
                 else {
+                    // metric15 - First Item
+                    //  1 - was the first item moved
+                    //  0 - was not the first item moved
                     Hora.send(title, 'Move', 'Slide #' + currentSlide, currentSlide, {
                         'metric15': currentCarousel.slides.length === 0 ? 1 : 0
                     });
@@ -275,6 +281,9 @@ define([
 
                 title = 'Carousel - ' + title;
 
+                // metric15 - First Item
+                //  1 - was the first item zoomed
+                //  0 - was not the first item zoomed
                 Hora.send(title, 'Zoom', 'Slide #' + currentSlide, currentSlide, {
                     'metric15': currentCarousel.zooms.length === 0 ? 1 : 0
                 });
@@ -287,6 +296,9 @@ define([
 
                 title = 'Carousel - ' + title;
 
+                // metric15 - First Item
+                //  1 - was the first item clicked
+                //  0 - was not the first item clicked
                 Hora.send(title, 'Click',  'Slide #' + currentSlide, currentSlide, {
                     'metric15': currentCarousel.clicks.length === 0 ? 1 : 0
                 });
@@ -300,6 +312,9 @@ define([
 
                 title = 'Carousel - ' + title;
 
+                // metric15 - First Item
+                //  1 - was the first item icon clicked
+                //  0 - was not the first item icon clicked
                 Hora.send(title, directionTitle + ' Icon', 'Slide #' + currentSlide, currentSlide, {
                     'metric15': currentCarousel.icons.length === 0 ? 1 : 0
                 });
@@ -457,6 +472,9 @@ define([
                     }
                 }
 
+                // metric15 - View All Carousel Slides
+                //  1 - viewed all carousel slides
+                //  0 - didn't view all carousel slides
                 Hora.send('Cart', 'Add Item', 'None', 0, {
                     'metric15': fullCarouselView ? 1 : 0
                 });
@@ -496,6 +514,9 @@ define([
 
                 title = 'Accordion - ' + title;
 
+                // metric15 - First Item
+                //  1 - was the first item opened
+                //  0 - was not the first item opened
                 Hora.send(title, 'Open', 'Item #' + currentItem, currentItem, {
                     'metric15': currentAccordion.opens.length === 0 ? 1 : 0
                 });
