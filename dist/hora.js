@@ -3,47 +3,8 @@
 /*
  Hora.js
  -------
- A library that assists with tracking user-behavior with custom Google Analytics events
+ Assists with tracking user-behavior with custom Google Analytics events
 
- Implicit tracking:
- * Re-orientation (landscape to portrait and visa-versa)
- * Page fully scrolled to bottom
-
- Explicit tracking (requires development):
- * Carousel first swipe (slide ID)
- * Carousel viewed entirely
- * Carousel slide clicked
- * Carousel arrow control clicked
- * Carousel loaded
- * Carousel slide zoomed
- * Sidebar navigation item clicked (up to 3 levels deep)
- * Header search toggled
- * Header minicart toggled
- * Breadcrumb interacted with
- * Back to top clicked
- * Newsletter interacted with
- * Footer interacted with
- * Pagination interacted with
- * Size guide opened
- * Email to friend opened
- * Email me back opened
- * Color adjustments
- * Quantity adjustments
- * Size adjustments
- * Reviews checked
- * Sidebar opened/closed
- * Accordion first clicked (item ID)
- * Accordion viewed entirely
- * Accordion items opened more than one at a time or not
- * Add to bag (success and failure)
- * Mini-Cart editing enabled/disabled
- * Mini-Cart item quantity changed
- * Mini-Cart item removed
- * PLP filters toggled
-
- Tracking TODO:
- * PLP filter interactions
- * Changing to different products on Multi-PDP
  */
 define([
         '$'
@@ -65,6 +26,18 @@ define([
                 return Object.prototype.toString.call(obj) === '[object String]';
             }
         });
+
+        Hora.__carousels = {
+            clear: function() {
+                _carousels = [];
+            }
+        };
+
+        Hora.__accordions = {
+            clear: function() {
+                _accordions = [];
+            }
+        };
 
         /**
          * @description Validates whether an object contains all the required properties
@@ -104,6 +77,14 @@ define([
             return o;
         };
 
+        Hora.send = function() {
+            var args = Array.prototype.slice.call(arguments);
+
+            args.unshift('mobifyTracker.send', 'event');
+
+            Mobify.analytics.ua.apply(null, args);
+        };
+
         // Initializes Hora and sets up implicitly tracked events: Hora.orientationChange, Hora.scrollToBottom.
         Hora.init = function() {
             // Bind events
@@ -116,41 +97,34 @@ define([
                         _swiping = false;
                     }, 50);
                 })
-                .on('orientationchange', Hora.orientationChange);
+                .on('orientationchange', Hora.orientation.change)
+                .on('load', function() {
+                    var windowHeight = $window.height();
 
-            $window.on('load', function() {
-                var windowHeight = $window.height();
-
-                $window
-                    .on('scroll', function() {
-                        if ($window.scrollTop() + windowHeight === $doc.height()) {
-                            Hora.scrollToBottom();
-                        }
-                    });
-            });
+                    $window
+                        .on('scroll', function() {
+                            if ($window.scrollTop() + windowHeight === $doc.height()) {
+                                Hora.scroll.bottom('Page');
+                            }
+                        });
+                });
 
             (function patchAlerts() {
                 var _alert = window.alert;
 
                 window.alert = function(message) {
-                    Hora.error('Alert', message);
+                    Hora.error.alert(message);
 
                     _alert(message);
                 };
             })();
         };
 
-        Hora.send = function() {
-            var args = Array.prototype.slice.call(arguments);
-
-            args.unshift('mobifyTracker.send', 'event');
-
-            Mobify.analytics.ua.apply(null, args);
-        };
-
-        // Proxies the classic Google Analytics call so that we capture events fired by desktop
-        // We then send them through Mobify's analytics call
-        // Example: _gaq.push(["_trackEvent", "product selection", "select a size", a(this.options[this.selectedIndex]).text().trim()])
+        /**
+         * Proxies the classic Google Analytics call so that we capture events fired by desktop
+         * We then send them through Mobify's analytics call
+         * Example: _gaq.push(["_trackEvent", "product selection", "select a size", a(this.options[this.selectedIndex]).text().trim()])
+         */
         Hora.proxyClassicAnalytics = function() {
             if (!window._gaq) {
                 return;
@@ -165,11 +139,12 @@ define([
             };
         };
 
-        // Hora.proxyUniversalAnalytics
-        // Proxies the Universal Google Analytics call so that we capture events fired by desktop
-        // We only allow the following events: require, provide, send, ec:setAction, ec:addProduct
-        // Example: ga('ec:setAction','checkout', {'step': 3, 'option': 'visa credit' });
-        Hora.proxyUniversalAnalytics = function() {
+        /**
+         * Proxies the Universal Google Analytics call so that we capture events fired by desktop
+         * We only allow the following events: require, provide, send, ec:setAction, ec:addProduct
+         * Example: ga('ec:setAction','checkout', {'step': 3, 'option': 'visa credit' });
+         */
+        Hora.proxyUniversalAnalytics = function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
             var _theirGA;
 
             var _ourGA = function() {
@@ -182,13 +157,13 @@ define([
                 }
 
                 // Check if the first argument is an allowed command
-                if (!/^(require|provide|send|ec:setAction|ec:addProduct)$/mi.exec(arguments[0])) {
+                if (!/^(require|provide|send|ec:setAction|ec:addProduct)$/mi.exec(action)) {
                     return;
                 }
 
                 // Don't send double events
-                if (arguments[0] === 'send' &&
-                   (arguments[1] === 'pageview' || arguments[1] === 'event' && arguments[2] === 'mobify')) {
+                if (action === 'send' &&
+                   (hitType === 'pageview' || hitType === 'event' && eventCategory === 'mobify')) {
                     return;
                 }
 
@@ -216,34 +191,40 @@ define([
 
         // Hora.orientationChange
         // eg. Hora.orientationChange();
-        Hora.orientationChange = function() {
-            var data = window.innerHeight > window.innerWidth ? 'Landscape to Portrait' : 'Portrait to Landscape';
+        Hora.orientation = {
+            change: function() {
+                var position = (window.innerHeight > window.innerWidth) ? 'Landscape to Portrait' : 'Portrait to Landscape';
 
-            Hora.send('Orientation Change', data, NON_INTERACTION);
+                Hora.send('Orientation', 'Change', position, NON_INTERACTION);
+            }
         };
 
         Hora.carousel = {
             // title = Home, PDP, Related Images
             // currentSlide = 1, 2, 3, 4, 5, 6
-            // eg. Hora.carouselSwipe('PDP', 1);
-            swipe: function(title, currentSlide) {
+            // eg. Hora.carousel.slide('PDP', 1);
+            slide: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
-                if (_swiping) {
-                    if (!currentCarousel.swipes.length) {
-                        Hora.send('Carousel - ' + title, 'first-swipe', 'Slide #' + currentSlide);
-                    }
+                title = 'Carousel - ' + title;
 
-                    Hora.send('Carousel - ' + title, 'swipe', 'Slide #' + currentSlide);
+                if (_swiping) {
+                    // metric15 - First Item
+                    //  1 - was the first item swiped
+                    //  0 - was not the first item swiped
+                    Hora.send(title, 'Swipe', 'Slide #' + currentSlide, currentSlide, {
+                        'metric15': currentCarousel.swipes.length === 0 ? 1 : 0
+                    });
 
                     currentCarousel.swipes.push(currentSlide);
                 }
                 else {
-                    if (!currentCarousel.slides.length) {
-                        Hora.send('Carousel - ' + title, 'first-slide', 'Slide #' + currentSlide);
-                    }
-
-                    Hora.send('Carousel - ' + title, 'slide', 'Slide #' + currentSlide);
+                    // metric15 - First Item
+                    //  1 - was the first item moved
+                    //  0 - was not the first item moved
+                    Hora.send(title, 'Move', 'Slide #' + currentSlide, currentSlide, {
+                        'metric15': currentCarousel.slides.length === 0 ? 1 : 0
+                    });
 
                     currentCarousel.slides.push(currentSlide);
                 }
@@ -266,7 +247,7 @@ define([
                     }
 
                     if (currentCarousel.fullView) {
-                        Hora.send('Carousel - ' + title, 'complete-view', 'Slide #' + currentSlide);
+                        Hora.send(title, 'View All Slides', 'Total ' + currentCarousel.totalSlides, currentCarousel.totalSlides);
 
                         currentCarousel.fullViewFired = true;
                     }
@@ -292,17 +273,20 @@ define([
                 // Initially populate the carousel with the first slide
                 _carousels[title].viewed.push(1);
 
-                Hora.send('Carousel - ' + title, 'load', totalSlides + '', NON_INTERACTION);
+                Hora.send('Carousel - ' + title, 'Load', 'Total ' + totalSlides, totalSlides, NON_INTERACTION);
             },
 
             zoom: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
-                if (!currentCarousel.zooms.length) {
-                    Hora.send('Carousel - ' + title, 'first-zoom', 'Slide #' + currentSlide);
-                }
+                title = 'Carousel - ' + title;
 
-                Hora.send('Carousel - ' + title, 'zoom', 'Slide #' + currentSlide);
+                // metric15 - First Item
+                //  1 - was the first item zoomed
+                //  0 - was not the first item zoomed
+                Hora.send(title, 'Zoom', 'Slide #' + currentSlide, currentSlide, {
+                    'metric15': currentCarousel.zooms.length === 0 ? 1 : 0
+                });
 
                 currentCarousel.zooms.push(currentSlide);
             },
@@ -310,112 +294,172 @@ define([
             slideClick: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
-                if (!currentCarousel.clicks.length) {
-                    Hora.send('Carousel - ' + title, 'first-click', 'Slide #' + currentSlide);
-                }
+                title = 'Carousel - ' + title;
 
-                Hora.send('Carousel - ' + title, 'click', 'Slide #' + currentSlide);
+                // metric15 - First Item
+                //  1 - was the first item clicked
+                //  0 - was not the first item clicked
+                Hora.send(title, 'Click',  'Slide #' + currentSlide, currentSlide, {
+                    'metric15': currentCarousel.clicks.length === 0 ? 1 : 0
+                });
 
                 currentCarousel.clicks.push(currentSlide);
             },
 
-            arrowClick: function(title, currentSlide, direction) {
+            iconClick: function(title, currentSlide, direction) {
                 var currentCarousel = _carousels[title];
+                var directionTitle = (direction === -1) ? 'Previous' : 'Next';
 
-                if (!currentCarousel.icons.length) {
-                    Hora.send('Carousel - ' + title, 'first-icon', 'Slide #' + currentSlide);
-                }
+                title = 'Carousel - ' + title;
 
-                Hora.send('Carousel - ' + title, 'icon', currentSlide + '-' + direction);
+                // metric15 - First Item
+                //  1 - was the first item icon clicked
+                //  0 - was not the first item icon clicked
+                Hora.send(title, directionTitle + ' Icon', 'Slide #' + currentSlide, currentSlide, {
+                    'metric15': currentCarousel.icons.length === 0 ? 1 : 0
+                });
 
                 currentCarousel.icons.push(currentSlide);
             }
         };
 
-        // eg. Hora.navigationClick('Top Nav', 'Pants');
-        Hora.navigationClick = function(menuTitle, itemTitle) {
-            Hora.send('Navigation - ' + menuTitle, 'click', itemTitle);
+        Hora.navigation = {
+            click: function(menuTitle, itemTitle) {
+                Hora.send('Navigation - ' + menuTitle, 'Click', itemTitle);
+            }
         };
 
-        Hora.searchToggle = function() {
-            Hora.send('Search', 'toggle', 'OK');
+        Hora.search = {
+            toggle: function() {
+                Hora.send('Search', 'Toggle');
+            }
         };
 
-        Hora.breadcrumbClick = function() {
-            Hora.send('Breadcrumb', 'interaction', 'OK');
+        Hora.breadcrumb = {
+            click: function() {
+                Hora.send('Breadcrumb', 'Click');
+            }
         };
 
-        Hora.backToTopClick = function() {
-            Hora.send('Back To Top', 'click', 'OK');
+        Hora.backToTop = {
+            click: function() {
+                Hora.send('Back To Top', 'Click');
+            }
         };
 
-        Hora.newsletterInteraction = function() {
-            Hora.send('Newsletter', 'interaction', 'OK');
+        Hora.newsletter = {
+            click: function() {
+                Hora.send('Newsletter', 'Click');
+            }
         };
 
-        Hora.footerInteraction = function() {
-            Hora.send('Footer', 'interaction', 'OK');
+        Hora.footer = {
+            click: function() {
+                Hora.send('Footer', 'Click');
+            }
         };
 
-        Hora.paginationInteraction = function() {
-            Hora.send('Pagination', 'interaction', 'OK');
+        Hora.pagination = {
+            click: function() {
+                Hora.send('Pagination', 'Click');
+            }
         };
 
-        Hora.filtersToggle = function(title) {
-            Hora.send('Filters: ' + title, 'toggle', 'OK');
+        Hora.filter = {
+            toggle: function(title) {
+                Hora.send('Filter - ' + title, 'Toggle');
+            },
+            change: function(title, type, amount) {
+                Hora.send('Filter - ' + title, 'Change: ' + type, amount);
+            }
         };
 
-        Hora.filtersChange = function(title, type, amount) {
-            Hora.send('Filters: ' + title, 'Change: ' + type, amount);
+        Hora.scroll = {
+            up: function(title) {
+                Hora.send('Scroll - ' + title, 'Up');
+            },
+            down: function(title) {
+                Hora.send('Scroll - ' + title, 'Down');
+            },
+            top: function(title) {
+                Hora.send('Scroll - ' + title, 'Top');
+            },
+            bottom: function(title) {
+                Hora.send('Scroll - ' + title, 'Bottom');
+            }
         };
 
-        Hora.scrollToBottom = function() {
-            Hora.send('Scroll To Bottom', 'interaction', 'OK');
+        Hora.sizeGuide = {
+            open: function(title) {
+                Hora.send('Size Guide - ' + title, 'Open');
+            }
         };
 
-        Hora.sizeGuideOpen = function() {
-            Hora.send('Size Guide', 'open', 'OK');
+        Hora.emailFriend = {
+            open: function(title) {
+                Hora.send('Email Friend - ' + title, 'Open');
+            }
         };
 
-        Hora.emailFriend = function() {
-            Hora.send('Email Friend', 'open', 'OK');
+        Hora.emailMeBack = {
+            open: function(title) {
+                Hora.send('Email Me Back - ' + title, 'Open');
+            }
         };
 
-        Hora.emailMeBack = function() {
-            Hora.send('Email Me Back', 'open', 'OK');
+        Hora.color = {
+            change: function(title) {
+                Hora.send('Color - ' + title, 'Change');
+            }
         };
 
-        Hora.adjustColor = function(title) {
-            Hora.send(title, 'Adjust Color');
+        Hora.quantity = {
+            change: function(title, amount) {
+                Hora.send('Quantity - ' + title, 'Change', null, amount);
+            }
         };
 
-        Hora.adjustQuantity = function(title, amount) {
-            Hora.send(title, 'Adjust Quantity', amount + '');
+        Hora.size = {
+            change: function(title, amount) {
+                Hora.send('Size - ' + title, 'Change', null, amount);
+            }
         };
 
-        Hora.adjustSize = function(title, amount) {
-            Hora.send(title, 'Adjust Size', amount + '');
+        Hora.error = {
+            generic: function(title, comment) {
+                Hora.send('Error', title, comment);
+            },
+            alert: function(comment) {
+                Hora.send('Error', 'Alert', comment);
+            },
+            unsuccessfulSubmission: function(comment) {
+                Hora.send('Error', 'Unsuccessful Submission', comment);
+            },
+            unsuccessfulAddToCart: function(comment) {
+                Hora.send('Error', 'Unsuccessful Add To Cart', comment);
+            },
+            unsuccessfulPlaceOrder: function(comment) {
+                Hora.send('Error', 'Unsuccessful Place Order', comment);
+            }
         };
 
-        Hora.error = function(title, comment) {
-            Hora.send('Error', title, comment);
-        };
-
-        Hora.checkReviews = function(title) {
-            Hora.send(title, 'Check Reviews');
+        Hora.review = {
+            read: function(title) {
+                Hora.send('Review - ' + title, 'Read');
+            }
         };
 
         Hora.sidebar = {
-            opened: function(title) {
-                Hora.send(title, 'Sidebar Opened');
+            open: function(title) {
+                Hora.send('Sidebar - ' + title, 'Open');
             },
-            closed: function(title) {
-                Hora.send(title, 'Sidebar Closed');
+            close: function(title) {
+                Hora.send('Sidebar - ' + title, 'Close');
             }
         };
 
         Hora.cart = {
-            itemAdded: function() {
+            addItem: function() {
                 var fullCarouselView = false;
 
                 for (var title in _carousels) {
@@ -428,33 +472,39 @@ define([
                     }
                 }
 
-                if (fullCarouselView) {
-                    Hora.send('Cart', 'item-added-after-full-carousel-view', 'OK');
-                }
-                else {
-                    Hora.send('Cart', 'item-added', 'OK');
-                }
+                // metric15 - View All Carousel Slides
+                //  1 - viewed all carousel slides
+                //  0 - didn't view all carousel slides
+                Hora.send('Cart', 'Add Item', 'None', 0, {
+                    'metric15': fullCarouselView ? 1 : 0
+                });
+            },
+            removeItem: function() {
+                Hora.send('Cart', 'Remove Item', 'None', 0);
             }
         };
 
         Hora.minicart = {
             toggle: function() {
-                Hora.send('Mini-Cart', 'toggle', 'OK');
-            },
-            itemRemoved: function() {
-                Hora.send('Mini-Cart', 'item-removed', 'OK');
+                Hora.send('Mini-Cart', 'Toggle');
             },
 
-            editEnabled: function() {
-                Hora.send('Mini-Cart', 'edit-enabled', 'OK');
+            enableEdit: function() {
+                Hora.send('Mini-Cart', 'Enable Edit');
             },
 
-            editDisabled: function() {
-                Hora.send('Mini-Cart', 'edit-disabled', 'OK');
+            disableEdit: function() {
+                Hora.send('Mini-Cart', 'Disable Edit');
             },
 
-            quantityChanged: function() {
-                Hora.send('Mini-Cart', 'quantity-changed', 'OK');
+            changeQuantity: function(amount) {
+                Hora.quantity.change('Mini-Cart', amount);
+            }
+        };
+
+        Hora.checkout = {
+            start: function(message) {
+                Hora.send('Checkout', 'Start', message);
             }
         };
 
@@ -462,9 +512,14 @@ define([
             open: function(title, currentItem) {
                 var currentAccordion = _accordions[title];
 
-                if (!currentAccordion.opens.length) {
-                    Hora.send('Accordion - ' + title, 'first-open', 'Item #' + currentItem);
-                }
+                title = 'Accordion - ' + title;
+
+                // metric15 - First Item
+                //  1 - was the first item opened
+                //  0 - was not the first item opened
+                Hora.send(title, 'Open', 'Item #' + currentItem, currentItem, {
+                    'metric15': currentAccordion.opens.length === 0 ? 1 : 0
+                });
 
                 currentAccordion.opens.push(currentItem);
 
@@ -472,7 +527,9 @@ define([
                 // Then this user doesn't mind having multiple opened
                 // Send how many are currently opened and haven't been closed
                 if (currentAccordion.opens.length > 1 && currentAccordion.opens.length > currentAccordion.closes.length) {
-                    Hora.send('Accordion - ' + title, 'multiple-opened', currentAccordion.opens.length - currentAccordion.closes.length);
+                    var total = currentAccordion.opens.length - currentAccordion.closes.length;
+
+                    Hora.send(title, 'Open Multiple Items', 'Total ' + total, total);
                 }
 
                 // If the user has swiped as much as there swipes, maybe they've been to every slide?
@@ -491,7 +548,7 @@ define([
                     }
 
                     if (currentAccordion.fullView) {
-                        Hora.send('Accordion - ' + title, 'complete-view', 'Item #' + currentItem);
+                        Hora.send(title, 'View All Items', 'Total ' + currentAccordion.totalItems, currentAccordion.totalItems);
 
                         currentAccordion.fullViewFired = true;
                     }
@@ -516,7 +573,7 @@ define([
                     };
                 }
 
-                Hora.send('Accordion - ' + title, 'load', totalItems + '', NON_INTERACTION);
+                Hora.send('Accordion - ' + title, 'Load', 'Total ' + totalItems, totalItems, NON_INTERACTION);
             }
         };
 
@@ -531,7 +588,7 @@ define([
          *
          * @example
          *
-         * Hora.sendTransaction('1234', 'Acme Clothing'
+         * Hora.transaction.send('1234', 'Acme Clothing'
          * {
          *    'revenue': '11.99',               // Grand Total.
          *    'shipping': '5',                  // Shipping.
@@ -547,46 +604,48 @@ define([
          *     }
          * ]);
          */
-        Hora.sendTransaction = function(transactionId, affiliation, transaction, transactionItems) {
-            var ECOMMERCE_PLUGIN = 'mobifyTracker.ecommerce';
+        Hora.transaction = {
+            send: function(transactionId, affiliation, transaction, transactionItems) {
+                var ECOMMERCE_PLUGIN = 'mobifyTracker.ecommerce';
 
-            if (!transactionId || !$.isString(transactionId)) {
-                throw 'Hora.sendTransaction requires a string containing the transaction ID, i.e. "1234"';
+                if (!transactionId || !$.isString(transactionId)) {
+                    throw 'Hora.transaction.send requires a string containing the transaction ID, i.e. "1234"';
+                }
+
+                if (!affiliation || !$.isString(affiliation)) {
+                    throw 'Hora.transaction.send requires a string containing the affiliation, usually the project name, i.e. "Acme Clothing"';
+                }
+
+                if (!transaction || !$.isPlainObject(transaction)) {
+                    throw 'Hora.transaction.send requires an object literal containing the transaction details, i.e. {"revenue": "11.99","shipping": "5","tax": "1.29"}';
+                }
+
+                if (!transactionItems || !$.isArray(transactionItems)) {
+                    throw 'Hora.transaction.send requires an Array containing the transaction item details';
+                }
+
+                transaction.id = transactionId;
+                transaction.affiliation = affiliation;
+
+                Hora.__stringifyPropertyValues(transaction);
+
+                Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':addTransaction', transaction);
+
+                for (var i = 0, l = transactionItems.length; i < l; i++) {
+                    var transactionItem = transactionItems[i];
+
+                    // Universal Analytics requires that the transaction ID is sent for each item added.
+                    // This should match the parent transaction ID submitted in the transaction parameter.
+                    transactionItem.id = transactionId;
+
+                    Hora.__validateObjectSchema('item', transactionItem, ['id', 'name', 'sku']);
+                    Hora.__stringifyPropertyValues(transactionItem);
+
+                    Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':addItem', transactionItem);
+                }
+
+                Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':send');
             }
-
-            if (!affiliation || !$.isString(affiliation)) {
-                throw 'Hora.sendTransaction requires a string containing the affiliation, usually the project name, i.e. "Acme Clothing"';
-            }
-
-            if (!transaction || !$.isPlainObject(transaction)) {
-                throw 'Hora.sendTransaction requires an object literal containing the transaction details, i.e. {"revenue": "11.99","shipping": "5","tax": "1.29"}';
-            }
-
-            if (!transactionItems || !$.isArray(transactionItems)) {
-                throw 'Hora.sendTransaction requires an Array containing the transaction item details';
-            }
-
-            transaction.id = transactionId;
-            transaction.affiliation = affiliation;
-
-            Hora.__stringifyPropertyValues(transaction);
-
-            Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':addTransaction', transaction);
-
-            for (var i = 0, l = transactionItems.length; i < l; i++) {
-                var transactionItem = transactionItems[i];
-
-                // Universal Analytics requires that the transaction ID is sent for each item added.
-                // This should match the parent transaction ID submitted in the transaction parameter.
-                transactionItem.id = transactionId;
-
-                Hora.__validateObjectSchema('item', transactionItem, ['id', 'name', 'sku']);
-                Hora.__stringifyPropertyValues(transactionItem);
-
-                Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':addItem', transactionItem);
-            }
-
-            Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':send');
         };
 
         return Hora;
