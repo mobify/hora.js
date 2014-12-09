@@ -4,9 +4,9 @@ Hora.js
 [![Bower version](https://badge.fury.io/bo/hora.js.svg)](http://badge.fury.io/bo/hora.js)
 [![Circle CI](https://circleci.com/gh/mobify/hora.js.svg?style=shield)](https://circleci.com/gh/mobify/hora.js)
 
-Hora.js is a convenient and simple wrapper for sending Mobify Analytics events (which are custom Google Analytics events). Everything you need to get started and figure out Hora is here. Because creepers gonna creep. Prepare yourself.
+Hora.js is a convenient and simple wrapper for sending Mobify Analytics events (which are custom Google Analytics events). Everything you need to get started and figure out Hora.js.
 
-| ![Creeper](https://s3.amazonaws.com/uploads.hipchat.com/15359/425065/PbAANygwM20lNpS/hora.png) |
+| ![Hora](https://s3.amazonaws.com/uploads.hipchat.com/15359/425065/PbAANygwM20lNpS/hora.png) |
 |-----|
 
 ## Table of Contents
@@ -27,6 +27,7 @@ Hora.js is a convenient and simple wrapper for sending Mobify Analytics events (
 
 * 3.1. [Sending Transactions](https://github.com/mobify/hora.js/wiki/Transactions#sending-transactions)
 * 3.2. [Verifying Transaction Requests (using DevTools)](https://github.com/mobify/hora.js/wiki/Transactions#32-verifying-transaction-requests-using-devtools)
+* 3.3. [Verifying Transaction Requests (using Google Analytics Debugger)](https://github.com/mobify/hora.js/wiki/Transactions#33-verifying-transaction-requests-using-google-analytics-debugger)
 
 **4. [Analytics](https://github.com/mobify/hora.js/wiki/Analytics)**
 
@@ -71,13 +72,13 @@ Hora.js is a convenient and simple wrapper for sending Mobify Analytics events (
 * 6.10. [search](https://github.com/mobify/hora.js/wiki/API#horasearch)
  * 6.10.1. [toggle](https://github.com/mobify/hora.js/wiki/API#horasearchtoggle)
 * 6.11. [newsletter](https://github.com/mobify/hora.js/wiki/API#horanewsletter)
- * 6.11.1. [interact](https://github.com/mobify/hora.js/wiki/API#horanewsletterinteract)
+ * 6.11.1. [click](https://github.com/mobify/hora.js/wiki/API#horanewsletterclick)
 * 6.12. [pagination](https://github.com/mobify/hora.js/wiki/API#horapagination)
- * 6.12.1. [interact](https://github.com/mobify/hora.js/wiki/API#horapaginationinteract)
+ * 6.12.1. [click](https://github.com/mobify/hora.js/wiki/API#horapaginationclick)
 * 6.13. [footer](https://github.com/mobify/hora.js/wiki/API#horafooter)
- * 6.13.1. [interact](https://github.com/mobify/hora.js/wiki/API#horafooterinteract)
+ * 6.13.1. [click](https://github.com/mobify/hora.js/wiki/API#horafooterclick)
 * 6.14. [breadcrumb](https://github.com/mobify/hora.js/wiki/API#horabreadcrumb)
- * 6.14.1. [interact](https://github.com/mobify/hora.js/wiki/API#horabreadcrumbinteract)
+ * 6.14.1. [click](https://github.com/mobify/hora.js/wiki/API#horabreadcrumbclick)
 * 6.15. [backToTop](https://github.com/mobify/hora.js/wiki/API#horabacktotop)
  * 6.15.1. [click](https://github.com/mobify/hora.js/wiki/API#horabacktotopclick)
 * 6.16. [sidebar](https://github.com/mobify/hora.js/wiki/API#horasidebar)
@@ -88,12 +89,13 @@ Hora.js is a convenient and simple wrapper for sending Mobify Analytics events (
 * 6.18. [filters](https://github.com/mobify/hora.js/wiki/API#horafilters)
  * 6.18.1. [toggle](https://github.com/mobify/hora.js/wiki/API#horafilterstoggle)
 * 6.19. [pagination](https://github.com/mobify/hora.js/wiki/API#horapagination)
- * 6.19.1. [interact](https://github.com/mobify/hora.js/wiki/API#horapaginationinteract)
+ * 6.19.1. [click](https://github.com/mobify/hora.js/wiki/API#horapaginationclick)
 * 6.20. [error](https://github.com/mobify/hora.js/wiki/API#horaerror)
- * 6.20.1. [unsuccessfulAddToCart](https://github.com/mobify/hora.js/wiki/API#horaerrorunsuccessfuladdtocart)
- * 6.20.2. [unsuccessfulPlaceOrder](https://github.com/mobify/hora.js/wiki/API#horaerrorunsuccessfulplaceorder)
- * 6.20.3. [console](https://github.com/mobify/hora.js/wiki/API#horaerrorconsole)
- * 6.20.4. [error](https://github.com/mobify/hora.js/wiki/API#horaerrorerror)
+ * 6.20.1. [generic](https://github.com/mobify/hora.js/wiki/API#horaerrorgeneric)
+ * 6.20.2. [console](https://github.com/mobify/hora.js/wiki/API#horaerrorconsole)
+ * 6.20.3. [unsuccessfulSubmission](https://github.com/mobify/hora.js/wiki/API#horaerrorunsuccessfulsubmission)
+ * 6.20.4. [unsuccessfulAddToCart](https://github.com/mobify/hora.js/wiki/API#horaerrorunsuccessfuladdtocart)
+ * 6.20.5. [unsuccessfulPlaceOrder](https://github.com/mobify/hora.js/wiki/API#horaerrorunsuccessfulplaceorder)
 * 6.21. [scroll](https://github.com/mobify/hora.js/wiki/API#horascroll)
  * 6.21.1. [up](https://github.com/mobify/hora.js/wiki/API#horascrollup)
  * 6.21.2. [down](https://github.com/mobify/hora.js/wiki/API#horascrolldown)
@@ -113,3 +115,5 @@ Hora.js is a convenient and simple wrapper for sending Mobify Analytics events (
  * 6.27.1. [open](https://github.com/mobify/hora.js/wiki/API#horaemailmebackopen)
 * 6.28. [reviews](https://github.com/mobify/hora.js/wiki/API#horareviews)
  * 6.28.1. [read](https://github.com/mobify/hora.js/wiki/API#horareviewsread)
+* 6.29. [transaction](https://github.com/mobify/hora.js/wiki/API#horatransaction)
+ * 6.29.1. [send](https://github.com/mobify/hora.js/wiki/API#horatransactionsend)
