@@ -604,6 +604,10 @@ define([
          *      'quantity': '1'                   // Quantity.
          *     }
          * ]);
+         * 
+         * For more in-depth documentation on Google Analytics Ecommerce Tracking, please see:
+         * https://developers.google.com/analytics/devguides/collection/analyticsjs/ecommerce
+         *
          */
         Hora.transaction = {
             send: function(transactionId, affiliation, transaction, transactionItems) {
