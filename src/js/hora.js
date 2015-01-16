@@ -592,7 +592,8 @@ define([
          * {
          *    'revenue': '11.99',               // Grand Total.
          *    'shipping': '5',                  // Shipping.
-         *    'tax': '1.29'                     // Tax.
+         *    'tax': '1.29',                    // Tax.
+         *    'currency': 'USD'                 // Currency.
          * },
          * [
          *   {
@@ -603,6 +604,10 @@ define([
          *      'quantity': '1'                   // Quantity.
          *     }
          * ]);
+         * 
+         * For more in-depth documentation on Google Analytics Ecommerce Tracking, please see:
+         * https://developers.google.com/analytics/devguides/collection/analyticsjs/ecommerce
+         *
          */
         Hora.transaction = {
             send: function(transactionId, affiliation, transaction, transactionItems) {
