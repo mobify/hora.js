@@ -14,7 +14,7 @@ define([
         var $doc = $(document);
 
         var Hora = {
-            isDebug: true
+            isDebug: false
         };
 
         var NON_INTERACTION = {'nonInteraction': 1};
