@@ -95,7 +95,7 @@ define([
                 Hora.send('one', 'two', 'three');
             });
 
-            it('ensures send isn\'t called in debug mode', function(done) {
+            it('correctly calls console.log in debug mode', function(done) {
                 Hora.isDebug = true;
 
 
