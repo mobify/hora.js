@@ -5,9 +5,16 @@ define([
     window.Mobify = {};
     window.Mobify.analytics = {};
     window.Mobify.analytics.ua = function() {};
+    var oldLog;
 
-    var proxyUA = function(callback) {
-        window.Mobify.analytics.ua = callback;
+    var proxyUA = function(fn) {
+        window.Mobify.analytics.ua = fn;
+    };
+
+    var proxyLog = function(fn) {
+        oldLog = console.log;
+
+        console.log = fn;
     };
 
     /**
@@ -86,6 +93,20 @@ define([
                 });
 
                 Hora.send('one', 'two', 'three');
+            });
+
+            it('correctly calls console.log in debug mode', function(done) {
+                Hora.isDebug = true;
+
+
+                proxyLog(function() {
+                    Hora.isDebug = false;
+                    console.log = oldLog;
+
+                    done();
+                });
+
+                Hora.send('hora');
             });
         });
 
@@ -776,8 +797,6 @@ define([
                 });
 
                 it('correctly calls ecommerce:addTransaction with the correct parameters', function(done) {
-                    var callCount = 0;
-
                     proxyUA(proxyAssert(1, 2, function(type, transaction) {
                         assert.equal(type, 'mobifyTracker.ecommerce:addTransaction');
                         assert.deepEqual(transaction, {
@@ -797,8 +816,6 @@ define([
                 });
 
                 it('correctly stringifies ecommerce:addTransaction parameters', function(done) {
-                    var callCount = 0;
-
                     proxyUA(proxyAssert(1, 2, function(type, transaction) {
                         assert.equal(type, 'mobifyTracker.ecommerce:addTransaction');
                         assert.deepEqual(transaction, {
@@ -818,8 +835,6 @@ define([
                 });
 
                 it('correctly calls ecommerce:addItem with the correct parameters', function(done) {
-                    var callCount = 0;
-
                     proxyUA(proxyAssert(2, 3, function(type, transactionItem) {
                         assert.equal(type, 'mobifyTracker.ecommerce:addItem');
                         assert.deepEqual(transactionItem, {
@@ -852,8 +867,6 @@ define([
                 });
 
                 it('correctly stringifies ecommerce:addItem parameters', function(done) {
-                    var callCount = 0;
-
                     proxyUA(proxyAssert(2, 3, function(type, transactionItem) {
                         assert.equal(type, 'mobifyTracker.ecommerce:addItem');
                         assert.deepEqual(transactionItem, {
@@ -938,11 +951,43 @@ define([
                 });
 
                 it('correctly calls send with the right method name', function(done) {
-                    var callCount = 0;
-
                     proxyUA(proxyAssert(3, 3, function(type) {
                         assert.equal(type, 'mobifyTracker.ecommerce:send');
                     }, done));
+
+                    Hora.transaction.send(
+                        '1234',
+                        'Acme Clothing',
+                        {
+                            revenue: 11.99,
+                            shipping: 5,
+                            tax: 1.29
+                        },
+                        [
+                            {
+                                name: 'Fluffy Pink Bunnies',
+                                sku: 'DD23444',
+                                category: 'Party Toys',
+                                price: 11.99,
+                                quantity: 1
+                            }
+                        ]);
+                });
+
+                it('correctly calls console.log when in debug mode', function(done) {
+                    var callCount = 0;
+                    Hora.isDebug = true;
+
+                    proxyLog(function() {
+                        callCount++;
+
+                        if (callCount === 2) {
+                            Hora.isDebug = false;
+                            console.log = oldLog;
+
+                            done();
+                        }
+                    });
 
                     Hora.transaction.send(
                         '1234',

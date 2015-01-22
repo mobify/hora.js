@@ -13,7 +13,9 @@ define([
         var $window = $(window);
         var $doc = $(document);
 
-        var Hora = {};
+        var Hora = {
+            isDebug: false
+        };
 
         var NON_INTERACTION = {'nonInteraction': 1};
 
@@ -82,11 +84,17 @@ define([
 
             args.unshift('mobifyTracker.send', 'event');
 
-            Mobify.analytics.ua.apply(null, args);
+            if (Hora.isDebug) {
+                console.log('Parameters: %O', args);
+            } else {
+                Mobify.analytics.ua.apply(null, args);
+            }
         };
 
         // Initializes Hora and sets up implicitly tracked events: Hora.orientationChange, Hora.scrollToBottom.
-        Hora.init = function() {
+        Hora.init = function(isDebug) {
+            Hora.isDebug = isDebug;
+
             // Bind events
             $window
                 .on('touchmove', function() {
@@ -126,7 +134,7 @@ define([
          * Example: _gaq.push(["_trackEvent", "product selection", "select a size", a(this.options[this.selectedIndex]).text().trim()])
          */
         Hora.proxyClassicAnalytics = function() {
-            if (!window._gaq) {
+            if (!window._gaq || Hora.isDebug) {
                 return;
             }
 
@@ -145,6 +153,10 @@ define([
          * Example: ga('ec:setAction','checkout', {'step': 3, 'option': 'visa credit' });
          */
         Hora.proxyUniversalAnalytics = function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
+            if (Hora.isDebug) {
+                return;
+            }
+
             var _theirGA;
 
             var _ourGA = function() {
@@ -592,7 +604,8 @@ define([
          * {
          *    'revenue': '11.99',               // Grand Total.
          *    'shipping': '5',                  // Shipping.
-         *    'tax': '1.29'                     // Tax.
+         *    'tax': '1.29',                    // Tax.
+         *    'currency': 'USD'                 // Currency.
          * },
          * [
          *   {
@@ -603,6 +616,10 @@ define([
          *      'quantity': '1'                   // Quantity.
          *     }
          * ]);
+         *
+         * For more in-depth documentation on Google Analytics Ecommerce Tracking, please see:
+         * https://developers.google.com/analytics/devguides/collection/analyticsjs/ecommerce
+         *
          */
         Hora.transaction = {
             send: function(transactionId, affiliation, transaction, transactionItems) {
@@ -629,7 +646,7 @@ define([
 
                 Hora.__stringifyPropertyValues(transaction);
 
-                Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':addTransaction', transaction);
+                !Hora.isDebug && Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':addTransaction', transaction);
 
                 for (var i = 0, l = transactionItems.length; i < l; i++) {
                     var transactionItem = transactionItems[i];
@@ -641,10 +658,17 @@ define([
                     Hora.__validateObjectSchema('item', transactionItem, ['id', 'name', 'sku']);
                     Hora.__stringifyPropertyValues(transactionItem);
 
-                    Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':addItem', transactionItem);
+                    transactionItems[i] = transactionItem;
+
+                    !Hora.isDebug && Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':addItem', transactionItem);
                 }
 
-                Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':send');
+                if (Hora.isDebug) {
+                    console.log('Transaction: %O', transaction);
+                    console.log('Transaction items: %O', transactionItems);
+                } else {
+                    Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':send');
+                }
             }
         };
 

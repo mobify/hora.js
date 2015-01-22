@@ -1,4 +1,6 @@
+1.1.0
+ - Added isDebug flag to optionally not fire events off to GA when debugging
+1.0.0
+ - Implementation of the 1.0.0 spec
 0.2.0
  - Added sendTransaction method for wrapping and error handling sending transactions to UA
-1.0.0
- - Implementation of the 1.0.0 spec.
