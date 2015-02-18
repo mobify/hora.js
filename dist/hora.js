@@ -82,12 +82,22 @@ define([
         Hora.send = function() {
             var args = Array.prototype.slice.call(arguments);
 
-            args.unshift('mobifyTracker.send', 'event');
+            // CRTM-128 - use Hora.sendToPompeii to send a duplicate
+            // of the event.
+            if (args.length) {
+                if (args.length > 2) {
+                    Hora.sendToPompeii(args[0], args.slice(1));
+                } else {
+                    Hora.sendToPompeii(args[0], args[1] || true);
+                }
 
-            if (Hora.isDebug) {
-                console.log('Parameters: %O', args);
-            } else {
-                Mobify.analytics.ua.apply(null, args);
+                args.unshift('mobifyTracker.send', 'event');
+
+                if (Hora.isDebug) {
+                    console.log('Parameters: %O', args);
+                } else {
+                    Mobify.analytics.ua.apply(null, args);
+                }
             }
         };
 
@@ -671,6 +681,149 @@ define([
                 }
             }
         };
+
+        /******** code in this section is related to the Pompeii MVP ********/
+
+        /**
+         * Queue of events for Pompeii.
+         * Exposed for testing.
+         */
+        Hora._pompeiiEvents = [];
+
+        /**
+         * @description Encode a list of events into a query string. Stolen
+         * from grog-client.
+         * @param events - a list of { name: <something>, value: <something> }
+         * event objects. This list is consumed and is clear on exit.
+         * @private not externally tested
+         */
+        function _encodeQueryString(events) {
+            var components = [];
+
+            for (var i = 0; i < events.length; i++) {
+                var pEvent = events[i];
+                var value = pEvent.value;
+                if (typeof value === 'string' || value instanceof String) {
+                    components.push(pEvent.name + '=' + encodeURIComponent(value.toString()));
+                } else if (typeof value === 'number') {
+                    components.push(pEvent.name + '=' + value.toString());
+                } else if (typeof value === 'boolean') {
+                    components.push(pEvent.name + '=' + (value ? 'true' : 'false'));
+                } else if (typeof value === 'object' && value) {
+                    components.push(pEvent.name + '=' + encodeURIComponent(JSON.stringify(value)));
+                }
+            }
+
+            return '?' + components.join('&');
+        }
+
+        /**
+         * Send all queued events
+         * @param sync - if true, forces the http GET call to be made
+         * synchronously. Normally this should be false to allow the
+         * call to be made asynchronously (using a tracking pixel
+         * image).
+         */
+        function sendPompeiiTrackingPixel(sync) {
+            if (Hora._pompeiiEvents.length) {
+                // Get the pageview id now, so that the start event
+                // is added to the queue before we test it.
+                var pageviewId = Hora._pompeiiPageviewId();
+
+                // Build the URL for the tracking pixel
+                var url = 'http://d3u9pmosrlcofa.cloudfront.net/p.gif' +
+                        _encodeQueryString(Hora._pompeiiEvents) +
+                        '&pageview_id=' + pageviewId;
+
+                // Clear the event queue now that we have the events in
+                // the URL, and before we make the request.
+                Hora._pompeiiEvents.clear();
+
+                // Use a sync or async way to make the pixel request
+                if (sync) {
+                    // We don't care about the status of the request, we just want it to complete
+                    var client = new XMLHttpRequest();
+                    client.open('GET', url, true);
+                    client.send(null);
+                } else {
+                    var image = new Image();
+                    image.src = url;
+                }
+            }
+        }
+
+        // Set when an unload event handler is hooked
+        Hora._unloadHooked = false;
+
+        Hora.sendToPompeii = function(name, value) {
+            /**
+             * Send an event with the given name and value to
+             * Pompeii.
+             * Adds the event to the queue and kicks off a callback
+             * to send queued events, unless one is already pending.
+             */
+
+            // If there isn't anything in the event queue now, we
+            // have to kick off the callback.
+            var queueWasEmpty = (!Hora._pompeiiEvents.length);
+
+            // Add the event to the queue.
+            Hora._pompeiiEvents.push(
+                {
+                    'name': name,
+                    'value': value
+                }
+            );
+
+            // If the queue was empty, now it isn't, so we get set up to
+            // send the queued events later.
+            if (queueWasEmpty) {
+                setTimeout(function() { sendPompeiiTrackingPixel(false); }, 200);
+
+                // We also want to send the data in the event of an unload,
+                // using a sync call. This is kludgy, but
+                // navigator.sendBeacon uses a POST, which doesn't work with
+                // our passive pixel downloader.
+                if (!Hora._unloadHooked) {
+                    window.addEventListener(
+                        'unload',
+                        function() { sendPompeiiTrackingPixel(true); },
+                        false
+                    );
+                    Hora._unloadHooked = true;
+                }
+            }
+        };
+
+        /* generateRandomId generates a unique 64-bit ID as a
+         * 16-character hexadecimal string. Code stolen from grog-client.
+         */
+        function generateRandomId() {
+            var characters = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'];
+            var id = [];
+
+            for (var i = 0; i < 16; i++) {
+                var charIndex = Math.floor(Math.random() * 16);
+                id.push(characters[charIndex]);
+            }
+
+            return id.join('');
+        }
+
+        Hora.getPageviewId = function() {
+            /**
+             * Return a unique 64-bit id for the current pageview. If there
+             * is no id yet, generate a random one and queue a 'pageview'
+             * event.
+             */
+            if (!Hora._pompeiiPageviewId) {
+                Hora._pompeiiPageviewId = generateRandomId();
+                Hora.sendToPompeii('pageview', true);
+            }
+            return Hora._pompeiiPageviewId;
+        };
+
+        /******** end of section related to the Pompeii MVP ********/
 
         return Hora;
     });
