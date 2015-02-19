@@ -726,7 +726,7 @@ define([
          * @description Load the given URL (which is assumed to be that
          * of an image) asynchronously.
          * @param url - the URL of the image
-         * @return the Image object (for test code)
+         * @return object - the Image object (for test code)
          * @private - exposed so that test code can override it.
          */
         Hora._loadTrackingPixel = function(url) {
@@ -746,6 +746,7 @@ define([
             // Start the image loading.
             image.src = url;
 
+            // Return the image object (for test code)
             return image;
         };
 
