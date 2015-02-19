@@ -66,8 +66,15 @@ define([
         Hora._trackingPixelDelay = -1;
 
         // Verify how many Pompeii events were sent and clear the
-        // list.
+        // list. Also verify that each contains the pageview id.
         function assertPompeiiEvents(expected) {
+            var expectedQP = 'pageview_id=' + Hora._pompeiiPageviewId;
+            for ( var i = 0; i < trackingPixelsLoaded.length; i++) {
+                assert.include(
+                    trackingPixelsLoaded[i],
+                    expectedQP
+                )
+            }
             assert.lengthOf(trackingPixelsLoaded, expected);
             trackingPixelsLoaded = [];
         }
@@ -113,7 +120,20 @@ define([
             it('correctly passes through correct parameters including defaults', function(done) {
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.lengthOf(arguments, 5);
+
+                    // Since this call is the first one on the page, we expect
+                    // that the first Pompeii tracking pixel URL contains
+                    // 'pageview=true'
+                    assert.include(trackingPixelsLoaded[0], 'pageview=true');
+
+                    // Verify that the correct events data is passed.
+                    assert.include(
+                        trackingPixelsLoaded[0],
+                        'one='+encodeURIComponent('["two","three"]')
+                    );
+
                     assertPompeiiEvents(1);
+
                     done();
                 });
 
