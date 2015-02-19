@@ -83,21 +83,21 @@ define([
             var args = Array.prototype.slice.call(arguments);
 
             // CRTM-128 - use Hora.sendToPompeii to send a duplicate
-            // of the event.
+            // of the event, only if there are some args.
             if (args.length) {
                 if (args.length > 2) {
                     Hora.sendToPompeii(args[0], args.slice(1));
                 } else {
                     Hora.sendToPompeii(args[0], args[1] || true);
                 }
+            }
 
-                args.unshift('mobifyTracker.send', 'event');
+            args.unshift('mobifyTracker.send', 'event');
 
-                if (Hora.isDebug) {
-                    console.log('Parameters: %O', args);
-                } else {
-                    Mobify.analytics.ua.apply(null, args);
-                }
+            if (Hora.isDebug) {
+                console.log('Parameters: %O', args);
+            } else {
+                Mobify.analytics.ua.apply(null, args);
             }
         };
 
@@ -701,16 +701,21 @@ define([
             var components = [];
 
             for (var i = 0; i < events.length; i++) {
-                var pEvent = events[i];
-                var value = pEvent.value;
+                var pEvent = events[i],
+                    name = encodeURIComponent(pEvent.name),
+                    value = pEvent.value;
+
                 if (typeof value === 'string' || value instanceof String) {
-                    components.push(pEvent.name + '=' + encodeURIComponent(value.toString()));
+                    components.push(name + '=' +
+                        encodeURIComponent(value.toString()));
                 } else if (typeof value === 'number') {
-                    components.push(pEvent.name + '=' + value.toString());
+                    components.push(name + '=' + value.toString());
                 } else if (typeof value === 'boolean') {
-                    components.push(pEvent.name + '=' + (value ? 'true' : 'false'));
+                    components.push(name + '=' + (value ? 'true' : 'false'));
                 } else if (typeof value === 'object' && value) {
-                    components.push(pEvent.name + '=' + encodeURIComponent(JSON.stringify(value)));
+                    // This block handles lists (arrays) and objects.
+                    components.push(name + '=' +
+                        encodeURIComponent(JSON.stringify(value)));
                 }
             }
 
@@ -718,17 +723,40 @@ define([
         }
 
         /**
-         * Send all queued events
-         * @param sync - if true, forces the http GET call to be made
-         * synchronously. Normally this should be false to allow the
-         * call to be made asynchronously (using a tracking pixel
-         * image).
+         * @description Load the given URL (which is assumed to be that
+         * of an image) asynchronously.
+         * @param url - the URL of the image
+         * @return the Image object (for test code)
+         * @private - exposed so that test code can override it.
          */
-        function sendPompeiiTrackingPixel(sync) {
+        Hora._loadTrackingPixel = function(url) {
+            // Create an Image to do the loading
+            var image = new Image();
+
+            // Increase the count of loading pixels.
+            Hora._loadingTrackingPixels += 1;
+
+            // Arrange for the Image to be removed from the list
+            // of loading tracking pixels when loading completes (or
+            // errors).
+            image.onload = image.onerror = function() {
+                Hora._loadingTrackingPixels -= 1;
+            };
+
+            // Start the image loading.
+            image.src = url;
+
+            return image;
+        };
+
+        /**
+         * Send all queued events in a tracking pixel
+         */
+        function sendPompeiiTrackingPixel() {
             if (Hora._pompeiiEvents.length) {
                 // Get the pageview id now, so that the start event
                 // is added to the queue before we test it.
-                var pageviewId = Hora._pompeiiPageviewId();
+                var pageviewId = Hora.getPompeiiPageviewId();
 
                 // Build the URL for the tracking pixel
                 var url = 'http://d3u9pmosrlcofa.cloudfront.net/p.gif' +
@@ -737,23 +765,21 @@ define([
 
                 // Clear the event queue now that we have the events in
                 // the URL, and before we make the request.
-                Hora._pompeiiEvents.clear();
+                Hora._pompeiiEvents = [];
 
-                // Use a sync or async way to make the pixel request
-                if (sync) {
-                    // We don't care about the status of the request, we just want it to complete
-                    var client = new XMLHttpRequest();
-                    client.open('GET', url, true);
-                    client.send(null);
-                } else {
-                    var image = new Image();
-                    image.src = url;
-                }
+                // Load the image async
+                Hora._loadTrackingPixel(url);
             }
         }
 
-        // Set when an unload event handler is hooked
-        Hora._unloadHooked = false;
+        /**
+         * Delay, in mS, between sending an event and the tracking pixel
+         * load that sends that event. If this is set to a negative value
+         * then a pixel is sent for each event.
+         * @type {number}
+         * @private - exposed for test code.
+         */
+        Hora._trackingPixelDelay = 500;
 
         Hora.sendToPompeii = function(name, value) {
             /**
@@ -778,19 +804,15 @@ define([
             // If the queue was empty, now it isn't, so we get set up to
             // send the queued events later.
             if (queueWasEmpty) {
-                setTimeout(function() { sendPompeiiTrackingPixel(false); }, 200);
-
-                // We also want to send the data in the event of an unload,
-                // using a sync call. This is kludgy, but
-                // navigator.sendBeacon uses a POST, which doesn't work with
-                // our passive pixel downloader.
-                if (!Hora._unloadHooked) {
-                    window.addEventListener(
-                        'unload',
-                        function() { sendPompeiiTrackingPixel(true); },
-                        false
-                    );
-                    Hora._unloadHooked = true;
+                var delay = Hora._trackingPixelDelay;
+                if (delay >= 0) {
+                    // Send the tracking pixel after a timeout
+                    setTimeout(function () {
+                        sendPompeiiTrackingPixel();
+                    }, delay);
+                } else {
+                    // Send the pixel now
+                    sendPompeiiTrackingPixel();
                 }
             }
         };
@@ -810,7 +832,7 @@ define([
             return id.join('');
         }
 
-        Hora.getPageviewId = function() {
+        Hora.getPompeiiPageviewId = function() {
             /**
              * Return a unique 64-bit id for the current pageview. If there
              * is no id yet, generate a random one and queue a 'pageview'

@@ -50,6 +50,28 @@ define([
     describe('Hora', function() {
         Hora.init();
 
+        // Override the Pompeii tracking pixel loader so that we can
+        // verify pixels are loaded.
+        var loadTrackingPixel = Hora._loadTrackingPixel;
+        var trackingPixelsLoaded = [];
+        Hora._loadTrackingPixel = function(url) {
+            trackingPixelsLoaded.push(url);
+
+            // Don't actually do the load (so that phantomJS doesn't
+            // complain about cancelled image loads).
+            //loadTrackingPixel(url);
+        };
+
+        // Send a tracking pixel for every event, with no delay.
+        Hora._trackingPixelDelay = -1;
+
+        // Verify how many Pompeii events were sent and clear the
+        // list.
+        function assertPompeiiEvents(expected) {
+            assert.lengthOf(trackingPixelsLoaded, expected);
+            trackingPixelsLoaded = [];
+        }
+
         describe('Object', function() {
             it('is correctly returned from hora module', function() {
                 assert.isDefined(Hora);
@@ -80,6 +102,8 @@ define([
             it('correctly passes through default parameters when no parameters passed', function(done) {
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.lengthOf(arguments, 2);
+                    // No Pompeii event should be sent when there are no parameters passed
+                    assertPompeiiEvents(0);
                     done();
                 });
 
@@ -89,6 +113,7 @@ define([
             it('correctly passes through correct parameters including defaults', function(done) {
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.lengthOf(arguments, 5);
+                    assertPompeiiEvents(1);
                     done();
                 });
 
@@ -120,6 +145,7 @@ define([
                     assert.equal(eventAction, 'Load');
                     assert.equal(eventLabel, 'Total ' + size);
                     assert.equal(eventValue, size);
+                    assertPompeiiEvents(2);
                     done();
                 });
 
@@ -480,7 +506,7 @@ define([
         describe('emailMeBack', function() {
             it('correctly sends the Open event', function(done) {
                 var title = 'Test 1';
-                
+
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Email Me Back - ' + title);
                     assert.equal(eventAction, 'Open');
