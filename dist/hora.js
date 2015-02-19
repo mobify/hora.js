@@ -82,6 +82,16 @@ define([
         Hora.send = function() {
             var args = Array.prototype.slice.call(arguments);
 
+            // CRTM-128 - use Hora.sendToPompeii to send a duplicate
+            // of the event, only if there are some args.
+            if (args.length) {
+                if (args.length > 2) {
+                    Hora.sendToPompeii(args[0], args.slice(1));
+                } else {
+                    Hora.sendToPompeii(args[0], args[1] || true);
+                }
+            }
+
             args.unshift('mobifyTracker.send', 'event');
 
             if (Hora.isDebug) {
@@ -671,6 +681,172 @@ define([
                 }
             }
         };
+
+        /******** code in this section is related to the Pompeii MVP ********/
+
+        /**
+         * Queue of events for Pompeii.
+         * Exposed for testing.
+         */
+        Hora._pompeiiEvents = [];
+
+        /**
+         * @description Encode a list of events into a query string. Stolen
+         * from grog-client.
+         * @param events - a list of { name: <something>, value: <something> }
+         * event objects. This list is consumed and is clear on exit.
+         * @private not externally tested
+         */
+        function _encodeQueryString(events) {
+            var components = [];
+
+            for (var i = 0; i < events.length; i++) {
+                var pEvent = events[i],
+                    name = encodeURIComponent(pEvent.name),
+                    value = pEvent.value;
+
+                if (typeof value === 'string' || value instanceof String) {
+                    components.push(name + '=' +
+                        encodeURIComponent(value.toString()));
+                } else if (typeof value === 'number') {
+                    components.push(name + '=' + value.toString());
+                } else if (typeof value === 'boolean') {
+                    components.push(name + '=' + (value ? 'true' : 'false'));
+                } else if (typeof value === 'object' && value) {
+                    // This block handles lists (arrays) and objects.
+                    components.push(name + '=' +
+                        encodeURIComponent(JSON.stringify(value)));
+                }
+            }
+
+            return '?' + components.join('&');
+        }
+
+        /**
+         * @description Load the given URL (which is assumed to be that
+         * of an image) asynchronously.
+         * @param url - the URL of the image
+         * @return object - the Image object (for test code)
+         * @private - exposed so that test code can override it.
+         */
+        Hora._loadTrackingPixel = function(url) {
+            // Create an Image to do the loading
+            var image = new Image();
+
+            // Increase the count of loading pixels.
+            Hora._loadingTrackingPixels += 1;
+
+            // Arrange for the Image to be removed from the list
+            // of loading tracking pixels when loading completes (or
+            // errors).
+            image.onload = image.onerror = function() {
+                Hora._loadingTrackingPixels -= 1;
+            };
+
+            // Start the image loading.
+            image.src = url;
+
+            // Return the image object (for test code)
+            return image;
+        };
+
+        /**
+         * Send all queued events in a tracking pixel
+         */
+        function sendPompeiiTrackingPixel() {
+            if (Hora._pompeiiEvents.length) {
+                // Get the pageview id now, so that the start event
+                // is added to the queue before we test it.
+                var pageviewId = Hora.getPompeiiPageviewId();
+
+                // Build the URL for the tracking pixel
+                var url = 'http://d3u9pmosrlcofa.cloudfront.net/p.gif' +
+                        _encodeQueryString(Hora._pompeiiEvents) +
+                        '&pageview_id=' + pageviewId;
+
+                // Clear the event queue now that we have the events in
+                // the URL, and before we make the request.
+                Hora._pompeiiEvents = [];
+
+                // Load the image async
+                Hora._loadTrackingPixel(url);
+            }
+        }
+
+        /**
+         * Delay, in mS, between sending an event and the tracking pixel
+         * load that sends that event. If this is set to a negative value
+         * then a pixel is sent for each event.
+         * @type {number}
+         * @private - exposed for test code.
+         */
+        Hora._trackingPixelDelay = 500;
+
+        Hora.sendToPompeii = function(name, value) {
+            /**
+             * Send an event with the given name and value to
+             * Pompeii.
+             * Adds the event to the queue and kicks off a callback
+             * to send queued events, unless one is already pending.
+             */
+
+            // If there isn't anything in the event queue now, we
+            // have to kick off the callback.
+            var queueWasEmpty = (!Hora._pompeiiEvents.length);
+
+            // Add the event to the queue.
+            Hora._pompeiiEvents.push(
+                {
+                    'name': name,
+                    'value': value
+                }
+            );
+
+            // If the queue was empty, now it isn't, so we get set up to
+            // send the queued events later.
+            if (queueWasEmpty) {
+                var delay = Hora._trackingPixelDelay;
+                if (delay >= 0) {
+                    // Send the tracking pixel after a timeout
+                    setTimeout(function () {
+                        sendPompeiiTrackingPixel();
+                    }, delay);
+                } else {
+                    // Send the pixel now
+                    sendPompeiiTrackingPixel();
+                }
+            }
+        };
+
+        /* generateRandomId generates a unique 64-bit ID as a
+         * 16-character hexadecimal string. Code stolen from grog-client.
+         */
+        function generateRandomId() {
+            var characters = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'];
+            var id = [];
+
+            for (var i = 0; i < 16; i++) {
+                var charIndex = Math.floor(Math.random() * 16);
+                id.push(characters[charIndex]);
+            }
+
+            return id.join('');
+        }
+
+        Hora.getPompeiiPageviewId = function() {
+            /**
+             * Return a unique 64-bit id for the current pageview. If there
+             * is no id yet, generate a random one and queue a 'pageview'
+             * event.
+             */
+            if (!Hora._pompeiiPageviewId) {
+                Hora._pompeiiPageviewId = generateRandomId();
+                Hora.sendToPompeii('pageview', true);
+            }
+            return Hora._pompeiiPageviewId;
+        };
+
+        /******** end of section related to the Pompeii MVP ********/
 
         return Hora;
     });
