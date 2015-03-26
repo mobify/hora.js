@@ -145,7 +145,7 @@ define([
          * Example: ga('ec:setAction','checkout', {'step': 3, 'option': 'visa credit' });
          */
         Hora.proxyUniversalAnalytics = function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
-            var _theirGA;
+            var _theirGA = window.ga; // If window.ga is set, lets default to that, otherwise it will be set later
 
             var _ourGA = function() {
                 // If their analytics.js has loaded, we have _theirGA and should pass through events
