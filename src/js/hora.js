@@ -305,13 +305,13 @@ define([
             trigger: function (category, label) {
                 Hora.send(category + ' Pinny', 'Trigger By', label);
             }
-        }
+        };
 
         Hora.button = {
             click: function (title) {
                 Hora.send('Button', 'Click', title);
             }
-        }
+        };
 
         return Hora;
     });
