@@ -27,6 +27,10 @@ define([
             }
         });
 
+        Hora.config = {
+            trackInteractions: false
+        };
+
         Hora.__carousels = {
             clear: function() {
                 _carousels = [];
@@ -79,6 +83,26 @@ define([
 
         Hora.send = function() {
             var args = Array.prototype.slice.call(arguments);
+
+            // If we've set the config that we don't want to track interactions
+            // Then lets iterate through the arguments and find if they specify a config
+            // If they do, set the nonInteraction to 1,
+            // If they don't, add the config with nonInteraction set to 1
+            if (!Hora.config.trackInteractions) {
+                var foundConfig = false;
+
+                args.forEach(function(arg) {
+                    if (typeof(arg) === 'object') {
+                        arg.nonInteraction = 1;
+
+                        foundConfig = true;
+                    }
+                });
+
+                if (!foundConfig) {
+                    args.push(NON_INTERACTION);
+                }
+            }
 
             args.unshift('mobifyTracker.send', 'event');
 
