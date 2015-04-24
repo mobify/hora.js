@@ -1,6 +1,6 @@
 {
     "name": "hora.js",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "dependencies": {
         "requirejs": "~2.1.15"
     }
