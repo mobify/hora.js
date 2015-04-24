@@ -1,3 +1,5 @@
+1.2.0
+ - Added viewDesktop click event tracking
 1.1.0
  - Added isDebug flag to optionally not fire events off to GA when debugging
 1.0.0

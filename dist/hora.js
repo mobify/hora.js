@@ -589,6 +589,12 @@ define([
             }
         };
 
+        Hora.viewDesktop = {
+            click: function() {
+                Hora.send('View Desktop', 'Click');
+            }
+        };
+
         /**
          * @description Provides a consistent way to fire transaction tracking in universal analytics
          * via the ecommerce plugin
