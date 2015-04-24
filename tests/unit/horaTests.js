@@ -435,6 +435,18 @@ define([
             });
         });
 
+        describe('view-desktop', function() {
+            it('correctly sends the Click event', function(done) {
+                proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
+                    assert.equal(eventCategory, 'View Desktop');
+                    assert.equal(eventAction, 'Click');
+                    done();
+                });
+
+                Hora.viewDesktop.click();
+            });
+        });
+
         describe('filter', function() {
             it('correctly sends the Toggle event', function(done) {
                 var title = 'Test 1';
@@ -480,7 +492,7 @@ define([
         describe('emailMeBack', function() {
             it('correctly sends the Open event', function(done) {
                 var title = 'Test 1';
-                
+
                 proxyUA(function(action, hitType, eventCategory, eventAction, eventLabel, eventValue, eventParams) {
                     assert.equal(eventCategory, 'Email Me Back - ' + title);
                     assert.equal(eventAction, 'Open');

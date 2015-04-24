@@ -157,7 +157,7 @@ define([
                 return;
             }
 
-            var _theirGA = window.ga; // If window.ga is set, lets default to that, otherwise it will be set later
+            var _theirGA;
 
             var _ourGA = function() {
                 // If their analytics.js has loaded, we have _theirGA and should pass through events
@@ -586,6 +586,12 @@ define([
                 }
 
                 Hora.send('Accordion - ' + title, 'Load', 'Total ' + totalItems, totalItems, NON_INTERACTION);
+            }
+        };
+
+        Hora.viewDesktop = {
+            click: function() {
+                Hora.send('View Desktop', 'Click');
             }
         };
 
