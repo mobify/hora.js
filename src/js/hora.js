@@ -92,7 +92,7 @@ define([
                 var foundConfig = false;
 
                 args.forEach(function(arg) {
-                    if (typeof(arg) === 'object') {
+                    if (arg && typeof(arg) === 'object') {
                         arg.nonInteraction = 1;
 
                         foundConfig = true;
