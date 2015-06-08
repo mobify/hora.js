@@ -14,7 +14,13 @@ define([
         var $doc = $(document);
 
         var Hora = {
-            isDebug: false
+            isDebug: false,
+            event: {
+                accordion: 'Accordion - ',
+                carousel: 'Carousel - ',
+                error: 'Error',
+                scroll: 'Scroll - '
+            }
         };
 
         var NON_INTERACTION = {'nonInteraction': 1};
@@ -40,13 +46,6 @@ define([
                 _accordions = [];
             }
         };
-
-        Hora.event = {
-            accordion: 'Accordion - ',
-            carousel: 'Carousel - ',
-            error: 'Error',
-            scroll: 'Scroll - '
-        }
 
         /**
          * @description Validates whether an object contains all the required properties
@@ -258,7 +257,7 @@ define([
             close: function(title) {
                 Hora.send(title, 'Close');
             }
-        }
+        };
 
         Hora.carousel = {
             // title = Home, PDP, Related Images
