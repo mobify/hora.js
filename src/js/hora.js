@@ -14,13 +14,7 @@ define([
         var $doc = $(document);
 
         var Hora = {
-            isDebug: false,
-            event: {
-                accordion: 'Accordion - ',
-                carousel: 'Carousel - ',
-                error: 'Error',
-                scroll: 'Scroll - '
-            }
+            isDebug: false
         };
 
         var NON_INTERACTION = {'nonInteraction': 1};
@@ -28,6 +22,13 @@ define([
         var _carousels = {};
         var _accordions = {};
         var _swiping = false;
+
+        var EVENT_TITLES = {
+            accordion: 'Accordion - ',
+            carousel: 'Carousel - ',
+            error: 'Error',
+            scroll: 'Scroll - '
+        };
 
         $.extend($, {
             isString: function(obj) {
@@ -219,25 +220,25 @@ define([
 
         Hora.scroll = {
             up: function(title) {
-                Hora.send(Hora.event.scroll + title, 'Up');
+                Hora.send(EVENT_TITLES.scroll + title, 'Up');
             },
             down: function(title) {
-                Hora.send(Hora.event.scroll + title, 'Down');
+                Hora.send(EVENT_TITLES.scroll + title, 'Down');
             },
             top: function(title) {
-                Hora.send(Hora.event.scroll + title, 'Top');
+                Hora.send(EVENT_TITLES.scroll + title, 'Top');
             },
             bottom: function(title) {
-                Hora.send(Hora.event.scroll + title, 'Bottom');
+                Hora.send(EVENT_TITLES.scroll + title, 'Bottom');
             }
         };
 
         Hora.error = {
             generic: function(title, comment) {
-                Hora.send(Hora.event.error, title, comment);
+                Hora.send(EVENT_TITLES.error, title, comment);
             },
             alert: function(comment) {
-                Hora.send(Hora.event.error, 'Alert', comment);
+                Hora.send(EVENT_TITLES.error, 'Alert', comment);
             }
         };
 
@@ -266,7 +267,7 @@ define([
             slide: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
-                title = Hora.event.carousel + title;
+                title = EVENT_TITLES.carousel + title;
 
                 if (_swiping) {
                     // metric15 - First Item
@@ -333,13 +334,13 @@ define([
                 // Initially populate the carousel with the first slide
                 _carousels[title].viewed.push(1);
 
-                Hora.send(Hora.event.carousel + title, 'Load', 'Total ' + totalSlides, totalSlides, NON_INTERACTION);
+                Hora.send(EVENT_TITLES.carousel + title, 'Load', 'Total ' + totalSlides, totalSlides, NON_INTERACTION);
             },
 
             zoom: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
-                title = Hora.event.carousel + title;
+                title = EVENT_TITLES.carousel + title;
 
                 // metric15 - First Item
                 //  1 - was the first item zoomed
@@ -354,7 +355,7 @@ define([
             slideClick: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
-                title = Hora.event.carousel + title;
+                title = EVENT_TITLES.carousel + title;
 
                 // metric15 - First Item
                 //  1 - was the first item clicked
@@ -370,7 +371,7 @@ define([
                 var currentCarousel = _carousels[title];
                 var directionTitle = (direction === -1) ? 'Previous' : 'Next';
 
-                title = Hora.event.carousel + title;
+                title = EVENT_TITLES.carousel + title;
 
                 // metric15 - First Item
                 //  1 - was the first item icon clicked
@@ -387,7 +388,7 @@ define([
             open: function(title, currentItem) {
                 var currentAccordion = _accordions[title];
 
-                title = Hora.event.accordion + title;
+                title = EVENT_TITLES.accordion + title;
 
                 // metric15 - First Item
                 //  1 - was the first item opened
@@ -448,7 +449,7 @@ define([
                     };
                 }
 
-                Hora.send(Hora.event.accordion + title, 'Load', 'Total ' + totalItems, totalItems, NON_INTERACTION);
+                Hora.send(EVENT_TITLES.accordion + title, 'Load', 'Total ' + totalItems, totalItems, NON_INTERACTION);
             }
         };
 
