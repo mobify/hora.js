@@ -41,6 +41,13 @@ define([
             }
         };
 
+        Hora.event = {
+            accordion: 'Accordion - ',
+            carousel: 'Carousel - ',
+            error: 'Error',
+            scroll: 'Scroll - '
+        }
+
         /**
          * @description Validates whether an object contains all the required properties
          * @param name - a name for what the object represents
@@ -211,6 +218,48 @@ define([
             }
         };
 
+        Hora.scroll = {
+            up: function(title) {
+                Hora.send(Hora.event.scroll + title, 'Up');
+            },
+            down: function(title) {
+                Hora.send(Hora.event.scroll + title, 'Down');
+            },
+            top: function(title) {
+                Hora.send(Hora.event.scroll + title, 'Top');
+            },
+            bottom: function(title) {
+                Hora.send(Hora.event.scroll + title, 'Bottom');
+            }
+        };
+
+        Hora.error = {
+            generic: function(title, comment) {
+                Hora.send(Hora.event.error, title, comment);
+            },
+            alert: function(comment) {
+                Hora.send(Hora.event.error, 'Alert', comment);
+            }
+        };
+
+        Hora.action = {
+            click: function(title) {
+                Hora.send(title, 'Click');
+            },
+            toggle: function(title) {
+                Hora.send(title, 'Toggle');
+            },
+            change: function(title) {
+                Hora.send(title, 'Change');
+            },
+            open: function(title) {
+                Hora.send(title, 'Open');
+            },
+            close: function(title) {
+                Hora.send(title, 'Close');
+            }
+        }
+
         Hora.carousel = {
             // title = Home, PDP, Related Images
             // currentSlide = 1, 2, 3, 4, 5, 6
@@ -218,7 +267,7 @@ define([
             slide: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
-                title = 'Carousel - ' + title;
+                title = Hora.event.carousel + title;
 
                 if (_swiping) {
                     // metric15 - First Item
@@ -285,13 +334,13 @@ define([
                 // Initially populate the carousel with the first slide
                 _carousels[title].viewed.push(1);
 
-                Hora.send('Carousel - ' + title, 'Load', 'Total ' + totalSlides, totalSlides, NON_INTERACTION);
+                Hora.send(Hora.event.carousel + title, 'Load', 'Total ' + totalSlides, totalSlides, NON_INTERACTION);
             },
 
             zoom: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
-                title = 'Carousel - ' + title;
+                title = Hora.event.carousel + title;
 
                 // metric15 - First Item
                 //  1 - was the first item zoomed
@@ -306,7 +355,7 @@ define([
             slideClick: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
-                title = 'Carousel - ' + title;
+                title = Hora.event.carousel + title;
 
                 // metric15 - First Item
                 //  1 - was the first item clicked
@@ -322,7 +371,7 @@ define([
                 var currentCarousel = _carousels[title];
                 var directionTitle = (direction === -1) ? 'Previous' : 'Next';
 
-                title = 'Carousel - ' + title;
+                title = Hora.event.carousel + title;
 
                 // metric15 - First Item
                 //  1 - was the first item icon clicked
@@ -335,196 +384,11 @@ define([
             }
         };
 
-        Hora.navigation = {
-            click: function(menuTitle, itemTitle) {
-                Hora.send('Navigation - ' + menuTitle, 'Click', itemTitle);
-            }
-        };
-
-        Hora.search = {
-            toggle: function() {
-                Hora.send('Search', 'Toggle');
-            }
-        };
-
-        Hora.breadcrumb = {
-            click: function() {
-                Hora.send('Breadcrumb', 'Click');
-            }
-        };
-
-        Hora.backToTop = {
-            click: function() {
-                Hora.send('Back To Top', 'Click');
-            }
-        };
-
-        Hora.newsletter = {
-            click: function() {
-                Hora.send('Newsletter', 'Click');
-            }
-        };
-
-        Hora.footer = {
-            click: function() {
-                Hora.send('Footer', 'Click');
-            }
-        };
-
-        Hora.pagination = {
-            click: function() {
-                Hora.send('Pagination', 'Click');
-            }
-        };
-
-        Hora.filter = {
-            toggle: function(title) {
-                Hora.send('Filter - ' + title, 'Toggle');
-            },
-            change: function(title, type, amount) {
-                Hora.send('Filter - ' + title, 'Change: ' + type, amount);
-            }
-        };
-
-        Hora.scroll = {
-            up: function(title) {
-                Hora.send('Scroll - ' + title, 'Up');
-            },
-            down: function(title) {
-                Hora.send('Scroll - ' + title, 'Down');
-            },
-            top: function(title) {
-                Hora.send('Scroll - ' + title, 'Top');
-            },
-            bottom: function(title) {
-                Hora.send('Scroll - ' + title, 'Bottom');
-            }
-        };
-
-        Hora.sizeGuide = {
-            open: function(title) {
-                Hora.send('Size Guide - ' + title, 'Open');
-            }
-        };
-
-        Hora.emailFriend = {
-            open: function(title) {
-                Hora.send('Email Friend - ' + title, 'Open');
-            }
-        };
-
-        Hora.emailMeBack = {
-            open: function(title) {
-                Hora.send('Email Me Back - ' + title, 'Open');
-            }
-        };
-
-        Hora.color = {
-            change: function(title) {
-                Hora.send('Color - ' + title, 'Change');
-            }
-        };
-
-        Hora.quantity = {
-            change: function(title, amount) {
-                Hora.send('Quantity - ' + title, 'Change', null, amount);
-            }
-        };
-
-        Hora.size = {
-            change: function(title, amount) {
-                Hora.send('Size - ' + title, 'Change', null, amount);
-            }
-        };
-
-        Hora.error = {
-            generic: function(title, comment) {
-                Hora.send('Error', title, comment);
-            },
-            alert: function(comment) {
-                Hora.send('Error', 'Alert', comment);
-            },
-            unsuccessfulSubmission: function(comment) {
-                Hora.send('Error', 'Unsuccessful Submission', comment);
-            },
-            unsuccessfulAddToCart: function(comment) {
-                Hora.send('Error', 'Unsuccessful Add To Cart', comment);
-            },
-            unsuccessfulPlaceOrder: function(comment) {
-                Hora.send('Error', 'Unsuccessful Place Order', comment);
-            }
-        };
-
-        Hora.review = {
-            read: function(title) {
-                Hora.send('Review - ' + title, 'Read');
-            }
-        };
-
-        Hora.sidebar = {
-            open: function(title) {
-                Hora.send('Sidebar - ' + title, 'Open');
-            },
-            close: function(title) {
-                Hora.send('Sidebar - ' + title, 'Close');
-            }
-        };
-
-        Hora.cart = {
-            addItem: function() {
-                var fullCarouselView = false;
-
-                for (var title in _carousels) {
-                    if (_carousels.hasOwnProperty(title)) {
-                        var carousel = _carousels[title];
-
-                        if (carousel.fullViewFired) {
-                            fullCarouselView = true;
-                        }
-                    }
-                }
-
-                // metric15 - View All Carousel Slides
-                //  1 - viewed all carousel slides
-                //  0 - didn't view all carousel slides
-                Hora.send('Cart', 'Add Item', 'None', 0, {
-                    'metric15': fullCarouselView ? 1 : 0
-                });
-            },
-            removeItem: function() {
-                Hora.send('Cart', 'Remove Item', 'None', 0);
-            }
-        };
-
-        Hora.minicart = {
-            toggle: function() {
-                Hora.send('Mini-Cart', 'Toggle');
-            },
-
-            enableEdit: function() {
-                Hora.send('Mini-Cart', 'Enable Edit');
-            },
-
-            disableEdit: function() {
-                Hora.send('Mini-Cart', 'Disable Edit');
-            },
-
-            changeQuantity: function(amount) {
-                Hora.quantity.change('Mini-Cart', amount);
-            }
-        };
-
-        Hora.checkout = {
-            start: function(message) {
-                Hora.send('Checkout', 'Start', message);
-            }
-        };
-
         Hora.accordion = {
             open: function(title, currentItem) {
                 var currentAccordion = _accordions[title];
 
-                title = 'Accordion - ' + title;
+                title = Hora.event.accordion + title;
 
                 // metric15 - First Item
                 //  1 - was the first item opened
@@ -585,90 +449,7 @@ define([
                     };
                 }
 
-                Hora.send('Accordion - ' + title, 'Load', 'Total ' + totalItems, totalItems, NON_INTERACTION);
-            }
-        };
-
-        /**
-         * @description Provides a consistent way to fire transaction tracking in universal analytics
-         * via the ecommerce plugin
-         *
-         * @param {string} transactionId
-         * @param {string} affiliation
-         * @param {object} transaction
-         * @param {array} transactionItems
-         *
-         * @example
-         *
-         * Hora.transaction.send('1234', 'Acme Clothing'
-         * {
-         *    'revenue': '11.99',               // Grand Total.
-         *    'shipping': '5',                  // Shipping.
-         *    'tax': '1.29',                    // Tax.
-         *    'currency': 'USD'                 // Currency.
-         * },
-         * [
-         *   {
-         *      'name': 'Fluffy Pink Bunnies',    // Product name. Required.
-         *      'sku': 'DD23444',                 // SKU/code.
-         *      'category': 'Party Toys',         // Category or variation.
-         *      'price': '11.99',                 // Unit price.
-         *      'quantity': '1'                   // Quantity.
-         *     }
-         * ]);
-         *
-         * For more in-depth documentation on Google Analytics Ecommerce Tracking, please see:
-         * https://developers.google.com/analytics/devguides/collection/analyticsjs/ecommerce
-         *
-         */
-        Hora.transaction = {
-            send: function(transactionId, affiliation, transaction, transactionItems) {
-                var ECOMMERCE_PLUGIN = 'mobifyTracker.ecommerce';
-
-                if (!transactionId || !$.isString(transactionId)) {
-                    throw 'Hora.transaction.send requires a string containing the transaction ID, i.e. "1234"';
-                }
-
-                if (!affiliation || !$.isString(affiliation)) {
-                    throw 'Hora.transaction.send requires a string containing the affiliation, usually the project name, i.e. "Acme Clothing"';
-                }
-
-                if (!transaction || !$.isPlainObject(transaction)) {
-                    throw 'Hora.transaction.send requires an object literal containing the transaction details, i.e. {"revenue": "11.99","shipping": "5","tax": "1.29"}';
-                }
-
-                if (!transactionItems || !$.isArray(transactionItems)) {
-                    throw 'Hora.transaction.send requires an Array containing the transaction item details';
-                }
-
-                transaction.id = transactionId;
-                transaction.affiliation = affiliation;
-
-                Hora.__stringifyPropertyValues(transaction);
-
-                !Hora.isDebug && Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':addTransaction', transaction);
-
-                for (var i = 0, l = transactionItems.length; i < l; i++) {
-                    var transactionItem = transactionItems[i];
-
-                    // Universal Analytics requires that the transaction ID is sent for each item added.
-                    // This should match the parent transaction ID submitted in the transaction parameter.
-                    transactionItem.id = transactionId;
-
-                    Hora.__validateObjectSchema('item', transactionItem, ['id', 'name', 'sku']);
-                    Hora.__stringifyPropertyValues(transactionItem);
-
-                    transactionItems[i] = transactionItem;
-
-                    !Hora.isDebug && Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':addItem', transactionItem);
-                }
-
-                if (Hora.isDebug) {
-                    console.log('Transaction: %O', transaction);
-                    console.log('Transaction items: %O', transactionItems);
-                } else {
-                    Mobify.analytics.ua(ECOMMERCE_PLUGIN + ':send');
-                }
+                Hora.send(Hora.event.accordion + title, 'Load', 'Total ' + totalItems, totalItems, NON_INTERACTION);
             }
         };
 
