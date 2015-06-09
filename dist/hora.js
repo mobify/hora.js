@@ -14,13 +14,7 @@ define([
         var $doc = $(document);
 
         var Hora = {
-            isDebug: false,
-            event: {
-                accordion: 'Accordion - ',
-                carousel: 'Carousel - ',
-                error: 'Error',
-                scroll: 'Scroll - '
-            }
+            isDebug: false
         };
 
         var NON_INTERACTION = {'nonInteraction': 1};
@@ -29,11 +23,22 @@ define([
         var _accordions = {};
         var _swiping = false;
 
+        var EVENT_TITLES = {
+            accordion: 'Accordion - ',
+            carousel: 'Carousel - ',
+            error: 'Error',
+            scroll: 'Scroll - '
+        };
+
         $.extend($, {
             isString: function(obj) {
                 return Object.prototype.toString.call(obj) === '[object String]';
             }
         });
+
+        Hora.config = {
+            trackInteractions: false
+        };
 
         Hora.__carousels = {
             clear: function() {
@@ -87,6 +92,26 @@ define([
 
         Hora.send = function() {
             var args = Array.prototype.slice.call(arguments);
+
+            // If we've set the config that we don't want to track interactions
+            // Then lets iterate through the arguments and find if they specify a config
+            // If they do, set the nonInteraction to 1,
+            // If they don't, add the config with nonInteraction set to 1
+            if (!Hora.config.trackInteractions) {
+                var foundConfig = false;
+
+                args.forEach(function(arg) {
+                    if (arg && typeof(arg) === 'object') {
+                        arg.nonInteraction = 1;
+
+                        foundConfig = true;
+                    }
+                });
+
+                if (!foundConfig) {
+                    args.push(NON_INTERACTION);
+                }
+            }
 
             args.unshift('mobifyTracker.send', 'event');
 
@@ -159,11 +184,8 @@ define([
          * Example: ga('ec:setAction','checkout', {'step': 3, 'option': 'visa credit' });
          */
         Hora.proxyUniversalAnalytics = function(action, hitType, eventCategory, eventAction, eventLabel, eventValue) {
-            if (Hora.isDebug) {
-                return;
-            }
 
-            var _theirGA;
+            var _theirGA = window.ga; // If window.ga is set, lets default to that, otherwise it will be set later
 
             var _ourGA = function() {
                 // If their analytics.js has loaded, we have _theirGA and should pass through events
@@ -219,25 +241,25 @@ define([
 
         Hora.scroll = {
             up: function(title) {
-                Hora.send(Hora.event.scroll + title, 'Up');
+                Hora.send(EVENT_TITLES.scroll + title, 'Up');
             },
             down: function(title) {
-                Hora.send(Hora.event.scroll + title, 'Down');
+                Hora.send(EVENT_TITLES.scroll + title, 'Down');
             },
             top: function(title) {
-                Hora.send(Hora.event.scroll + title, 'Top');
+                Hora.send(EVENT_TITLES.scroll + title, 'Top');
             },
             bottom: function(title) {
-                Hora.send(Hora.event.scroll + title, 'Bottom');
+                Hora.send(EVENT_TITLES.scroll + title, 'Bottom');
             }
         };
 
         Hora.error = {
             generic: function(title, comment) {
-                Hora.send(Hora.event.error, title, comment);
+                Hora.send(EVENT_TITLES.error, title, comment);
             },
             alert: function(comment) {
-                Hora.send(Hora.event.error, 'Alert', comment);
+                Hora.send(EVENT_TITLES.error, 'Alert', comment);
             }
         };
 
@@ -266,7 +288,7 @@ define([
             slide: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
-                title = Hora.event.carousel + title;
+                title = EVENT_TITLES.carousel + title;
 
                 if (_swiping) {
                     // metric15 - First Item
@@ -333,13 +355,13 @@ define([
                 // Initially populate the carousel with the first slide
                 _carousels[title].viewed.push(1);
 
-                Hora.send(Hora.event.carousel + title, 'Load', 'Total ' + totalSlides, totalSlides, NON_INTERACTION);
+                Hora.send(EVENT_TITLES.carousel + title, 'Load', 'Total ' + totalSlides, totalSlides, NON_INTERACTION);
             },
 
             zoom: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
-                title = Hora.event.carousel + title;
+                title = EVENT_TITLES.carousel + title;
 
                 // metric15 - First Item
                 //  1 - was the first item zoomed
@@ -354,7 +376,7 @@ define([
             slideClick: function(title, currentSlide) {
                 var currentCarousel = _carousels[title];
 
-                title = Hora.event.carousel + title;
+                title = EVENT_TITLES.carousel + title;
 
                 // metric15 - First Item
                 //  1 - was the first item clicked
@@ -370,7 +392,7 @@ define([
                 var currentCarousel = _carousels[title];
                 var directionTitle = (direction === -1) ? 'Previous' : 'Next';
 
-                title = Hora.event.carousel + title;
+                title = EVENT_TITLES.carousel + title;
 
                 // metric15 - First Item
                 //  1 - was the first item icon clicked
@@ -387,7 +409,7 @@ define([
             open: function(title, currentItem) {
                 var currentAccordion = _accordions[title];
 
-                title = Hora.event.accordion + title;
+                title = EVENT_TITLES.accordion + title;
 
                 // metric15 - First Item
                 //  1 - was the first item opened
@@ -448,7 +470,7 @@ define([
                     };
                 }
 
-                Hora.send(Hora.event.accordion + title, 'Load', 'Total ' + totalItems, totalItems, NON_INTERACTION);
+                Hora.send(EVENT_TITLES.accordion + title, 'Load', 'Total ' + totalItems, totalItems, NON_INTERACTION);
             }
         };
 

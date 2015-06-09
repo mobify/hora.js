@@ -49,6 +49,7 @@ define([
 
     describe('Hora', function() {
         Hora.init();
+        Hora.config.trackInteractions = true;
 
         describe('Object', function() {
             it('is correctly returned from hora module', function() {
