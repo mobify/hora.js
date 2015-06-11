@@ -172,7 +172,7 @@ define([
             var originalPush = window._gaq.push;
 
             window._gaq.push = function(data) {
-                Hora.send('Desktop Event: ' + data[1], data[2], data[3], NON_INTERACTION);
+                Hora.send('Desktop Event: ' + data[1], data[2], data[3]);
 
                 return originalPush(data);
             };
@@ -235,7 +235,7 @@ define([
             change: function() {
                 var position = (window.innerHeight > window.innerWidth) ? 'Landscape to Portrait' : 'Portrait to Landscape';
 
-                Hora.send('Orientation', 'Change', position, NON_INTERACTION);
+                Hora.send('Orientation', 'Change', position);
             }
         };
 
@@ -355,7 +355,7 @@ define([
                 // Initially populate the carousel with the first slide
                 _carousels[title].viewed.push(1);
 
-                Hora.send(EVENT_TITLES.carousel + title, 'Load', 'Total ' + totalSlides, totalSlides, NON_INTERACTION);
+                Hora.send(EVENT_TITLES.carousel + title, 'Load', 'Total ' + totalSlides, totalSlides);
             },
 
             zoom: function(title, currentSlide) {
@@ -470,7 +470,7 @@ define([
                     };
                 }
 
-                Hora.send(EVENT_TITLES.accordion + title, 'Load', 'Total ' + totalItems, totalItems, NON_INTERACTION);
+                Hora.send(EVENT_TITLES.accordion + title, 'Load', 'Total ' + totalItems, totalItems);
             }
         };
 
