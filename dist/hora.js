@@ -116,7 +116,7 @@ define([
             args.unshift('mobifyTracker.send', 'event');
 
             if (Hora.isDebug) {
-                console.log('Parameters: %O', args);
+                console.log('Hora.js sends an event with the following parameters:\n%O', args);
             } else {
                 Mobify.analytics.ua.apply(null, args);
             }
