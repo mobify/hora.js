@@ -86,7 +86,7 @@ define([
 
             if (Hora.isDebug) {
                 console.log('%cHora Parameters: %O', 'background: #222; color: #bada55', args);
-            } else {
+            } else if (Mobify.analytics) {
                 Mobify.analytics.ua.apply(null, args);
             }
         };
